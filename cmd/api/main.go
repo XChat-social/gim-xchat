@@ -65,6 +65,7 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("JSON encoding error: %v\n", err)
 		return
 	}
+	log.Printf("Twitter sign-in successful: %+v\n", grpcResp)
 }
 
 func main() {
