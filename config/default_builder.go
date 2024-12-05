@@ -22,9 +22,11 @@ func (*defaultBuilder) Build() Configuration {
 
 	// 初始化 Redis 客户端
 	rdb := redis.NewClient(&redis.Options{
-		Addr:      "clustercfg.xchat-dev.y60xry.eun1.cache.amazonaws.com:6379", // 替换为你的 Redis 地址
-		Password:  "",                                                          // 如果没有密码留空
-		TLSConfig: &tls.Config{},                                               // 配置 TLS 支持
+		Addr:     "clustercfg.xchat-dev.y60xry.eun1.cache.amazonaws.com:6379", // 替换为你的 Redis 地址
+		Password: "",                                                          // 如果没有密码留空
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		}, // 配置 TLS 支持
 	})
 
 	// 测试 Redis 连接
