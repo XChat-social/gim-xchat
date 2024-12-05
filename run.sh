@@ -27,6 +27,16 @@ echo "停止connect服务"
 nohup ./connect > ../../connect.log 2>&1 &
 echo "启动connect服务"
 
+
+cd ../api || exit
+rm -f api
+go build -o api main.go
+echo "打包 api 成功"
+pkill api || echo "No api process found"
+echo "停止 api 服务"
+nohup ./api > ../../api.log 2>&1 &
+echo "启动 api 服务"
+
 echo "所有服务已启动！后台运行中。"
 
 
