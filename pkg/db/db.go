@@ -1,6 +1,7 @@
 package db
 
 import (
+	"crypto/tls"
 	"fmt"
 	"gim/config"
 	"gim/pkg/logger"
@@ -42,6 +43,9 @@ func InitRedis(addr, password string) {
 		Addr:     addr,
 		DB:       0,
 		Password: password,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
 	})
 
 	_, err := RedisCli.Ping().Result()
