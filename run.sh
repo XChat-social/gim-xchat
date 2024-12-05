@@ -26,6 +26,15 @@ sleep 2
 nohup ./connect &
 echo "启动connect服务"
 
+cd ../api
+rm -f api
+go build -o api main.go
+echo "打包api成功"
+pkill api
+echo "停止api服务"
+sleep 2
+nohup ./connect &
+echo "启动api服务"
 #cd ../file
 #rm -f file
 #go build -o file main.go
