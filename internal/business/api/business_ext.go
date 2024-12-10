@@ -127,6 +127,30 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 	}, nil
 }
 
+func (s *BusinessExtServer) DailySignIn(ctx context.Context, req *pb.DailySignInReq) (*pb.DailySignInResp, error) {
+	rewardAmount, message, err := app2.UserApp.DailySignIn(ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DailySignInResp{
+		RewardAmount: int32(rewardAmount),
+		Message:      message,
+	}, nil
+}
+
+func (s *BusinessExtServer) ClaimSevenDayReward(ctx context.Context, req *pb.ClaimSevenDayRewardReq) (*pb.ClaimSevenDayRewardResp, error) {
+	rewardAmount, message, err := app2.UserApp.ClaimSevenDayReward(ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ClaimSevenDayRewardResp{
+		RewardAmount: int32(rewardAmount),
+		Message:      message,
+	}, nil
+}
+
 // exchangeCodeForToken 用授权码换取 Access Token
 func exchangeCodeForToken(code, codeVerifier string) (string, error) {
 	data := url.Values{

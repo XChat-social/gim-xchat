@@ -1,6 +1,6 @@
 syntax = "proto3";
 package pb;
-option go_package = "xchat-gim/pkg/protocol/pb";
+option go_package = "gim-xchat/pkg/protocol/pb";
 
 service RewardService {
   // 每日签到接口

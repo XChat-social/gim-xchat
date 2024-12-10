@@ -26,6 +26,8 @@ const (
 	BusinessExt_SearchUser_FullMethodName             = "/pb.BusinessExt/SearchUser"
 	BusinessExt_GetTwitterAuthorizeURL_FullMethodName = "/pb.BusinessExt/GetTwitterAuthorizeURL"
 	BusinessExt_TwitterSignIn_FullMethodName          = "/pb.BusinessExt/TwitterSignIn"
+	BusinessExt_DailySignIn_FullMethodName            = "/pb.BusinessExt/DailySignIn"
+	BusinessExt_ClaimSevenDayReward_FullMethodName    = "/pb.BusinessExt/ClaimSevenDayReward"
 )
 
 // BusinessExtClient is the client API for BusinessExt service.
@@ -44,6 +46,10 @@ type BusinessExtClient interface {
 	GetTwitterAuthorizeURL(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TwitterAuthorizeURLResp, error)
 	// 推特登录
 	TwitterSignIn(ctx context.Context, in *TwitterSignInReq, opts ...grpc.CallOption) (*TwitterSignInResp, error)
+	// 每日签到接口
+	DailySignIn(ctx context.Context, in *DailySignInReq, opts ...grpc.CallOption) (*DailySignInResp, error)
+	// 连续7天奖励接口
+	ClaimSevenDayReward(ctx context.Context, in *ClaimSevenDayRewardReq, opts ...grpc.CallOption) (*ClaimSevenDayRewardResp, error)
 }
 
 type businessExtClient struct {
@@ -114,6 +120,26 @@ func (c *businessExtClient) TwitterSignIn(ctx context.Context, in *TwitterSignIn
 	return out, nil
 }
 
+func (c *businessExtClient) DailySignIn(ctx context.Context, in *DailySignInReq, opts ...grpc.CallOption) (*DailySignInResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DailySignInResp)
+	err := c.cc.Invoke(ctx, BusinessExt_DailySignIn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *businessExtClient) ClaimSevenDayReward(ctx context.Context, in *ClaimSevenDayRewardReq, opts ...grpc.CallOption) (*ClaimSevenDayRewardResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimSevenDayRewardResp)
+	err := c.cc.Invoke(ctx, BusinessExt_ClaimSevenDayReward_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BusinessExtServer is the server API for BusinessExt service.
 // All implementations must embed UnimplementedBusinessExtServer
 // for forward compatibility.
@@ -130,6 +156,10 @@ type BusinessExtServer interface {
 	GetTwitterAuthorizeURL(context.Context, *emptypb.Empty) (*TwitterAuthorizeURLResp, error)
 	// 推特登录
 	TwitterSignIn(context.Context, *TwitterSignInReq) (*TwitterSignInResp, error)
+	// 每日签到接口
+	DailySignIn(context.Context, *DailySignInReq) (*DailySignInResp, error)
+	// 连续7天奖励接口
+	ClaimSevenDayReward(context.Context, *ClaimSevenDayRewardReq) (*ClaimSevenDayRewardResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
 
@@ -157,6 +187,12 @@ func (UnimplementedBusinessExtServer) GetTwitterAuthorizeURL(context.Context, *e
 }
 func (UnimplementedBusinessExtServer) TwitterSignIn(context.Context, *TwitterSignInReq) (*TwitterSignInResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TwitterSignIn not implemented")
+}
+func (UnimplementedBusinessExtServer) DailySignIn(context.Context, *DailySignInReq) (*DailySignInResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DailySignIn not implemented")
+}
+func (UnimplementedBusinessExtServer) ClaimSevenDayReward(context.Context, *ClaimSevenDayRewardReq) (*ClaimSevenDayRewardResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimSevenDayReward not implemented")
 }
 func (UnimplementedBusinessExtServer) mustEmbedUnimplementedBusinessExtServer() {}
 func (UnimplementedBusinessExtServer) testEmbeddedByValue()                     {}
@@ -287,6 +323,42 @@ func _BusinessExt_TwitterSignIn_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BusinessExt_DailySignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DailySignInReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).DailySignIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_DailySignIn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).DailySignIn(ctx, req.(*DailySignInReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BusinessExt_ClaimSevenDayReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimSevenDayRewardReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).ClaimSevenDayReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_ClaimSevenDayReward_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).ClaimSevenDayReward(ctx, req.(*ClaimSevenDayRewardReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BusinessExt_ServiceDesc is the grpc.ServiceDesc for BusinessExt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -317,6 +389,14 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TwitterSignIn",
 			Handler:    _BusinessExt_TwitterSignIn_Handler,
+		},
+		{
+			MethodName: "DailySignIn",
+			Handler:    _BusinessExt_DailySignIn_Handler,
+		},
+		{
+			MethodName: "ClaimSevenDayReward",
+			Handler:    _BusinessExt_ClaimSevenDayReward_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
