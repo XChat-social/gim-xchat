@@ -31,8 +31,12 @@ func (*defaultBuilder) Build() Configuration {
 	//}
 
 	return Configuration{
-		MySQL:                "xchat:6TsXay5!h.pMnm3@tcp(database-1.chw4qwku6qx0.eu-north-1.rds.amazonaws.com:3306)/xchat?charset=utf8&parseTime=true",
-		RedisHost:            "127.0.0.1:6379",
+		MySQL:     "xchat:6TsXay5!h.pMnm3@tcp(database-1.chw4qwku6qx0.eu-north-1.rds.amazonaws.com:3306)/xchat?charset=utf8&parseTime=true",
+		RedisHost: "127.0.0.1:6379",
+		//MySQL:                "root:root@tcp(host.docker.internal:3306)/xchat?charset=utf8&parseTime=true",
+		//RedisHost:            "host.docker.internal:6379",
+		//MySQL:                "root:root@tcp(127.0.0.1:3306)/xchat?charset=utf8&parseTime=true",
+		//RedisHost:            "127.0.0.1:6379",
 		RedisPassword:        "",
 		PushRoomSubscribeNum: 100,
 		PushAllSubscribeNum:  100,
