@@ -16,7 +16,10 @@ static_resources:
                     - name: grpc_services
                       domains: ["*"]
                       cors:
-                        allow_origin: ["*"]
+                        allow_origin_string_match:
+                          - safe_regex:
+                              google_re2: {}
+                              regex: ".*" # 允许所有来源
                         allow_methods: "GET, POST, OPTIONS, PUT, DELETE"
                         allow_headers: "content-type, x-grpc-web, authorization"
                         expose_headers: "grpc-status, grpc-message"
@@ -81,6 +84,7 @@ static_resources:
       connect_timeout: 0.25s
       type: LOGICAL_DNS
       lb_policy: ROUND_ROBIN
+      http2_protocol_options: {}
       load_assignment:
         cluster_name: api_service
         endpoints:
