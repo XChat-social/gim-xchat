@@ -22,9 +22,11 @@ func (*defaultBuilder) Build() Configuration {
 
 	// 初始化 Redis 客户端
 	rdb := redis.NewClient(&redis.Options{
-		Addr:      "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
-		Password:  "",
-		TLSConfig: &tls.Config{},
+		Addr:     "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
+		Password: "",
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
 	})
 
 	_, err := rdb.Ping().Result()
