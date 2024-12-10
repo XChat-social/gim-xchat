@@ -19,7 +19,7 @@ static_resources:
                         allow_origin_string_match:
                           - safe_regex:
                               google_re2: {}
-                              regex: ".*" # 允许所有来源
+                              regex: ".*"
                         allow_methods: "GET, POST, OPTIONS, PUT, DELETE"
                         allow_headers: "content-type, x-grpc-web, authorization"
                         expose_headers: "grpc-status, grpc-message"
@@ -39,16 +39,6 @@ static_resources:
                             cluster: api_service
                 http_filters:
                   - name: envoy.filters.http.cors
-                    typed_config:
-                      "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
-                      allow_origin_string_match:
-                        - safe_regex:
-                            google_re2: {}
-                            regex: ".*" # 允许所有来源
-                      allow_methods: "GET, POST, OPTIONS, PUT, DELETE"
-                      allow_headers: "content-type, x-grpc-web, authorization"
-                      expose_headers: "grpc-status, grpc-message"
-                      max_age: "86400"
                   - name: envoy.filters.http.grpc_web
                   - name: envoy.filters.http.router
   clusters:
@@ -92,7 +82,6 @@ static_resources:
       connect_timeout: 0.25s
       type: LOGICAL_DNS
       lb_policy: ROUND_ROBIN
-      http2_protocol_options: {}
       load_assignment:
         cluster_name: api_service
         endpoints:
