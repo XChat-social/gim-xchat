@@ -15,7 +15,7 @@ import (
 
 const (
 	grpcAddress = "localhost:8020" // gRPC 服务地址
-	httpAddress = ":8081"          // HTTP 服务地址
+	httpAddress = ":8080"          // HTTP 服务地址
 )
 
 // TwitterSignInHandler 处理 Twitter 回调请求
