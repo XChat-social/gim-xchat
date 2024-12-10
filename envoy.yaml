@@ -32,8 +32,7 @@ static_resources:
                   - name: envoy.filters.http.cors
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
-                      allow_origin_string_match:
-                        - prefix: "*"  # 允许所有来源
+                      allow_origin: ["*"]
                       allow_methods: "GET, POST, OPTIONS"
                       allow_headers: "content-type, x-grpc-web"
                       expose_headers: "grpc-status, grpc-message"
