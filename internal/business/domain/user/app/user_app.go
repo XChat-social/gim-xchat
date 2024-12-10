@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"gim/internal/business/domain/user/service"
 	"time"
 
 	"gim/internal/business/domain/user/repo"
@@ -63,4 +64,12 @@ func (*userApp) Search(ctx context.Context, key string) ([]*pb.User, error) {
 		pbUsers[i] = v.ToProto()
 	}
 	return pbUsers, nil
+}
+
+func (*userApp) DailySignIn(ctx context.Context, userId int64) (int, string, error) {
+	return service.RewardService.DailySignIn(ctx, userId)
+}
+
+func (*userApp) ClaimSevenDayReward(ctx context.Context, userId int64) (int, string, error) {
+	return service.RewardService.ClaimSevenDayReward(ctx, userId)
 }
