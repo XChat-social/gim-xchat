@@ -81,7 +81,6 @@ static_resources:
       connect_timeout: 0.25s
       type: LOGICAL_DNS
       lb_policy: ROUND_ROBIN
-      http1_protocol_options: {} # API 服务通常是 HTTP/1.1
       load_assignment:
         cluster_name: api_service
         endpoints:
