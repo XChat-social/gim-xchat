@@ -22,12 +22,17 @@ func (*defaultBuilder) Build() Configuration {
 
 	// 初始化 Redis 客户端
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
-		Password: "",
+		Addr:     "clustercfg.xchat-dev.y60xry.eun1.cache.amazonaws.com:6379", // 替换为你的 Redis 地址
+		Password: "",                                                          // 如果没有密码留空
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: true,
-		},
+		}, // 配置 TLS 支持
 	})
+
+	// 测试 Redis 连接
+	if _, err := rdb.Ping().Result(); err != nil {
+		panic(fmt.Sprintf("Failed to connect to Redis: %v", err))
+	}
 
 	_, err := rdb.Ping().Result()
 	if err != nil {
@@ -36,7 +41,7 @@ func (*defaultBuilder) Build() Configuration {
 
 	return Configuration{
 		MySQL:     "xchat:6TsXay5!h.pMnm3@tcp(database-1.chw4qwku6qx0.eu-north-1.rds.amazonaws.com:3306)/xchat?charset=utf8&parseTime=true",
-		RedisHost: "127.0.0.1:6379",
+		RedisHost: "clustercfg.xchat-dev.y60xry.eun1.cache.amazonaws.com:6379", // Redis 地址
 		//MySQL:                "root:root@tcp(host.docker.internal:3306)/xchat?charset=utf8&parseTime=true",
 		//RedisHost:            "host.docker.internal:6379",
 		//MySQL:                "root:root@tcp(127.0.0.1:3306)/xchat?charset=utf8&parseTime=true",
