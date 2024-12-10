@@ -15,6 +15,11 @@ static_resources:
                   virtual_hosts:
                     - name: grpc_services
                       domains: ["*"]
+                      cors:
+                        allow_origin: ["*"]
+                        allow_methods: "GET, POST, OPTIONS, PUT, DELETE"
+                        allow_headers: "content-type, x-grpc-web, authorization"
+                        expose_headers: "grpc-status, grpc-message"
                       routes:
                         - match: { prefix: "/connect" }
                           route:
@@ -32,13 +37,6 @@ static_resources:
                   - name: envoy.filters.http.cors
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.CorsPolicy
-                      allow_origin_string_match:
-                        - safe_regex:
-                            google_re2: { }
-                            regex: ".*" # 允许所有来源
-                      allow_methods: "GET, POST, OPTIONS"
-                      allow_headers: "content-type, x-grpc-web"
-                      expose_headers: "grpc-status, grpc-message"
                       max_age: "86400"
                   - name: envoy.filters.http.grpc_web
                   - name: envoy.filters.http.router
