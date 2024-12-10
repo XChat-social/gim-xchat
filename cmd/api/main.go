@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	pb "gim/pkg/protocol/pb" // 引入生成的 gRPC 包
 
@@ -13,17 +15,17 @@ import (
 
 const (
 	grpcAddress = "localhost:8020" // gRPC 服务地址
-	httpAddress = ":8080"          // HTTP 服务地址
+	httpAddress = ":8081"          // HTTP 服务地址
 )
 
 // TwitterSignInHandler 处理 Twitter 回调请求
 func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet { // 回调使用 GET 方法
+	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// 从查询参数中提取 authorization_code 和 state
+	// 提取回调参数
 	authorizationCode := r.URL.Query().Get("code")
 	if authorizationCode == "" {
 		http.Error(w, "Authorization code is required", http.StatusBadRequest)
@@ -46,11 +48,9 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	client := pb.NewBusinessExtClient(conn)
-
-	// 调用 gRPC 方法
 	grpcResp, err := client.TwitterSignIn(context.Background(), &pb.TwitterSignInReq{
 		AuthorizationCode: authorizationCode,
-		State:             state, // 包含 state 参数
+		State:             state,
 	})
 	if err != nil {
 		http.Error(w, "Failed to call gRPC service: "+err.Error(), http.StatusInternalServerError)
@@ -58,13 +58,26 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 将 gRPC 响应返回为 JSON
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(grpcResp); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		log.Printf("JSON encoding error: %v\n", err)
-		return
-	}
+	// 提取 gRPC 响应中的用户信息
+	token := grpcResp.Token
+	userId := grpcResp.UserId
+	nickname := grpcResp.UserInfo.Nickname
+	avatarUrl := grpcResp.UserInfo.AvatarUrl
+	twitterUsername := grpcResp.UserInfo.TwitterUsername
+
+	// 构造插件页面的跳转 URL，附加用户信息
+	redirectURL := fmt.Sprintf(
+		"chrome-extension://<extension-id>/popup.html?token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s",
+		url.QueryEscape(token),
+		url.QueryEscape(strconv.FormatInt(userId, 10)),
+		url.QueryEscape(nickname),
+		url.QueryEscape(avatarUrl),
+		url.QueryEscape(twitterUsername),
+	)
+
+	// 重定向到插件页面
+	http.Redirect(w, r, redirectURL, http.StatusFound)
+	log.Printf("Redirecting to: %s\n", redirectURL)
 }
 
 func main() {
