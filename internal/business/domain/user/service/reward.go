@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"gim/internal/business/domain/user/model"
-	"gim/internal/business/domain/user/repo"
 	"gim/pkg/db"
+	"github.com/jinzhu/gorm"
 	"math/rand"
 	"time"
 )
@@ -14,6 +14,7 @@ type rewardService struct{}
 
 var RewardService = new(rewardService)
 
+// DailySignIn 处理每日签到逻辑
 func (*rewardService) DailySignIn(ctx context.Context, userID int64) (int, string, error) {
 	// Redis Key
 	key := fmt.Sprintf("signin:%d", userID)
@@ -36,10 +37,21 @@ func (*rewardService) DailySignIn(ctx context.Context, userID int64) (int, strin
 		return 0, "", fmt.Errorf("failed to set redis bit: %w", err)
 	}
 
-	// 奖励 +1 XPoint
+	// 更新积分到数据库并记录日志
+	err = updateXPoint(ctx, userID, 1, "Daily sign-in")
+	if err != nil {
+		// 如果数据库操作失败，手动回滚 Redis
+		rollbackErr := db.RedisCli.SetBit(key, offset, 0).Err()
+		if rollbackErr != nil {
+			return 0, "", fmt.Errorf("failed to update xpoint and rollback redis: %w", rollbackErr)
+		}
+		return 0, "", fmt.Errorf("failed to update xpoint: %w", err)
+	}
+
 	return 1, "Sign-in successful", nil
 }
 
+// ClaimSevenDayReward 处理连续 7 天签到奖励逻辑
 func (*rewardService) ClaimSevenDayReward(ctx context.Context, userID int64) (int, string, error) {
 	// Redis Key
 	key := fmt.Sprintf("signin:%d", userID)
@@ -47,7 +59,7 @@ func (*rewardService) ClaimSevenDayReward(ctx context.Context, userID int64) (in
 	// 获取今天的位偏移
 	todayOffset := time.Now().UTC().Unix() / 86400
 
-	// 检查最近7天的签到状态
+	// 检查最近 7 天的签到状态
 	consecutive := true
 	for i := 0; i < 7; i++ {
 		bit, err := db.RedisCli.GetBit(key, todayOffset-int64(i)).Result()
@@ -70,15 +82,10 @@ func (*rewardService) ClaimSevenDayReward(ctx context.Context, userID int64) (in
 	// 计算随机奖励
 	rewardAmount := calculateRandomReward()
 
-	// 持久化奖励信息到数据库
-	_, err = repo.UserRewardDao.Add(model.UserReward{
-		UserID:       userID,
-		RewardType:   2,
-		RewardAmount: int32(rewardAmount),
-		RewardDate:   time.Now(),
-	})
+	// 更新积分到数据库并记录日志
+	err = updateXPoint(ctx, userID, rewardAmount, "Seven-day consecutive sign-in")
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to add reward: %w", err)
+		return 0, "", fmt.Errorf("failed to update xpoint: %w", err)
 	}
 
 	// 标记奖励已领取
@@ -109,4 +116,44 @@ func calculateRandomReward() int {
 		}
 	}
 	return 10 // 默认最小奖励
+}
+
+// updateXPoint 更新用户积分并记录日志
+func updateXPoint(ctx context.Context, userID int64, changeAmount int, reason string) error {
+	tx := db.DB.Begin()
+	if tx.Error != nil {
+		return fmt.Errorf("failed to begin transaction: %w", tx.Error)
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// 更新用户积分
+	err := tx.Model(&model.User{}).Where("id = ?", userID).Update("xpoint", gorm.Expr("xpoint + ?", changeAmount)).Error
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to update xpoint in user table: %w", err)
+	}
+
+	// 记录积分变动日志
+	log := model.XPointLog{
+		UserID:       uint64(userID),
+		ChangeAmount: changeAmount,
+		Reason:       reason,
+		CreateTime:   time.Now(),
+	}
+	if err := tx.Create(&log).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to insert xpoint log: %w", err)
+	}
+
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }

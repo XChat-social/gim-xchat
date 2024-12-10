@@ -46,6 +46,7 @@ message User {
   int64 update_time = 7;        // 更新时间
   string twitter_id = 8;        // 推特id
   string twitter_username = 9;  // 推特用户名
+  int32 xpoint = 10; // 用户当前积分
 }
 
 message GetUserReq {

@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"gim/internal/business/domain/user/model"
 	"gim/internal/business/domain/user/repo"
 	"gim/pkg/gerrors"
@@ -131,19 +130,11 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 
 // GenerateToken 生成会话 Token
 func GenerateToken() string {
-	// Step 1: 生成随机数
 	randomBytes := make([]byte, 16) // 16 字节随机数
 	_, err := rand.Read(randomBytes)
 	if err != nil {
 		return ""
 	}
 	randomString := hex.EncodeToString(randomBytes)
-
-	// Step 2: 添加时间戳
-	timestamp := time.Now().Unix()
-
-	// Step 3: 拼接随机数和时间戳生成 Token
-	token := fmt.Sprintf("%s:%d", randomString, timestamp)
-
-	return token
+	return randomString
 }
