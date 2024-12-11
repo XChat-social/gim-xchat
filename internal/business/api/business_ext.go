@@ -29,7 +29,8 @@ const (
 	clientID            = "YS01bVJhaXdIdEN4X3N5cjNlQzM6MTpjaQ"                 // 替换为实际的 Client ID
 	clientSecret        = "JbYIsa77FIbRVc_ZY4238KaPV3Y-K-G5ylbOfuDHgVr8WtgEvO" // 替换为实际的 Client Secret
 	redirectURI         = "http://13.61.35.52:8080/twitter/signin"
-	stateTTL            = 5 * time.Minute // Redis state & verifier TTL
+	officialTwitterID   = "1837782128660017152" // 替换为 XChat 官方 Twitter 的实际 ID
+	stateTTL            = 5 * time.Minute       // Redis state & verifier TTL
 )
 
 func (s *BusinessExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.SignInResp, error) {
@@ -79,7 +80,7 @@ func (s *BusinessExtServer) GetTwitterAuthorizeURL(ctx context.Context, req *emp
 	}
 
 	authorizeURL := fmt.Sprintf(
-		"%s?response_type=code&client_id=%s&redirect_uri=%s&scope=tweet.read users.read&state=%s&code_challenge=%s&code_challenge_method=S256",
+		"%s?response_type=code&client_id=%s&redirect_uri=%s&scope=tweet.read users.read follows.read follows.write&state=%s&code_challenge=%s&code_challenge_method=S256",
 		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURI), state, codeChallenge,
 	)
 
@@ -108,7 +109,7 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 		return nil, fmt.Errorf("failed to fetch Twitter user info: %w", err)
 	}
 
-	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar)
+	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sign in user: %w", err)
 	}
@@ -148,6 +149,18 @@ func (s *BusinessExtServer) ClaimSevenDayReward(ctx context.Context, req *pb.Cla
 	return &pb.ClaimSevenDayRewardResp{
 		RewardAmount: int32(rewardAmount),
 		Message:      message,
+	}, nil
+}
+
+func (s *BusinessExtServer) ClaimTwitterFollowReward(ctx context.Context, req *pb.ClaimTwitterFollowRewardReq) (*pb.ClaimTwitterFollowRewardResp, error) {
+	success, message, err := app2.UserApp.ClaimFollowReward(ctx, req, officialTwitterID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ClaimTwitterFollowRewardResp{
+		Success: success,
+		Message: message,
 	}, nil
 }
 

@@ -18,6 +18,11 @@ func (*userApp) Get(ctx context.Context, userId int64) (*pb.User, error) {
 	return user.ToProto(), err
 }
 
+func (*userApp) GetNew(ctx context.Context, userId int64) (*pb.User, error) {
+	user, err := repo.UserRepo.GetNew(userId)
+	return user.ToProto(), err
+}
+
 func (*userApp) Update(ctx context.Context, userId int64, req *pb.UpdateUserReq) error {
 	u, err := repo.UserRepo.Get(userId)
 	if err != nil {
@@ -72,4 +77,8 @@ func (*userApp) DailySignIn(ctx context.Context, userId int64) (int, string, err
 
 func (*userApp) ClaimSevenDayReward(ctx context.Context, userId int64) (int, string, error) {
 	return service.RewardService.ClaimSevenDayReward(ctx, userId)
+}
+
+func (a *userApp) ClaimFollowReward(ctx context.Context, req *pb.ClaimTwitterFollowRewardReq, officialTwitterID string) (int32, string, error) {
+	return service.RewardService.ClaimFollowReward(ctx, req, officialTwitterID)
 }

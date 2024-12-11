@@ -88,7 +88,7 @@ func (*authService) Auth(ctx context.Context, userId, deviceId int64, token stri
 }
 
 // TwitterSignIn 实现 Twitter 登录逻辑
-func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar string) (bool, int64, string, error) {
+func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar, accessToken string) (bool, int64, string, error) {
 	// Step 1: 检查用户是否存在
 	user, err := repo.UserRepo.GetByTwitterID(twitterID)
 	if err != nil {
@@ -117,9 +117,10 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 
 	// Step 4: 保存 Token 信息
 	err = repo.AuthRepo.Set(user.Id, 0, model.Device{ // DeviceId 设为 0 表示无需设备信息
-		Type:   0,
-		Token:  token,
-		Expire: time.Now().AddDate(0, 0, 1).Unix(),
+		Type:        0,
+		Token:       token,
+		AccessToken: accessToken,
+		Expire:      time.Now().AddDate(0, 0, 1).Unix(),
 	})
 	if err != nil {
 		return false, 0, "", err
