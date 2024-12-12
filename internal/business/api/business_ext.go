@@ -28,7 +28,7 @@ const (
 	twitterUserInfoURL  = "https://api.twitter.com/2/users/me"
 	clientID            = "YS01bVJhaXdIdEN4X3N5cjNlQzM6MTpjaQ"                 // 替换为实际的 Client ID
 	clientSecret        = "JbYIsa77FIbRVc_ZY4238KaPV3Y-K-G5ylbOfuDHgVr8WtgEvO" // 替换为实际的 Client Secret
-	redirectURI         = "http://13.61.35.52:8080/twitter/signin"
+	redirectURI         = "https://api.xchat.social/api/twitter/signin"
 	officialTwitterID   = "1837782128660017152" // 替换为 XChat 官方 Twitter 的实际 ID
 	stateTTL            = 5 * time.Minute       // Redis state & verifier TTL
 )
