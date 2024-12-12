@@ -28,14 +28,20 @@ func main() {
 
 	// gRPC-Web 包装器，添加 CORS 支持
 	grpcWebServer := grpcweb.WrapServer(server,
-		grpcweb.WithCorsForRegisteredEndpointsOnly(false), // 允许所有请求
-		grpcweb.WithAllowedRequestHeaders([]string{"*"}),  // 允许所有头
+		grpcweb.WithCorsForRegisteredEndpointsOnly(false),
+		grpcweb.WithAllowedRequestHeaders([]string{
+			"Content-Type", "X-Grpc-Web", "X-User-Agent", "X-Requested-With", "Authorization",
+		}),
+		grpcweb.WithOriginFunc(func(origin string) bool {
+			// 可自定义逻辑以限制允许的来源，当前允许所有来源
+			return true
+		}),
 	)
 
 	// 启动 HTTP 服务以支持 gRPC-Web
 	go func() {
 		httpServer := &http.Server{
-			Addr: ":8081", // 例如 ":8081"
+			Addr: ":8081", // gRPC-Web 服务监听地址
 			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if grpcWebServer.IsGrpcWebRequest(r) || grpcWebServer.IsAcceptableGrpcCorsRequest(r) {
 					grpcWebServer.ServeHTTP(w, r)
@@ -46,7 +52,7 @@ func main() {
 		}
 
 		logger.Logger.Info("gRPC-Web 服务已经开启", zap.String("addr", ":8081"))
-		if err := httpServer.ListenAndServe(); err != nil {
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Logger.Error("gRPC-Web 服务启动失败", zap.Error(err))
 		}
 	}()
@@ -64,7 +70,7 @@ func main() {
 		}
 	}()
 
-	// 监听服务关闭信号，服务平滑重启
+	// 捕获系统信号，平滑关闭服务
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
 	s := <-c
