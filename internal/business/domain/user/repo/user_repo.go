@@ -32,6 +32,14 @@ func (*userRepo) Get(userId int64) (*model.User, error) {
 	return user, err
 }
 
+func (*userRepo) GetNew(userId int64) (*model.User, error) {
+	user, err := UserDao.Get(userId)
+	if err != nil {
+		return nil, err
+	}
+	return user, err
+}
+
 // GetByPhoneNumber 通过手机号获取用户
 func (*userRepo) GetByPhoneNumber(phoneNumber string) (*model.User, error) {
 	return UserDao.GetByPhoneNumber(phoneNumber)

@@ -20,14 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BusinessExt_SignIn_FullMethodName                 = "/pb.BusinessExt/SignIn"
-	BusinessExt_GetUser_FullMethodName                = "/pb.BusinessExt/GetUser"
-	BusinessExt_UpdateUser_FullMethodName             = "/pb.BusinessExt/UpdateUser"
-	BusinessExt_SearchUser_FullMethodName             = "/pb.BusinessExt/SearchUser"
-	BusinessExt_GetTwitterAuthorizeURL_FullMethodName = "/pb.BusinessExt/GetTwitterAuthorizeURL"
-	BusinessExt_TwitterSignIn_FullMethodName          = "/pb.BusinessExt/TwitterSignIn"
-	BusinessExt_DailySignIn_FullMethodName            = "/pb.BusinessExt/DailySignIn"
-	BusinessExt_ClaimSevenDayReward_FullMethodName    = "/pb.BusinessExt/ClaimSevenDayReward"
+	BusinessExt_SignIn_FullMethodName                   = "/pb.BusinessExt/SignIn"
+	BusinessExt_GetUser_FullMethodName                  = "/pb.BusinessExt/GetUser"
+	BusinessExt_UpdateUser_FullMethodName               = "/pb.BusinessExt/UpdateUser"
+	BusinessExt_SearchUser_FullMethodName               = "/pb.BusinessExt/SearchUser"
+	BusinessExt_GetTwitterAuthorizeURL_FullMethodName   = "/pb.BusinessExt/GetTwitterAuthorizeURL"
+	BusinessExt_TwitterSignIn_FullMethodName            = "/pb.BusinessExt/TwitterSignIn"
+	BusinessExt_DailySignIn_FullMethodName              = "/pb.BusinessExt/DailySignIn"
+	BusinessExt_ClaimSevenDayReward_FullMethodName      = "/pb.BusinessExt/ClaimSevenDayReward"
+	BusinessExt_ClaimTwitterFollowReward_FullMethodName = "/pb.BusinessExt/ClaimTwitterFollowReward"
 )
 
 // BusinessExtClient is the client API for BusinessExt service.
@@ -50,6 +51,8 @@ type BusinessExtClient interface {
 	DailySignIn(ctx context.Context, in *DailySignInReq, opts ...grpc.CallOption) (*DailySignInResp, error)
 	// 连续7天奖励接口
 	ClaimSevenDayReward(ctx context.Context, in *ClaimSevenDayRewardReq, opts ...grpc.CallOption) (*ClaimSevenDayRewardResp, error)
+	// 领取 Twitter 关注奖励
+	ClaimTwitterFollowReward(ctx context.Context, in *ClaimTwitterFollowRewardReq, opts ...grpc.CallOption) (*ClaimTwitterFollowRewardResp, error)
 }
 
 type businessExtClient struct {
@@ -140,6 +143,16 @@ func (c *businessExtClient) ClaimSevenDayReward(ctx context.Context, in *ClaimSe
 	return out, nil
 }
 
+func (c *businessExtClient) ClaimTwitterFollowReward(ctx context.Context, in *ClaimTwitterFollowRewardReq, opts ...grpc.CallOption) (*ClaimTwitterFollowRewardResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimTwitterFollowRewardResp)
+	err := c.cc.Invoke(ctx, BusinessExt_ClaimTwitterFollowReward_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BusinessExtServer is the server API for BusinessExt service.
 // All implementations must embed UnimplementedBusinessExtServer
 // for forward compatibility.
@@ -160,6 +173,8 @@ type BusinessExtServer interface {
 	DailySignIn(context.Context, *DailySignInReq) (*DailySignInResp, error)
 	// 连续7天奖励接口
 	ClaimSevenDayReward(context.Context, *ClaimSevenDayRewardReq) (*ClaimSevenDayRewardResp, error)
+	// 领取 Twitter 关注奖励
+	ClaimTwitterFollowReward(context.Context, *ClaimTwitterFollowRewardReq) (*ClaimTwitterFollowRewardResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
 
@@ -193,6 +208,9 @@ func (UnimplementedBusinessExtServer) DailySignIn(context.Context, *DailySignInR
 }
 func (UnimplementedBusinessExtServer) ClaimSevenDayReward(context.Context, *ClaimSevenDayRewardReq) (*ClaimSevenDayRewardResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ClaimSevenDayReward not implemented")
+}
+func (UnimplementedBusinessExtServer) ClaimTwitterFollowReward(context.Context, *ClaimTwitterFollowRewardReq) (*ClaimTwitterFollowRewardResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimTwitterFollowReward not implemented")
 }
 func (UnimplementedBusinessExtServer) mustEmbedUnimplementedBusinessExtServer() {}
 func (UnimplementedBusinessExtServer) testEmbeddedByValue()                     {}
@@ -359,6 +377,24 @@ func _BusinessExt_ClaimSevenDayReward_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BusinessExt_ClaimTwitterFollowReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimTwitterFollowRewardReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).ClaimTwitterFollowReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_ClaimTwitterFollowReward_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).ClaimTwitterFollowReward(ctx, req.(*ClaimTwitterFollowRewardReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BusinessExt_ServiceDesc is the grpc.ServiceDesc for BusinessExt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -397,6 +433,10 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ClaimSevenDayReward",
 			Handler:    _BusinessExt_ClaimSevenDayReward_Handler,
+		},
+		{
+			MethodName: "ClaimTwitterFollowReward",
+			Handler:    _BusinessExt_ClaimTwitterFollowReward_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

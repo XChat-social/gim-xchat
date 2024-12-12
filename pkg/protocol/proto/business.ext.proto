@@ -23,6 +23,8 @@ service BusinessExt {
   rpc DailySignIn (DailySignInReq) returns (DailySignInResp);
   // 连续7天奖励接口
   rpc ClaimSevenDayReward (ClaimSevenDayRewardReq) returns (ClaimSevenDayRewardResp);
+  // 领取 Twitter 关注奖励
+  rpc ClaimTwitterFollowReward (ClaimTwitterFollowRewardReq) returns (ClaimTwitterFollowRewardResp);
 }
 
 message SignInReq {
@@ -46,7 +48,8 @@ message User {
   int64 update_time = 7;        // 更新时间
   string twitter_id = 8;        // 推特id
   string twitter_username = 9;  // 推特用户名
-  int32 xpoint = 10; // 用户当前积分
+  int32 xpoint = 10;            // 用户当前积分
+  int32 follow_reward = 11;     // Twitter关注奖励状态: 0未领取, 1已领取
 }
 
 message GetUserReq {
@@ -108,5 +111,15 @@ message ClaimSevenDayRewardReq {
 // 连续7天奖励响应
 message ClaimSevenDayRewardResp {
   int32 reward_amount = 1; // 奖励数量
+  string message = 2;      // 返回消息
+}
+// Twitter 关注奖励请求
+message ClaimTwitterFollowRewardReq {
+  int64 user_id = 1;       // 用户ID
+}
+
+// Twitter 关注奖励响应
+message ClaimTwitterFollowRewardResp {
+  int32 success = 1;       // 领取状态 (0: 失败, 1: 成功)
   string message = 2;      // 返回消息
 }

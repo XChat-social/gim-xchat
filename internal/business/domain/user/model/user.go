@@ -18,6 +18,7 @@ type User struct {
 	UpdateTime      time.Time // 更新时间
 	TwitterID       string    // 推特ID
 	TwitterUsername string    // 推特用户名
+	FollowReward    int32     //推特关注状态领取: 0 未领取, 1 已领取
 }
 
 func (u *User) ToProto() *pb.User {
@@ -36,5 +37,6 @@ func (u *User) ToProto() *pb.User {
 		TwitterId:       u.TwitterID,
 		TwitterUsername: u.TwitterUsername,
 		Xpoint:          u.Xpoint,
+		FollowReward:    u.FollowReward,
 	}
 }

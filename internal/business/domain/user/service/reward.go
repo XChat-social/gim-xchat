@@ -1,12 +1,17 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"gim/internal/business/domain/user/model"
+	"gim/internal/business/domain/user/repo"
 	"gim/pkg/db"
+	"gim/pkg/protocol/pb"
 	"github.com/jinzhu/gorm"
 	"math/rand"
+	"net/http"
 	"time"
 )
 
@@ -94,6 +99,89 @@ func (*rewardService) ClaimSevenDayReward(ctx context.Context, userID int64) (in
 	return rewardAmount, "Reward claimed successfully", nil
 }
 
+// ClaimFollowReward 处理 Twitter 关注奖励逻辑
+func (s *rewardService) ClaimFollowReward(ctx context.Context, req *pb.ClaimTwitterFollowRewardReq, officialTwitterID string) (int32, string, error) {
+	userId := req.UserId
+	user, err2 := repo.UserRepo.GetNew(userId)
+	if err2 != nil {
+		return 0, "", fmt.Errorf("failed to get user: %w", err2)
+	}
+	twitterId := user.TwitterID
+
+	// 检查奖励状态
+	if user.FollowReward == 1 {
+		return 0, "Reward already claimed.", nil
+	}
+
+	// 获取 Twitter Access Token
+	device, err := repo.AuthRepo.Get(userId, 0)
+	if err != nil {
+		return 0, "", fmt.Errorf("failed to get Twitter access token: %w", err)
+	}
+
+	// 调用 API 创建关注关系
+	isFollowing, err := followUser(device.AccessToken, twitterId, officialTwitterID)
+	if err != nil {
+		return 0, "", fmt.Errorf("failed to follow official Twitter account: %w", err)
+	}
+
+	// 如果未成功创建关注关系
+	if !isFollowing {
+		return 0, "Failed to follow the official Twitter account.", nil
+	}
+
+	// 增加积分并更新奖励状态
+	err = ClaimTwitterFollowReward(ctx, userId, 50, "Twitter follow reward")
+	if err != nil {
+		return 0, "", fmt.Errorf("failed to claim reward: %w", err)
+	}
+
+	return 1, "Reward claimed successfully! +50 XPoints.", nil
+}
+
+// followUser 创建关注目标用户的关系
+func followUser(accessToken, userId, targetId string) (bool, error) {
+	// 构造 API 请求 URL
+	url := fmt.Sprintf("https://api.twitter.com/2/users/%s/following", userId)
+
+	// 构造请求体
+	payload := map[string]string{
+		"target_user_id": targetId,
+	}
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return false, fmt.Errorf("failed to encode payload: %w", err)
+	}
+
+	// 创建 HTTP 请求
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return false, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	// 发送请求
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// 检查响应状态
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
+		var errorResp struct {
+			Title  string `json:"title"`
+			Detail string `json:"detail"`
+		}
+		_ = json.NewDecoder(resp.Body).Decode(&errorResp)
+		return false, fmt.Errorf("failed to follow user: %s (%s)", errorResp.Title, errorResp.Detail)
+	}
+
+	// 成功创建关注关系
+	return true, nil
+}
+
 // 根据权重计算随机奖励
 func calculateRandomReward() int {
 	rewardWeights := []struct {
@@ -136,6 +224,53 @@ func updateXPoint(ctx context.Context, userID int64, changeAmount int, reason st
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to update xpoint in user table: %w", err)
+	}
+
+	// 记录积分变动日志
+	log := model.XPointLog{
+		UserID:       uint64(userID),
+		ChangeAmount: changeAmount,
+		Reason:       reason,
+		CreateTime:   time.Now(),
+	}
+	if err := tx.Create(&log).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to insert xpoint log: %w", err)
+	}
+
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+// ClaimTwitterFollowReward 增加积分并更新奖励状态
+func ClaimTwitterFollowReward(ctx context.Context, userID int64, changeAmount int, reason string) error {
+	tx := db.DB.Begin()
+	if tx.Error != nil {
+		return fmt.Errorf("failed to begin transaction: %w", tx.Error)
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// 更新用户积分
+	err := tx.Model(&model.User{}).Where("id = ?", userID).Update("xpoint", gorm.Expr("xpoint + ?", changeAmount)).Error
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to update xpoint in user table: %w", err)
+	}
+
+	// 更新奖励状态
+	err = tx.Model(&model.User{}).Where("id = ?", userID).Update("follow_reward", 1).Error
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("failed to update twitter_follow_reward_status: %w", err)
 	}
 
 	// 记录积分变动日志
