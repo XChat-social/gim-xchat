@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	pb "gim/pkg/protocol/pb" // 引入生成的 gRPC 包
 	"log"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"google.golang.org/grpc"
 )
@@ -55,46 +57,46 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 提取 gRPC 响应中的用户信息
-	response := map[string]interface{}{
-		"token":           grpcResp.Token,
-		"userId":          grpcResp.UserId,
-		"nickname":        grpcResp.UserInfo.Nickname,
-		"avatarUrl":       grpcResp.UserInfo.AvatarUrl,
-		"twitterUsername": grpcResp.UserInfo.TwitterUsername,
-	}
-
-	// 设置响应头为 JSON
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	// 返回 JSON 响应
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response: "+err.Error(), http.StatusInternalServerError)
-		log.Printf("JSON encoding error: %v\n", err)
-		return
-	}
-
 	//// 提取 gRPC 响应中的用户信息
-	//token := grpcResp.Token
-	//userId := grpcResp.UserId
-	//nickname := grpcResp.UserInfo.Nickname
-	//avatarUrl := grpcResp.UserInfo.AvatarUrl
-	//twitterUsername := grpcResp.UserInfo.TwitterUsername
+	//response := map[string]interface{}{
+	//	"token":           grpcResp.Token,
+	//	"userId":          grpcResp.UserId,
+	//	"nickname":        grpcResp.UserInfo.Nickname,
+	//	"avatarUrl":       grpcResp.UserInfo.AvatarUrl,
+	//	"twitterUsername": grpcResp.UserInfo.TwitterUsername,
+	//}
 	//
-	//// 构造插件页面的跳转 URL，附加用户信息
-	//redirectURL := fmt.Sprintf(
-	//	"chrome-extension://<extension-id>/popup.html?token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s",
-	//	url.QueryEscape(token),
-	//	url.QueryEscape(strconv.FormatInt(userId, 10)),
-	//	url.QueryEscape(nickname),
-	//	url.QueryEscape(avatarUrl),
-	//	url.QueryEscape(twitterUsername),
-	//)
+	//// 设置响应头为 JSON
+	//w.Header().Set("Content-Type", "application/json")
+	//w.WriteHeader(http.StatusOK)
 	//
-	//// 重定向到插件页面
-	//http.Redirect(w, r, redirectURL, http.StatusFound)
-	//log.Printf("Redirecting to: %s\n", redirectURL)
+	//// 返回 JSON 响应
+	//if err := json.NewEncoder(w).Encode(response); err != nil {
+	//	http.Error(w, "Failed to encode response: "+err.Error(), http.StatusInternalServerError)
+	//	log.Printf("JSON encoding error: %v\n", err)
+	//	return
+	//}
+
+	// 提取 gRPC 响应中的用户信息
+	token := grpcResp.Token
+	userId := grpcResp.UserId
+	nickname := grpcResp.UserInfo.Nickname
+	avatarUrl := grpcResp.UserInfo.AvatarUrl
+	twitterUsername := grpcResp.UserInfo.TwitterUsername
+
+	// 构造插件页面的跳转 URL，附加用户信息
+	redirectURL := fmt.Sprintf(
+		"https://x.com?token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s",
+		url.QueryEscape(token),
+		url.QueryEscape(strconv.FormatInt(userId, 10)),
+		url.QueryEscape(nickname),
+		url.QueryEscape(avatarUrl),
+		url.QueryEscape(twitterUsername),
+	)
+
+	// 重定向到插件页面
+	http.Redirect(w, r, redirectURL, http.StatusFound)
+	log.Printf("Redirecting to: %s\n", redirectURL)
 }
 
 func main() {
