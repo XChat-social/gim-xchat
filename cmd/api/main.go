@@ -86,7 +86,7 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 构造插件页面的跳转 URL，附加用户信息
 	redirectURL := fmt.Sprintf(
-		"https://x.com?token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s",
+		"https://x.com?redirect=redirectx&token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s",
 		url.QueryEscape(token),
 		url.QueryEscape(strconv.FormatInt(userId, 10)),
 		url.QueryEscape(nickname),
