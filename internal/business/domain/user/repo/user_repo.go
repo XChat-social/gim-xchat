@@ -76,3 +76,7 @@ func (*userRepo) Save(user *model.User) error {
 	}
 	return nil
 }
+
+func (r *userRepo) InviteCodeExists(code string) (bool, error) {
+	return UserDao.InviteCodeExists(code)
+}
