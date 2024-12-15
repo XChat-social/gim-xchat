@@ -48,11 +48,23 @@ func (s *BusinessExtServer) SignIn(ctx context.Context, req *pb.SignInReq) (*pb.
 func (s *BusinessExtServer) GetUser(ctx context.Context, req *pb.GetUserReq) (*pb.GetUserResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		return nil, err
+		return &pb.GetUserResp{
+			Code:    1,
+			Message: "Failed to get user ID from context",
+		}, err
 	}
-
-	user, err := app2.UserApp.Get(ctx, userId)
-	return &pb.GetUserResp{User: user}, err
+	user, err := app2.UserApp.GetNew(ctx, userId)
+	if err != nil {
+		return &pb.GetUserResp{
+			Code:    1,
+			Message: "Failed to get user information",
+		}, err
+	}
+	return &pb.GetUserResp{
+		Code:    0,
+		Message: "Success",
+		User:    user,
+	}, nil
 }
 
 func (s *BusinessExtServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReq) (*emptypb.Empty, error) {
@@ -76,7 +88,10 @@ func (s *BusinessExtServer) GetTwitterAuthorizeURL(ctx context.Context, req *emp
 	codeChallenge := generateCodeChallenge(codeVerifier)
 
 	if err := saveToRedis(state, codeVerifier); err != nil {
-		return nil, fmt.Errorf("failed to save state and code_verifier: %w", err)
+		return &pb.TwitterAuthorizeURLResp{
+			Code:    1,
+			Message: "Failed to save state and code_verifier",
+		}, err
 	}
 
 	authorizeURL := fmt.Sprintf(
@@ -84,40 +99,61 @@ func (s *BusinessExtServer) GetTwitterAuthorizeURL(ctx context.Context, req *emp
 		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURI), state, codeChallenge,
 	)
 
-	return &pb.TwitterAuthorizeURLResp{Url: authorizeURL}, nil
+	return &pb.TwitterAuthorizeURLResp{
+		Code:    0,
+		Message: "Twitter authorize URL generated",
+		Url:     authorizeURL,
+	}, nil
 }
 
 // TwitterSignIn 实现推特登录
 func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSignInReq) (*pb.TwitterSignInResp, error) {
 	if req.AuthorizationCode == "" || req.State == "" {
-		return nil, errors.New("authorization code and state are required")
+		return &pb.TwitterSignInResp{
+			Code:    1,
+			Message: "Authorization code and state are required",
+		}, errors.New("invalid parameters")
 	}
 
 	codeVerifier, err := getFromRedis(req.State)
 	if err != nil {
-		return nil, fmt.Errorf("invalid or expired state: %w", err)
+		return &pb.TwitterSignInResp{
+			Code:    1,
+			Message: "Invalid or expired state",
+		}, err
 	}
 	defer deleteFromRedis(req.State)
 
 	accessToken, err := exchangeCodeForToken(req.AuthorizationCode, codeVerifier)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get access token: %w", err)
+		return &pb.TwitterSignInResp{
+			Code:    1,
+			Message: "Failed to exchange code for token",
+		}, err
 	}
 
 	twitterUser, err := getTwitterUserInfo(accessToken)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch Twitter user info: %w", err)
+		return &pb.TwitterSignInResp{
+			Code:    1,
+			Message: "Failed to fetch Twitter user info",
+		}, err
 	}
 
 	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken)
 	if err != nil {
-		return nil, fmt.Errorf("failed to sign in user: %w", err)
+		return &pb.TwitterSignInResp{
+			Code:    1,
+			Message: "Failed to sign in user",
+		}, err
 	}
 
 	return &pb.TwitterSignInResp{
-		IsNew:  isNew,
-		UserId: userId,
-		Token:  token,
+		Code:    0,
+		Message: "Twitter sign-in successful",
+		IsNew:   isNew,
+		UserId:  userId,
+		Token:   token,
 		UserInfo: &pb.User{
 			UserId:          userId,
 			Nickname:        twitterUser.Name,
@@ -128,38 +164,106 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 	}, nil
 }
 
-func (s *BusinessExtServer) DailySignIn(ctx context.Context, req *pb.DailySignInReq) (*pb.DailySignInResp, error) {
-	rewardAmount, message, err := app2.UserApp.DailySignIn(ctx, req.UserId)
+// DailySignIn 每日签到
+func (s *BusinessExtServer) DailySignIn(ctx context.Context, req *emptypb.Empty) (*pb.DailySignInResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		return nil, err
+		return &pb.DailySignInResp{
+			Code:    1,
+			Message: "Failed to get user ID from context",
+		}, err
+	}
+	message, err := app2.UserApp.DailySignIn(ctx, userId)
+	if err != nil {
+		return &pb.DailySignInResp{
+			Code:    1,
+			Message: message,
+		}, err
 	}
 
 	return &pb.DailySignInResp{
-		RewardAmount: int32(rewardAmount),
-		Message:      message,
+		Code:    0,
+		Message: message,
 	}, nil
 }
 
-func (s *BusinessExtServer) ClaimSevenDayReward(ctx context.Context, req *pb.ClaimSevenDayRewardReq) (*pb.ClaimSevenDayRewardResp, error) {
-	rewardAmount, message, err := app2.UserApp.ClaimSevenDayReward(ctx, req.UserId)
+// FollowTwitter 关注推特
+func (s *BusinessExtServer) FollowTwitter(ctx context.Context, req *emptypb.Empty) (*pb.TwitterFollowResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
-		return nil, err
+		return &pb.TwitterFollowResp{
+			Code:    1,
+			Message: "Failed to get user ID from context",
+		}, err
 	}
-
-	return &pb.ClaimSevenDayRewardResp{
-		RewardAmount: int32(rewardAmount),
-		Message:      message,
-	}, nil
-}
-
-func (s *BusinessExtServer) ClaimTwitterFollowReward(ctx context.Context, req *pb.ClaimTwitterFollowRewardReq) (*pb.ClaimTwitterFollowRewardResp, error) {
-	success, message, err := app2.UserApp.ClaimFollowReward(ctx, req, officialTwitterID)
+	success, message, err := app2.UserApp.FollowTwitter(ctx, userId, officialTwitterID)
 	if err != nil {
-		return nil, err
+		return &pb.TwitterFollowResp{
+			Code:    1,
+			Message: message,
+			Success: 0,
+		}, err
 	}
-
-	return &pb.ClaimTwitterFollowRewardResp{
+	return &pb.TwitterFollowResp{
+		Code:    0,
+		Message: message,
 		Success: success,
+	}, nil
+}
+
+// GetTaskStatus 获取任务状态
+func (s *BusinessExtServer) GetTaskStatus(ctx context.Context, req *pb.GetTaskStatusReq) (*pb.GetTaskStatusResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return &pb.GetTaskStatusResp{
+			Code:    1,
+			Message: "Failed to get user ID from context",
+		}, err
+	}
+	if req.TaskId == 0 {
+		return &pb.GetTaskStatusResp{
+			Code:    1,
+			Message: "Task ID is required",
+		}, errors.New("invalid parameters")
+	}
+	status, err := app2.UserApp.GetTaskStatus(ctx, userId, req.TaskId)
+	if err != nil {
+		return &pb.GetTaskStatusResp{
+			Code:    1,
+			Message: "Failed to get task status",
+		}, err
+	}
+	return &pb.GetTaskStatusResp{
+		Code:    0,
+		Message: "Success",
+		Status:  int32(status),
+	}, nil
+}
+
+// ClaimTaskReward 领取任务奖励
+func (s *BusinessExtServer) ClaimTaskReward(ctx context.Context, req *pb.ClaimTaskRewardReq) (*pb.ClaimTaskRewardResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return &pb.ClaimTaskRewardResp{
+			Code:    1,
+			Message: "Failed to get user ID from context",
+		}, err
+	}
+	if req.TaskId == 0 {
+		return &pb.ClaimTaskRewardResp{
+			Code:    1,
+			Message: "Task ID is required",
+		}, errors.New("invalid parameters")
+	}
+	message, err := app2.UserApp.ClaimTaskReward(ctx, userId, req.TaskId)
+	if err != nil {
+		return &pb.ClaimTaskRewardResp{
+			Code:    1,
+			Message: message,
+		}, err
+	}
+	return &pb.ClaimTaskRewardResp{
+		Code:    0,
 		Message: message,
 	}, nil
 }
@@ -173,13 +277,11 @@ func exchangeCodeForToken(code, codeVerifier string) (string, error) {
 		"client_id":     {clientID},
 		"code_verifier": {codeVerifier},
 	}
-
 	resp, err := http.PostForm(twitterTokenURL, data)
 	if err != nil {
 		return "", fmt.Errorf("HTTP request failed: %w", err)
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		var errorResp struct {
 			Error            string `json:"error"`
@@ -188,7 +290,6 @@ func exchangeCodeForToken(code, codeVerifier string) (string, error) {
 		_ = json.NewDecoder(resp.Body).Decode(&errorResp)
 		return "", fmt.Errorf("failed to get access token: %s (%s)", errorResp.Error, errorResp.ErrorDescription)
 	}
-
 	var tokenResp struct {
 		AccessToken string `json:"access_token"`
 	}

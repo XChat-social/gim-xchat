@@ -20,15 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BusinessExt_SignIn_FullMethodName                   = "/pb.BusinessExt/SignIn"
-	BusinessExt_GetUser_FullMethodName                  = "/pb.BusinessExt/GetUser"
-	BusinessExt_UpdateUser_FullMethodName               = "/pb.BusinessExt/UpdateUser"
-	BusinessExt_SearchUser_FullMethodName               = "/pb.BusinessExt/SearchUser"
-	BusinessExt_GetTwitterAuthorizeURL_FullMethodName   = "/pb.BusinessExt/GetTwitterAuthorizeURL"
-	BusinessExt_TwitterSignIn_FullMethodName            = "/pb.BusinessExt/TwitterSignIn"
-	BusinessExt_DailySignIn_FullMethodName              = "/pb.BusinessExt/DailySignIn"
-	BusinessExt_ClaimSevenDayReward_FullMethodName      = "/pb.BusinessExt/ClaimSevenDayReward"
-	BusinessExt_ClaimTwitterFollowReward_FullMethodName = "/pb.BusinessExt/ClaimTwitterFollowReward"
+	BusinessExt_SignIn_FullMethodName                 = "/pb.BusinessExt/SignIn"
+	BusinessExt_GetUser_FullMethodName                = "/pb.BusinessExt/GetUser"
+	BusinessExt_UpdateUser_FullMethodName             = "/pb.BusinessExt/UpdateUser"
+	BusinessExt_SearchUser_FullMethodName             = "/pb.BusinessExt/SearchUser"
+	BusinessExt_GetTwitterAuthorizeURL_FullMethodName = "/pb.BusinessExt/GetTwitterAuthorizeURL"
+	BusinessExt_TwitterSignIn_FullMethodName          = "/pb.BusinessExt/TwitterSignIn"
+	BusinessExt_DailySignIn_FullMethodName            = "/pb.BusinessExt/DailySignIn"
+	BusinessExt_FollowTwitter_FullMethodName          = "/pb.BusinessExt/FollowTwitter"
+	BusinessExt_GetTaskStatus_FullMethodName          = "/pb.BusinessExt/GetTaskStatus"
+	BusinessExt_ClaimTaskReward_FullMethodName        = "/pb.BusinessExt/ClaimTaskReward"
 )
 
 // BusinessExtClient is the client API for BusinessExt service.
@@ -48,11 +49,13 @@ type BusinessExtClient interface {
 	// 推特登录
 	TwitterSignIn(ctx context.Context, in *TwitterSignInReq, opts ...grpc.CallOption) (*TwitterSignInResp, error)
 	// 每日签到接口
-	DailySignIn(ctx context.Context, in *DailySignInReq, opts ...grpc.CallOption) (*DailySignInResp, error)
-	// 连续7天奖励接口
-	ClaimSevenDayReward(ctx context.Context, in *ClaimSevenDayRewardReq, opts ...grpc.CallOption) (*ClaimSevenDayRewardResp, error)
-	// 领取 Twitter 关注奖励
-	ClaimTwitterFollowReward(ctx context.Context, in *ClaimTwitterFollowRewardReq, opts ...grpc.CallOption) (*ClaimTwitterFollowRewardResp, error)
+	DailySignIn(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DailySignInResp, error)
+	// 关注推特
+	FollowTwitter(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TwitterFollowResp, error)
+	// 查询任务状态
+	GetTaskStatus(ctx context.Context, in *GetTaskStatusReq, opts ...grpc.CallOption) (*GetTaskStatusResp, error)
+	// 领取任务奖励
+	ClaimTaskReward(ctx context.Context, in *ClaimTaskRewardReq, opts ...grpc.CallOption) (*ClaimTaskRewardResp, error)
 }
 
 type businessExtClient struct {
@@ -123,7 +126,7 @@ func (c *businessExtClient) TwitterSignIn(ctx context.Context, in *TwitterSignIn
 	return out, nil
 }
 
-func (c *businessExtClient) DailySignIn(ctx context.Context, in *DailySignInReq, opts ...grpc.CallOption) (*DailySignInResp, error) {
+func (c *businessExtClient) DailySignIn(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DailySignInResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DailySignInResp)
 	err := c.cc.Invoke(ctx, BusinessExt_DailySignIn_FullMethodName, in, out, cOpts...)
@@ -133,20 +136,30 @@ func (c *businessExtClient) DailySignIn(ctx context.Context, in *DailySignInReq,
 	return out, nil
 }
 
-func (c *businessExtClient) ClaimSevenDayReward(ctx context.Context, in *ClaimSevenDayRewardReq, opts ...grpc.CallOption) (*ClaimSevenDayRewardResp, error) {
+func (c *businessExtClient) FollowTwitter(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TwitterFollowResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ClaimSevenDayRewardResp)
-	err := c.cc.Invoke(ctx, BusinessExt_ClaimSevenDayReward_FullMethodName, in, out, cOpts...)
+	out := new(TwitterFollowResp)
+	err := c.cc.Invoke(ctx, BusinessExt_FollowTwitter_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *businessExtClient) ClaimTwitterFollowReward(ctx context.Context, in *ClaimTwitterFollowRewardReq, opts ...grpc.CallOption) (*ClaimTwitterFollowRewardResp, error) {
+func (c *businessExtClient) GetTaskStatus(ctx context.Context, in *GetTaskStatusReq, opts ...grpc.CallOption) (*GetTaskStatusResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ClaimTwitterFollowRewardResp)
-	err := c.cc.Invoke(ctx, BusinessExt_ClaimTwitterFollowReward_FullMethodName, in, out, cOpts...)
+	out := new(GetTaskStatusResp)
+	err := c.cc.Invoke(ctx, BusinessExt_GetTaskStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *businessExtClient) ClaimTaskReward(ctx context.Context, in *ClaimTaskRewardReq, opts ...grpc.CallOption) (*ClaimTaskRewardResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClaimTaskRewardResp)
+	err := c.cc.Invoke(ctx, BusinessExt_ClaimTaskReward_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -170,11 +183,13 @@ type BusinessExtServer interface {
 	// 推特登录
 	TwitterSignIn(context.Context, *TwitterSignInReq) (*TwitterSignInResp, error)
 	// 每日签到接口
-	DailySignIn(context.Context, *DailySignInReq) (*DailySignInResp, error)
-	// 连续7天奖励接口
-	ClaimSevenDayReward(context.Context, *ClaimSevenDayRewardReq) (*ClaimSevenDayRewardResp, error)
-	// 领取 Twitter 关注奖励
-	ClaimTwitterFollowReward(context.Context, *ClaimTwitterFollowRewardReq) (*ClaimTwitterFollowRewardResp, error)
+	DailySignIn(context.Context, *emptypb.Empty) (*DailySignInResp, error)
+	// 关注推特
+	FollowTwitter(context.Context, *emptypb.Empty) (*TwitterFollowResp, error)
+	// 查询任务状态
+	GetTaskStatus(context.Context, *GetTaskStatusReq) (*GetTaskStatusResp, error)
+	// 领取任务奖励
+	ClaimTaskReward(context.Context, *ClaimTaskRewardReq) (*ClaimTaskRewardResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
 
@@ -203,14 +218,17 @@ func (UnimplementedBusinessExtServer) GetTwitterAuthorizeURL(context.Context, *e
 func (UnimplementedBusinessExtServer) TwitterSignIn(context.Context, *TwitterSignInReq) (*TwitterSignInResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TwitterSignIn not implemented")
 }
-func (UnimplementedBusinessExtServer) DailySignIn(context.Context, *DailySignInReq) (*DailySignInResp, error) {
+func (UnimplementedBusinessExtServer) DailySignIn(context.Context, *emptypb.Empty) (*DailySignInResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DailySignIn not implemented")
 }
-func (UnimplementedBusinessExtServer) ClaimSevenDayReward(context.Context, *ClaimSevenDayRewardReq) (*ClaimSevenDayRewardResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClaimSevenDayReward not implemented")
+func (UnimplementedBusinessExtServer) FollowTwitter(context.Context, *emptypb.Empty) (*TwitterFollowResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FollowTwitter not implemented")
 }
-func (UnimplementedBusinessExtServer) ClaimTwitterFollowReward(context.Context, *ClaimTwitterFollowRewardReq) (*ClaimTwitterFollowRewardResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClaimTwitterFollowReward not implemented")
+func (UnimplementedBusinessExtServer) GetTaskStatus(context.Context, *GetTaskStatusReq) (*GetTaskStatusResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskStatus not implemented")
+}
+func (UnimplementedBusinessExtServer) ClaimTaskReward(context.Context, *ClaimTaskRewardReq) (*ClaimTaskRewardResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimTaskReward not implemented")
 }
 func (UnimplementedBusinessExtServer) mustEmbedUnimplementedBusinessExtServer() {}
 func (UnimplementedBusinessExtServer) testEmbeddedByValue()                     {}
@@ -342,7 +360,7 @@ func _BusinessExt_TwitterSignIn_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _BusinessExt_DailySignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DailySignInReq)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -354,43 +372,61 @@ func _BusinessExt_DailySignIn_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: BusinessExt_DailySignIn_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BusinessExtServer).DailySignIn(ctx, req.(*DailySignInReq))
+		return srv.(BusinessExtServer).DailySignIn(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BusinessExt_ClaimSevenDayReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClaimSevenDayRewardReq)
+func _BusinessExt_FollowTwitter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BusinessExtServer).ClaimSevenDayReward(ctx, in)
+		return srv.(BusinessExtServer).FollowTwitter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BusinessExt_ClaimSevenDayReward_FullMethodName,
+		FullMethod: BusinessExt_FollowTwitter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BusinessExtServer).ClaimSevenDayReward(ctx, req.(*ClaimSevenDayRewardReq))
+		return srv.(BusinessExtServer).FollowTwitter(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BusinessExt_ClaimTwitterFollowReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClaimTwitterFollowRewardReq)
+func _BusinessExt_GetTaskStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskStatusReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BusinessExtServer).ClaimTwitterFollowReward(ctx, in)
+		return srv.(BusinessExtServer).GetTaskStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BusinessExt_ClaimTwitterFollowReward_FullMethodName,
+		FullMethod: BusinessExt_GetTaskStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BusinessExtServer).ClaimTwitterFollowReward(ctx, req.(*ClaimTwitterFollowRewardReq))
+		return srv.(BusinessExtServer).GetTaskStatus(ctx, req.(*GetTaskStatusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BusinessExt_ClaimTaskReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClaimTaskRewardReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).ClaimTaskReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_ClaimTaskReward_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).ClaimTaskReward(ctx, req.(*ClaimTaskRewardReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -431,12 +467,16 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BusinessExt_DailySignIn_Handler,
 		},
 		{
-			MethodName: "ClaimSevenDayReward",
-			Handler:    _BusinessExt_ClaimSevenDayReward_Handler,
+			MethodName: "FollowTwitter",
+			Handler:    _BusinessExt_FollowTwitter_Handler,
 		},
 		{
-			MethodName: "ClaimTwitterFollowReward",
-			Handler:    _BusinessExt_ClaimTwitterFollowReward_Handler,
+			MethodName: "GetTaskStatus",
+			Handler:    _BusinessExt_GetTaskStatus_Handler,
+		},
+		{
+			MethodName: "ClaimTaskReward",
+			Handler:    _BusinessExt_ClaimTaskReward_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

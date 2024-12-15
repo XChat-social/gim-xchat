@@ -71,14 +71,18 @@ func (*userApp) Search(ctx context.Context, key string) ([]*pb.User, error) {
 	return pbUsers, nil
 }
 
-func (*userApp) DailySignIn(ctx context.Context, userId int64) (int, string, error) {
+func (*userApp) DailySignIn(ctx context.Context, userId int64) (string, error) {
 	return service.RewardService.DailySignIn(ctx, userId)
 }
 
-func (*userApp) ClaimSevenDayReward(ctx context.Context, userId int64) (int, string, error) {
-	return service.RewardService.ClaimSevenDayReward(ctx, userId)
+func (a *userApp) FollowTwitter(ctx context.Context, userId int64, officialTwitterID string) (int32, string, error) {
+	return service.RewardService.FollowTwitter(ctx, userId, officialTwitterID)
 }
 
-func (a *userApp) ClaimFollowReward(ctx context.Context, req *pb.ClaimTwitterFollowRewardReq, officialTwitterID string) (int32, string, error) {
-	return service.RewardService.ClaimFollowReward(ctx, req, officialTwitterID)
+func (a *userApp) GetTaskStatus(ctx context.Context, userId int64, taskId int64) (int, error) {
+	return service.RewardService.GetTaskStatus(ctx, userId, taskId)
+}
+
+func (a *userApp) ClaimTaskReward(ctx context.Context, userId int64, taskId int64) (string, error) {
+	return service.RewardService.ClaimTaskReward(ctx, userId, taskId)
 }

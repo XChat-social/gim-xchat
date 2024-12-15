@@ -99,11 +99,16 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 	if user == nil {
 		// Step 2: 如果用户不存在，创建新用户
 		isNew = true
+		inviteCode, err := generateUniqueInviteCode()
+		if err != nil {
+			return false, 0, "", err
+		}
 		user = &model.User{
 			TwitterID:       twitterID,
 			Nickname:        name,
 			TwitterUsername: username,
 			AvatarUrl:       avatar,
+			InviteCode:      inviteCode,
 			CreateTime:      time.Now(),
 			UpdateTime:      time.Now(),
 		}
@@ -127,6 +132,31 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 	}
 
 	return isNew, user.Id, token, nil
+}
+
+// generateUniqueInviteCode 生成唯一邀请码
+func generateUniqueInviteCode() (string, error) {
+	const codeLength = 8
+	for {
+		code := randomString(codeLength)
+		exists, err := repo.UserRepo.InviteCodeExists(code)
+		if err != nil {
+			return "", err
+		}
+		if !exists {
+			return code, nil
+		}
+	}
+}
+
+// randomString 生成随机字符串
+func randomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
 }
 
 // GenerateToken 生成会话 Token

@@ -92,3 +92,13 @@ func (d *userDao) GetByTwitterID(id string) (*model.User, error) {
 	}
 	return &user, err
 }
+
+// InviteCodeExists 检查邀请码是否存在
+func (*userDao) InviteCodeExists(code string) (bool, error) {
+	var count int64
+	err := db.DB.Model(&model.User{}).Where("invite_code = ?", code).Count(&count).Error
+	if err != nil {
+		return false, gerrors.WrapError(err)
+	}
+	return count > 0, nil
+}

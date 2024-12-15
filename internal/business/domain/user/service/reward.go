@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"gim/internal/business/domain/user/model"
 	"gim/internal/business/domain/user/repo"
 	"gim/pkg/db"
-	"gim/pkg/protocol/pb"
+	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	"math/rand"
 	"net/http"
@@ -19,8 +20,15 @@ type rewardService struct{}
 
 var RewardService = new(rewardService)
 
+const (
+	TaskDailySignIn     = 1001 // 每日签到
+	TaskSevenDaySignIn  = 1002 // 签到七天
+	TaskFollowTwitter   = 1003 // 关注推特
+	taskStatusKeyPrefix = "task_status"
+)
+
 // DailySignIn 处理每日签到逻辑
-func (*rewardService) DailySignIn(ctx context.Context, userID int64) (int, string, error) {
+func (*rewardService) DailySignIn(ctx context.Context, userID int64) (string, error) {
 	// Redis Key
 	key := fmt.Sprintf("signin:%d", userID)
 
@@ -30,78 +38,37 @@ func (*rewardService) DailySignIn(ctx context.Context, userID int64) (int, strin
 	// 检查当天是否已签到
 	signed, err := db.RedisCli.GetBit(key, offset).Result()
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to query redis: %w", err)
+		return "", fmt.Errorf("failed to query redis: %w", err)
 	}
 	if signed == 1 {
-		return 0, "Already signed in today", nil
+		return "Already signed in today", nil
 	}
 
-	// 设置签到状态
+	// 设置当天签到状态
 	err = db.RedisCli.SetBit(key, offset, 1).Err()
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to set redis bit: %w", err)
+		return "", fmt.Errorf("failed to set redis bit: %w", err)
 	}
 
-	// 更新积分到数据库并记录日志
-	err = updateXPoint(ctx, userID, 1, "Daily sign-in")
+	// 构造任务状态 Redis Key
+	taskKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySignIn)
+
+	// 将每日签到任务状态设置为待领取 (3)
+	err = db.RedisCli.Set(taskKey, 3, 24*time.Hour).Err() // 设置过期时间为 1 天
 	if err != nil {
-		// 如果数据库操作失败，手动回滚 Redis
+		// 如果任务状态更新失败，手动回滚 Redis
 		rollbackErr := db.RedisCli.SetBit(key, offset, 0).Err()
 		if rollbackErr != nil {
-			return 0, "", fmt.Errorf("failed to update xpoint and rollback redis: %w", rollbackErr)
+			return "", fmt.Errorf("failed to set task status and rollback redis: %w", rollbackErr)
 		}
-		return 0, "", fmt.Errorf("failed to update xpoint: %w", err)
+		return "", fmt.Errorf("failed to set task status: %w", err)
 	}
 
-	return 1, "Sign-in successful", nil
+	return "Sign-in successful", nil
 }
 
-// ClaimSevenDayReward 处理连续 7 天签到奖励逻辑
-func (*rewardService) ClaimSevenDayReward(ctx context.Context, userID int64) (int, string, error) {
-	// Redis Key
-	key := fmt.Sprintf("signin:%d", userID)
-
-	// 获取今天的位偏移
-	todayOffset := time.Now().UTC().Unix() / 86400
-
-	// 检查最近 7 天的签到状态
-	consecutive := true
-	for i := 0; i < 7; i++ {
-		bit, err := db.RedisCli.GetBit(key, todayOffset-int64(i)).Result()
-		if err != nil || bit == 0 {
-			consecutive = false
-			break
-		}
-	}
-	if !consecutive {
-		return 0, "Not enough consecutive signin days", nil
-	}
-
-	// 检查是否已领取奖励
-	rewardKey := fmt.Sprintf("reward_claimed:%d", userID)
-	claimed, err := db.RedisCli.Get(rewardKey).Result()
-	if err == nil && claimed == "true" {
-		return 0, "Reward already claimed", nil
-	}
-
-	// 计算随机奖励
-	rewardAmount := calculateRandomReward()
-
-	// 更新积分到数据库并记录日志
-	err = updateXPoint(ctx, userID, rewardAmount, "Seven-day consecutive sign-in")
-	if err != nil {
-		return 0, "", fmt.Errorf("failed to update xpoint: %w", err)
-	}
-
-	// 标记奖励已领取
-	db.RedisCli.Set(rewardKey, "true", 7*24*time.Hour) // 设置 7 天的过期时间
-
-	return rewardAmount, "Reward claimed successfully", nil
-}
-
-// ClaimFollowReward 处理 Twitter 关注奖励逻辑
-func (s *rewardService) ClaimFollowReward(ctx context.Context, req *pb.ClaimTwitterFollowRewardReq, officialTwitterID string) (int32, string, error) {
-	userId := req.UserId
+// FollowTwitter 关注推特并更新状态
+func (s *rewardService) FollowTwitter(ctx context.Context, userId int64, officialTwitterID string) (int32, string, error) {
 	user, err2 := repo.UserRepo.GetNew(userId)
 	if err2 != nil {
 		return 0, "", fmt.Errorf("failed to get user: %w", err2)
@@ -130,13 +97,127 @@ func (s *rewardService) ClaimFollowReward(ctx context.Context, req *pb.ClaimTwit
 		return 0, "Failed to follow the official Twitter account.", nil
 	}
 
-	// 增加积分并更新奖励状态
-	err = ClaimTwitterFollowReward(ctx, userId, 50, "Twitter follow reward")
+	// 保存状态到 Redis，设置为待领取状态
+	key := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userId, TaskFollowTwitter)
+	err = db.RedisCli.Set(key, 3, 24*time.Hour).Err() // 3 表示待领取状态，过期时间为 24 小时
 	if err != nil {
-		return 0, "", fmt.Errorf("failed to claim reward: %w", err)
+		return 0, "Failed to save task status to Redis.", fmt.Errorf("failed to save task status to Redis: %w", err)
 	}
 
-	return 1, "Reward claimed successfully! +50 XPoints.", nil
+	return 1, "follow successfully!", nil
+}
+
+func (s *rewardService) GetTaskStatus(ctx context.Context, userId int64, taskId int64) (int, error) {
+	// 构造 Redis Key
+	key := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userId, taskId)
+
+	// 从 Redis 获取任务状态
+	statusStr, err := db.RedisCli.Get(key).Result()
+	if errors.Is(err, redis.Nil) {
+		// Key 不存在，返回未完成状态
+		status := 1
+
+		// 如果是七天签到任务，检查是否满足条件
+		if taskId == TaskSevenDaySignIn {
+			consecutive, err := checkSevenDaySignIn(userId)
+			if err != nil {
+				return 0, fmt.Errorf("failed to check seven-day sign-in: %w", err)
+			}
+			if consecutive {
+				// 更新任务状态为待领取并设置过期时间为 1 天
+				err = db.RedisCli.Set(key, 3, 24*time.Hour).Err()
+				if err != nil {
+					return 0, fmt.Errorf("failed to update task status for seven-day sign-in: %w", err)
+				}
+				status = 3 // 状态为待领取
+			}
+		}
+
+		// 如果是关注任务，检查数据库中的关注状态
+		if taskId == TaskFollowTwitter {
+			user, err := repo.UserRepo.GetNew(userId)
+			if err != nil {
+				return 0, fmt.Errorf("failed to get user: %w", err)
+			}
+
+			// 检查奖励状态是否已领取
+			if user.FollowReward == 1 {
+				// 更新任务状态为已领取，并保存到 Redis
+				err = db.RedisCli.Set(key, 4, 24*time.Hour).Err() // 状态为已领取，过期时间为 1 天
+				if err != nil {
+					return 0, fmt.Errorf("failed to update task status for follow reward: %w", err)
+				}
+				status = 4 // 状态为已领取
+			}
+		}
+
+		return status, nil
+	} else if err != nil {
+		return 0, fmt.Errorf("failed to get task status: %w", err)
+	}
+
+	// 转换状态为整数
+	var status int
+	fmt.Sscanf(statusStr, "%d", &status)
+	return status, nil
+}
+
+// ClaimTaskReward 领取任务奖励
+func (s *rewardService) ClaimTaskReward(ctx context.Context, userId int64, taskId int64) (string, error) {
+	key := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userId, taskId)
+	statusStr, err := db.RedisCli.Get(key).Result()
+	if errors.Is(err, redis.Nil) {
+		return "Task not found", nil
+	} else if err != nil {
+		return "Failed to get task status", fmt.Errorf("failed to get task status: %w", err)
+	}
+
+	// 转换状态为整数
+	var status int
+	fmt.Sscanf(statusStr, "%d", &status)
+
+	// 检查状态是否可以领取
+	if status != 3 {
+		return "Task is not ready for claiming", nil
+	}
+
+	// 更新状态为已领取
+	err = db.RedisCli.Set(key, 4, time.Hour*24).Err()
+	if err != nil {
+		return "Failed to update task status", fmt.Errorf("failed to update task status: %w", err)
+	}
+
+	// 初始化奖励逻辑
+	var changeAmount int
+	var reason string
+	rewardFields := map[string]interface{}{}
+
+	switch taskId {
+	case TaskDailySignIn:
+		changeAmount = 1
+		reason = "Daily sign-in reward"
+	case TaskSevenDaySignIn:
+		changeAmount = calculateRandomReward()
+		reason = "Seven-day sign-in reward"
+	case TaskFollowTwitter:
+		changeAmount = 50
+		reason = "Twitter follow reward"
+		rewardFields = map[string]interface{}{
+			"follow_reward": 1,
+		}
+	default:
+		return "Unknown task ID", fmt.Errorf("unknown task ID: %d", taskId)
+	}
+
+	// 更新积分、奖励状态并记录日志
+	err = updateUserXPoint(ctx, userId, changeAmount, reason, rewardFields)
+	if err != nil {
+		return "Failed to process task reward", fmt.Errorf("failed to process task reward: %w", err)
+	}
+
+	// 动态生成返回消息
+	successMessage := fmt.Sprintf("Task reward claimed successfully! +%d Xpoint!", changeAmount)
+	return successMessage, nil
 }
 
 // followUser 创建关注目标用户的关系
@@ -206,8 +287,8 @@ func calculateRandomReward() int {
 	return 10 // 默认最小奖励
 }
 
-// updateXPoint 更新用户积分并记录日志
-func updateXPoint(ctx context.Context, userID int64, changeAmount int, reason string) error {
+// updateUserXPoint 更新用户积分、奖励状态并记录日志
+func updateUserXPoint(ctx context.Context, userID int64, changeAmount int, reason string, rewardFields map[string]interface{}) error {
 	tx := db.DB.Begin()
 	if tx.Error != nil {
 		return fmt.Errorf("failed to begin transaction: %w", tx.Error)
@@ -224,6 +305,15 @@ func updateXPoint(ctx context.Context, userID int64, changeAmount int, reason st
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to update xpoint in user table: %w", err)
+	}
+
+	// 更新奖励状态或其他字段
+	if len(rewardFields) > 0 {
+		err = tx.Model(&model.User{}).Where("id = ?", userID).Updates(rewardFields).Error
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to update reward fields in user table: %w", err)
+		}
 	}
 
 	// 记录积分变动日志
@@ -246,49 +336,18 @@ func updateXPoint(ctx context.Context, userID int64, changeAmount int, reason st
 	return nil
 }
 
-// ClaimTwitterFollowReward 增加积分并更新奖励状态
-func ClaimTwitterFollowReward(ctx context.Context, userID int64, changeAmount int, reason string) error {
-	tx := db.DB.Begin()
-	if tx.Error != nil {
-		return fmt.Errorf("failed to begin transaction: %w", tx.Error)
-	}
-
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
+// checkSevenDaySignIn 检查是否满足连续 7 天签到条件
+func checkSevenDaySignIn(userId int64) (bool, error) {
+	key := fmt.Sprintf("signin:%d", userId)
+	todayOffset := time.Now().UTC().Unix() / 86400
+	for i := 0; i < 7; i++ {
+		bit, err := db.RedisCli.GetBit(key, todayOffset-int64(i)).Result()
+		if err != nil {
+			return false, fmt.Errorf("failed to get bit from Redis: %w", err)
 		}
-	}()
-
-	// 更新用户积分
-	err := tx.Model(&model.User{}).Where("id = ?", userID).Update("xpoint", gorm.Expr("xpoint + ?", changeAmount)).Error
-	if err != nil {
-		tx.Rollback()
-		return fmt.Errorf("failed to update xpoint in user table: %w", err)
+		if bit == 0 {
+			return false, nil
+		}
 	}
-
-	// 更新奖励状态
-	err = tx.Model(&model.User{}).Where("id = ?", userID).Update("follow_reward", 1).Error
-	if err != nil {
-		tx.Rollback()
-		return fmt.Errorf("failed to update twitter_follow_reward_status: %w", err)
-	}
-
-	// 记录积分变动日志
-	log := model.XPointLog{
-		UserID:       uint64(userID),
-		ChangeAmount: changeAmount,
-		Reason:       reason,
-		CreateTime:   time.Now(),
-	}
-	if err := tx.Create(&log).Error; err != nil {
-		tx.Rollback()
-		return fmt.Errorf("failed to insert xpoint log: %w", err)
-	}
-
-	// 提交事务
-	if err := tx.Commit().Error; err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
+	return true, nil
 }
