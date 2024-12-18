@@ -53,6 +53,7 @@ func GetCtxData(ctx context.Context) (int64, int64, error) {
 
 	userIdStr := Get(ctx, CtxUserId)
 	userId, err = strconv.ParseInt(userIdStr, 10, 64)
+	logger.Sugar.Info(userIdStr)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return 0, 0, gerrors.ErrUnauthorized
