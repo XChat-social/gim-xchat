@@ -240,6 +240,26 @@ func (s *BusinessExtServer) GetTaskStatus(ctx context.Context, req *pb.GetTaskSt
 	}, nil
 }
 
+// ModifyTaskStatus 用于修改指定任务的状态，主要用于测试
+func (s *BusinessExtServer) ModifyTaskStatus(ctx context.Context, req *pb.ModifyTaskStatusReq) (*pb.ModifyTaskStatusResp, error) {
+	key := fmt.Sprintf("%s:%d:%d", "task_status", req.UserId, req.TaskId)
+
+	// 将任务状态写入 Redis
+	err := db.RedisCli.Set(key, req.Status, 24*time.Hour).Err() // 设置状态，并且过期时间为 24 小时
+	if err != nil {
+		return &pb.ModifyTaskStatusResp{
+			Code:    1, // 错误码
+			Message: fmt.Sprintf("Failed to modify task status: %v", err),
+		}, fmt.Errorf("failed to modify task status: %w", err)
+	}
+
+	// 返回成功响应
+	return &pb.ModifyTaskStatusResp{
+		Code:    0, // 成功
+		Message: fmt.Sprintf("Task %d for user %d status updated to %d", req.TaskId, req.UserId, req.Status),
+	}, nil
+}
+
 // ClaimTaskReward 领取任务奖励
 func (s *BusinessExtServer) ClaimTaskReward(ctx context.Context, req *pb.ClaimTaskRewardReq) (*pb.ClaimTaskRewardResp, error) {
 	userId, _, err := grpclib.GetCtxData(ctx)
