@@ -51,10 +51,12 @@ func GetCtxData(ctx context.Context) (int64, int64, error) {
 		err      error
 	)
 	token := Get(ctx, CtxToken)
+	userId1 := Get(ctx, CtxUserId)
+	deviceId1 := Get(ctx, CtxDeviceId)
+
 	logger.Sugar.Info("token:", token)
-	if token == "" {
-		return 0, 0, gerrors.ErrUnauthorized
-	}
+	logger.Sugar.Info("userId1:", userId1)
+	logger.Sugar.Info("deviceId1:", deviceId1)
 
 	userIdStr := Get(ctx, CtxUserId)
 	logger.Sugar.Info(userIdStr)
