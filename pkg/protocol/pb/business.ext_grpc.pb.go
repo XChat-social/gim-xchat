@@ -30,6 +30,7 @@ const (
 	BusinessExt_FollowTwitter_FullMethodName          = "/pb.BusinessExt/FollowTwitter"
 	BusinessExt_GetTaskStatus_FullMethodName          = "/pb.BusinessExt/GetTaskStatus"
 	BusinessExt_ClaimTaskReward_FullMethodName        = "/pb.BusinessExt/ClaimTaskReward"
+	BusinessExt_ModifyTaskStatus_FullMethodName       = "/pb.BusinessExt/ModifyTaskStatus"
 )
 
 // BusinessExtClient is the client API for BusinessExt service.
@@ -56,6 +57,7 @@ type BusinessExtClient interface {
 	GetTaskStatus(ctx context.Context, in *GetTaskStatusReq, opts ...grpc.CallOption) (*GetTaskStatusResp, error)
 	// 领取任务奖励
 	ClaimTaskReward(ctx context.Context, in *ClaimTaskRewardReq, opts ...grpc.CallOption) (*ClaimTaskRewardResp, error)
+	ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error)
 }
 
 type businessExtClient struct {
@@ -166,6 +168,16 @@ func (c *businessExtClient) ClaimTaskReward(ctx context.Context, in *ClaimTaskRe
 	return out, nil
 }
 
+func (c *businessExtClient) ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ModifyTaskStatusResp)
+	err := c.cc.Invoke(ctx, BusinessExt_ModifyTaskStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BusinessExtServer is the server API for BusinessExt service.
 // All implementations must embed UnimplementedBusinessExtServer
 // for forward compatibility.
@@ -190,6 +202,7 @@ type BusinessExtServer interface {
 	GetTaskStatus(context.Context, *GetTaskStatusReq) (*GetTaskStatusResp, error)
 	// 领取任务奖励
 	ClaimTaskReward(context.Context, *ClaimTaskRewardReq) (*ClaimTaskRewardResp, error)
+	ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
 
@@ -229,6 +242,9 @@ func (UnimplementedBusinessExtServer) GetTaskStatus(context.Context, *GetTaskSta
 }
 func (UnimplementedBusinessExtServer) ClaimTaskReward(context.Context, *ClaimTaskRewardReq) (*ClaimTaskRewardResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ClaimTaskReward not implemented")
+}
+func (UnimplementedBusinessExtServer) ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyTaskStatus not implemented")
 }
 func (UnimplementedBusinessExtServer) mustEmbedUnimplementedBusinessExtServer() {}
 func (UnimplementedBusinessExtServer) testEmbeddedByValue()                     {}
@@ -431,6 +447,24 @@ func _BusinessExt_ClaimTaskReward_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BusinessExt_ModifyTaskStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ModifyTaskStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).ModifyTaskStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_ModifyTaskStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).ModifyTaskStatus(ctx, req.(*ModifyTaskStatusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BusinessExt_ServiceDesc is the grpc.ServiceDesc for BusinessExt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -477,6 +511,10 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ClaimTaskReward",
 			Handler:    _BusinessExt_ClaimTaskReward_Handler,
+		},
+		{
+			MethodName: "ModifyTaskStatus",
+			Handler:    _BusinessExt_ModifyTaskStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
