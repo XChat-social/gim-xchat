@@ -26,6 +26,21 @@ service BusinessExt {
   rpc GetTaskStatus (GetTaskStatusReq) returns (GetTaskStatusResp);
   // 领取任务奖励
   rpc ClaimTaskReward (ClaimTaskRewardReq) returns (ClaimTaskRewardResp);
+
+  rpc ModifyTaskStatus (ModifyTaskStatusReq) returns (ModifyTaskStatusResp);
+}
+
+// 修改任务状态请求
+message ModifyTaskStatusReq {
+  int64 user_id = 1;         // 用户ID
+  int64 task_id = 2;         // 任务ID
+  int32 status = 3;          // 任务状态 (1: 未完成, 2: 进行中, 3: 待领取, 4: 已领取)
+}
+
+// 修改任务状态响应
+message ModifyTaskStatusResp {
+  int32 code = 1;            // 状态码
+  string message = 2;        // 消息描述
 }
 
 // 登录请求
