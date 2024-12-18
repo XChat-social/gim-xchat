@@ -30,7 +30,7 @@ func main() {
 	grpcWebServer := grpcweb.WrapServer(server,
 		grpcweb.WithCorsForRegisteredEndpointsOnly(false),
 		grpcweb.WithAllowedRequestHeaders([]string{
-			"Content-Type", "X-Grpc-Web", "X-User-Agent", "X-Requested-With", "Authorization",
+			"Content-Type", "X-Grpc-Web", "X-User-Agent", "X-Requested-With", "Authorization", "user_id", "token", "device_id",
 		}),
 		grpcweb.WithOriginFunc(func(origin string) bool {
 			// 可自定义逻辑以限制允许的来源，当前允许所有来源
