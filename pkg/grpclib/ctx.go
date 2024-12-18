@@ -10,10 +10,12 @@ import (
 )
 
 const (
-	CtxUserId    = "user_id"
-	CtxDeviceId  = "device_id"
-	CtxToken     = "token"
-	CtxRequestId = "request_id"
+	CtxUserId       = "user_id"
+	CtxDeviceId     = "device_id"
+	CtxToken        = "token"
+	CtxRequestId    = "request_id"
+	CtxUserIdDash   = "user-id"   // 支持的 user-id
+	CtxDeviceIdDash = "device-id" // 支持的 device-id
 )
 
 func ContextWithRequestId(ctx context.Context, requestId int64) context.Context {
@@ -43,7 +45,7 @@ func GetCtxRequestId(ctx context.Context) int64 {
 	return requestId
 }
 
-// GetCtxData 获取ctx的用户数据，依次返回user_id,device_id
+// GetCtxData 获取ctx的用户数据，依次返回user_id, device_id
 func GetCtxData(ctx context.Context) (int64, int64, error) {
 	var (
 		userId   int64
@@ -54,20 +56,30 @@ func GetCtxData(ctx context.Context) (int64, int64, error) {
 	userId1 := Get(ctx, CtxUserId)
 	deviceId1 := Get(ctx, CtxDeviceId)
 
+	// Logging for debugging purposes
 	logger.Sugar.Info("token:", token)
 	logger.Sugar.Info("userId1:", userId1)
 	logger.Sugar.Info("deviceId1:", deviceId1)
 
+	// 优先检查 user_id
 	userIdStr := Get(ctx, CtxUserId)
-	logger.Sugar.Info(userIdStr)
+	if userIdStr == "" {
+		// 如果没有找到 user_id，尝试 user-id
+		userIdStr = Get(ctx, CtxUserIdDash)
+	}
+	logger.Sugar.Info("userIdStr:", userIdStr)
 	userId, err = strconv.ParseInt(userIdStr, 10, 64)
-	logger.Sugar.Info(userIdStr)
 	if err != nil {
 		logger.Sugar.Error(err)
 		return 0, 0, gerrors.ErrUnauthorized
 	}
 
+	// 获取 device_id
 	deviceIdStr := Get(ctx, CtxDeviceId)
+	if deviceIdStr == "" {
+		// 如果没有找到 device_id，尝试 device-id
+		deviceIdStr = Get(ctx, CtxDeviceIdDash)
+	}
 	deviceId, err = strconv.ParseInt(deviceIdStr, 10, 64)
 	if err != nil {
 		logger.Sugar.Error(err)
