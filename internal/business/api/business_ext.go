@@ -140,11 +140,19 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 		}, err
 	}
 
-	isNew, userId, token, inviteCode, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken)
+	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken)
 	if err != nil {
 		return &pb.TwitterSignInResp{
 			Code:    1,
 			Message: "Failed to sign in user",
+		}, err
+	}
+
+	getNew, err := app2.UserApp.GetNew(ctx, userId)
+	if err != nil {
+		return &pb.TwitterSignInResp{
+			Code:    1,
+			Message: "Failed to get user information",
 		}, err
 	}
 
@@ -160,7 +168,7 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 			AvatarUrl:       twitterUser.Avatar,
 			TwitterId:       twitterUser.ID,
 			TwitterUsername: twitterUser.Username,
-			InviteCode:      inviteCode,
+			InviteCode:      getNew.InviteCode,
 		},
 	}, nil
 }

@@ -19,6 +19,6 @@ func (*authApp) Auth(ctx context.Context, userId, deviceId int64, token string) 
 	return service.AuthService.Auth(ctx, userId, deviceId, token)
 }
 
-func (*authApp) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar, accessToken string) (bool, int64, string, string, error) {
+func (*authApp) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar, accessToken string) (bool, int64, string, error) {
 	return service.AuthService.TwitterSignIn(ctx, twitterID, name, username, avatar, accessToken)
 }
