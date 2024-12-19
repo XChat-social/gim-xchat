@@ -220,6 +220,44 @@ func (s *rewardService) ClaimTaskReward(ctx context.Context, userId int64, taskI
 	return successMessage, nil
 }
 
+// FillInviteCode 填写邀请码
+func (s *rewardService) FillInviteCode(ctx context.Context, userId int64, inviteCode string) (string, error) {
+	// 检查用户是否已填写过邀请码
+	user, err := repo.UserRepo.GetNew(userId)
+	if err != nil {
+		return "", fmt.Errorf("failed to get user: %w", err)
+	}
+
+	if user.InviterCode != "" {
+		return "You have already used an invite code", nil
+	}
+
+	// 检查邀请码是否有效
+	inviterUser, err := repo.UserRepo.GetUserByInviteCode(inviteCode)
+	if err != nil {
+		return "", fmt.Errorf("failed to check invite code validity: %w", err)
+	}
+
+	// 更新用户填写邀请码的状态
+	err = repo.UserRepo.UpdateInviteCodeStatus(userId, inviteCode)
+	if err != nil {
+		return "", fmt.Errorf("failed to update user invite code status: %w", err)
+	}
+
+	// 给邀请人奖励，50 积分
+	rewardAmount := 50
+	reason := "Invite reward for user using invite code"
+
+	// 更新邀请人的积分
+	err = updateUserXPoint(ctx, inviterUser.Id, rewardAmount, reason, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to update inviter's points: %w", err)
+	}
+
+	// 返回奖励成功的消息
+	return fmt.Sprintf("Invite code applied successfully! %d Xpoint given to inviter!", rewardAmount), nil
+}
+
 // followUser 创建关注目标用户的关系
 func followUser(accessToken, userId, targetId string) (bool, error) {
 	// 构造 API 请求 URL

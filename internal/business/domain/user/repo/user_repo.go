@@ -80,3 +80,11 @@ func (*userRepo) Save(user *model.User) error {
 func (r *userRepo) InviteCodeExists(code string) (bool, error) {
 	return UserDao.InviteCodeExists(code)
 }
+
+func (*userRepo) GetUserByInviteCode(inviteCode string) (*model.User, error) {
+	return UserDao.GetUserByInviteCode(inviteCode)
+}
+
+func (*userRepo) UpdateInviteCodeStatus(id int64, code string) error {
+	return UserDao.UpdateInviteCodeStatus(id, code)
+}

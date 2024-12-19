@@ -38,6 +38,19 @@ func (*userDao) Get(userId int64) (*model.User, error) {
 	return &user, err
 }
 
+// GetUserByInviteCode 根据邀请码获取用户信息
+func (*userDao) GetUserByInviteCode(inviteCode string) (*model.User, error) {
+	var user = model.User{InviteCode: inviteCode}
+	err := db.DB.First(&user).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, gerrors.WrapError(err)
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &user, err
+}
+
 // Save 保存
 func (*userDao) Save(user *model.User) error {
 	err := db.DB.Save(user).Error
@@ -101,4 +114,12 @@ func (*userDao) InviteCodeExists(code string) (bool, error) {
 		return false, gerrors.WrapError(err)
 	}
 	return count > 0, nil
+}
+
+func (d *userDao) UpdateInviteCodeStatus(id int64, code string) error {
+	err := db.DB.Model(&model.User{}).Where("id = ?", id).Update("inviter_code", code).Error
+	if err != nil {
+		return gerrors.WrapError(err)
+	}
+	return nil
 }
