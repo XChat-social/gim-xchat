@@ -254,8 +254,18 @@ func (s *rewardService) FillInviteCode(ctx context.Context, userId int64, invite
 		return "", fmt.Errorf("failed to update inviter's points: %w", err)
 	}
 
-	// 返回奖励成功的消息
-	return fmt.Sprintf("Invite code applied successfully! %d Xpoint given to inviter!", rewardAmount), nil
+	// 给被邀请人奖励，10 积分
+	inviteeRewardAmount := 10
+	inviteeReason := "Reward for using invite code"
+
+	// 更新被邀请人的积分
+	err = updateUserXPoint(ctx, userId, inviteeRewardAmount, inviteeReason, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to update invitee's points: %w", err)
+	}
+
+	// 只返回被邀请人积分的奖励信息
+	return fmt.Sprintf("%d Xpoint rewarded for using invite code", inviteeRewardAmount), nil
 }
 
 // followUser 创建关注目标用户的关系
