@@ -20,6 +20,7 @@ type User struct {
 	TwitterUsername string    // 推特用户名
 	FollowReward    int32     // 推特关注状态领取: 0 未领取, 1 已领取
 	InviteCode      string    // 邀请码
+	InviterCode     string    // 邀请人邀请码
 }
 
 func (u *User) ToProto() *pb.User {

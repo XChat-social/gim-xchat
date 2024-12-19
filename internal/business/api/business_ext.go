@@ -288,6 +288,28 @@ func (s *BusinessExtServer) ClaimTaskReward(ctx context.Context, req *pb.ClaimTa
 	}, nil
 }
 
+// FillInviteCode 填写邀请码
+func (s *BusinessExtServer) FillInviteCode(ctx context.Context, req *pb.FillInviteCodeReq) (*pb.FillInviteCodeResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return &pb.FillInviteCodeResp{
+			Code:    1,
+			Message: "Failed to get user ID from context",
+		}, err
+	}
+	message, err := app2.UserApp.FillInviteCode(ctx, userId, req.InviteCode)
+	if err != nil {
+		return &pb.FillInviteCodeResp{
+			Code:    1,
+			Message: message,
+		}, err
+	}
+	return &pb.FillInviteCodeResp{
+		Code:    0,
+		Message: message,
+	}, nil
+}
+
 // exchangeCodeForToken 用授权码换取 Access Token
 func exchangeCodeForToken(code, codeVerifier string) (string, error) {
 	data := url.Values{

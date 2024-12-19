@@ -86,3 +86,7 @@ func (a *userApp) GetTaskStatus(ctx context.Context, userId int64, taskId int64)
 func (a *userApp) ClaimTaskReward(ctx context.Context, userId int64, taskId int64) (string, error) {
 	return service.RewardService.ClaimTaskReward(ctx, userId, taskId)
 }
+
+func (a *userApp) FillInviteCode(ctx context.Context, userId int64, inviteCode string) (string, error) {
+	return service.RewardService.FillInviteCode(ctx, userId, inviteCode)
+}

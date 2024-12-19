@@ -30,6 +30,7 @@ const (
 	BusinessExt_FollowTwitter_FullMethodName          = "/pb.BusinessExt/FollowTwitter"
 	BusinessExt_GetTaskStatus_FullMethodName          = "/pb.BusinessExt/GetTaskStatus"
 	BusinessExt_ClaimTaskReward_FullMethodName        = "/pb.BusinessExt/ClaimTaskReward"
+	BusinessExt_FillInviteCode_FullMethodName         = "/pb.BusinessExt/FillInviteCode"
 	BusinessExt_ModifyTaskStatus_FullMethodName       = "/pb.BusinessExt/ModifyTaskStatus"
 )
 
@@ -57,6 +58,8 @@ type BusinessExtClient interface {
 	GetTaskStatus(ctx context.Context, in *GetTaskStatusReq, opts ...grpc.CallOption) (*GetTaskStatusResp, error)
 	// 领取任务奖励
 	ClaimTaskReward(ctx context.Context, in *ClaimTaskRewardReq, opts ...grpc.CallOption) (*ClaimTaskRewardResp, error)
+	// 填写邀请码
+	FillInviteCode(ctx context.Context, in *FillInviteCodeReq, opts ...grpc.CallOption) (*FillInviteCodeResp, error)
 	ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error)
 }
 
@@ -168,6 +171,16 @@ func (c *businessExtClient) ClaimTaskReward(ctx context.Context, in *ClaimTaskRe
 	return out, nil
 }
 
+func (c *businessExtClient) FillInviteCode(ctx context.Context, in *FillInviteCodeReq, opts ...grpc.CallOption) (*FillInviteCodeResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FillInviteCodeResp)
+	err := c.cc.Invoke(ctx, BusinessExt_FillInviteCode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *businessExtClient) ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ModifyTaskStatusResp)
@@ -202,6 +215,8 @@ type BusinessExtServer interface {
 	GetTaskStatus(context.Context, *GetTaskStatusReq) (*GetTaskStatusResp, error)
 	// 领取任务奖励
 	ClaimTaskReward(context.Context, *ClaimTaskRewardReq) (*ClaimTaskRewardResp, error)
+	// 填写邀请码
+	FillInviteCode(context.Context, *FillInviteCodeReq) (*FillInviteCodeResp, error)
 	ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
@@ -242,6 +257,9 @@ func (UnimplementedBusinessExtServer) GetTaskStatus(context.Context, *GetTaskSta
 }
 func (UnimplementedBusinessExtServer) ClaimTaskReward(context.Context, *ClaimTaskRewardReq) (*ClaimTaskRewardResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ClaimTaskReward not implemented")
+}
+func (UnimplementedBusinessExtServer) FillInviteCode(context.Context, *FillInviteCodeReq) (*FillInviteCodeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FillInviteCode not implemented")
 }
 func (UnimplementedBusinessExtServer) ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyTaskStatus not implemented")
@@ -447,6 +465,24 @@ func _BusinessExt_ClaimTaskReward_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BusinessExt_FillInviteCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FillInviteCodeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).FillInviteCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_FillInviteCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).FillInviteCode(ctx, req.(*FillInviteCodeReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BusinessExt_ModifyTaskStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ModifyTaskStatusReq)
 	if err := dec(in); err != nil {
@@ -511,6 +547,10 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ClaimTaskReward",
 			Handler:    _BusinessExt_ClaimTaskReward_Handler,
+		},
+		{
+			MethodName: "FillInviteCode",
+			Handler:    _BusinessExt_FillInviteCode_Handler,
 		},
 		{
 			MethodName: "ModifyTaskStatus",

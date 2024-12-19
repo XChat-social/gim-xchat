@@ -83,15 +83,17 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 	nickname := grpcResp.UserInfo.Nickname
 	avatarUrl := grpcResp.UserInfo.AvatarUrl
 	twitterUsername := grpcResp.UserInfo.TwitterUsername
+	inviteCode := grpcResp.UserInfo.InviteCode
 
 	// 构造插件页面的跳转 URL，附加用户信息
 	redirectURL := fmt.Sprintf(
-		"https://x.com?redirect=redirectx&token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s",
+		"https://x.com?redirect=redirectx&token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s&inviteCode=%s",
 		url.QueryEscape(token),
 		url.QueryEscape(strconv.FormatInt(userId, 10)),
 		url.QueryEscape(nickname),
 		url.QueryEscape(avatarUrl),
 		url.QueryEscape(twitterUsername),
+		url.QueryEscape(inviteCode),
 	)
 
 	// 重定向到插件页面

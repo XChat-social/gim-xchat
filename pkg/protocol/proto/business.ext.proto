@@ -26,6 +26,8 @@ service BusinessExt {
   rpc GetTaskStatus (GetTaskStatusReq) returns (GetTaskStatusResp);
   // 领取任务奖励
   rpc ClaimTaskReward (ClaimTaskRewardReq) returns (ClaimTaskRewardResp);
+  // 填写邀请码
+  rpc FillInviteCode (FillInviteCodeReq) returns (FillInviteCodeResp);
 
   rpc ModifyTaskStatus (ModifyTaskStatusReq) returns (ModifyTaskStatusResp);
 }
@@ -71,6 +73,7 @@ message User {
   int32 xpoint = 10;            // 用户当前积分
   int32 follow_reward = 11;     // Twitter关注奖励状态: 0未领取, 1已领取
   string invite_code = 12;      // 邀请码
+  string inviter_code = 13;     // 邀请人邀请码
 }
 
 // 获取用户信息请求
@@ -149,6 +152,15 @@ message GetTaskStatusResp {
   int32 code = 1;             // 状态码
   string message = 2;         // 消息描述
   int32 status = 3;           // 任务状态 (1: 未完成, 2: 进行中, 3: 待领取, 4: 已领取)
+}
+
+message FillInviteCodeReq {
+  string invite_code = 1;     // 邀请码
+}
+
+message FillInviteCodeResp {
+  int32 code = 1;             // 状态码
+  string message = 2;         // 消息描述
 }
 
 // 领取任务奖励请求
