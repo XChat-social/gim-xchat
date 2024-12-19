@@ -686,5 +686,127 @@ proto.pb.BusinessExtPromiseClient.prototype.claimTaskReward =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.pb.FillInviteCodeReq,
+ *   !proto.pb.FillInviteCodeResp>}
+ */
+const methodDescriptor_BusinessExt_FillInviteCode = new grpc.web.MethodDescriptor(
+  '/pb.BusinessExt/FillInviteCode',
+  grpc.web.MethodType.UNARY,
+  proto.pb.FillInviteCodeReq,
+  proto.pb.FillInviteCodeResp,
+  /**
+   * @param {!proto.pb.FillInviteCodeReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.pb.FillInviteCodeResp.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.pb.FillInviteCodeReq} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.pb.FillInviteCodeResp)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.pb.FillInviteCodeResp>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.pb.BusinessExtClient.prototype.fillInviteCode =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/pb.BusinessExt/FillInviteCode',
+      request,
+      metadata || {},
+      methodDescriptor_BusinessExt_FillInviteCode,
+      callback);
+};
+
+
+/**
+ * @param {!proto.pb.FillInviteCodeReq} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.pb.FillInviteCodeResp>}
+ *     Promise that resolves to the response
+ */
+proto.pb.BusinessExtPromiseClient.prototype.fillInviteCode =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/pb.BusinessExt/FillInviteCode',
+      request,
+      metadata || {},
+      methodDescriptor_BusinessExt_FillInviteCode);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.pb.ModifyTaskStatusReq,
+ *   !proto.pb.ModifyTaskStatusResp>}
+ */
+const methodDescriptor_BusinessExt_ModifyTaskStatus = new grpc.web.MethodDescriptor(
+  '/pb.BusinessExt/ModifyTaskStatus',
+  grpc.web.MethodType.UNARY,
+  proto.pb.ModifyTaskStatusReq,
+  proto.pb.ModifyTaskStatusResp,
+  /**
+   * @param {!proto.pb.ModifyTaskStatusReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.pb.ModifyTaskStatusResp.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.pb.ModifyTaskStatusReq} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.pb.ModifyTaskStatusResp)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.pb.ModifyTaskStatusResp>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.pb.BusinessExtClient.prototype.modifyTaskStatus =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/pb.BusinessExt/ModifyTaskStatus',
+      request,
+      metadata || {},
+      methodDescriptor_BusinessExt_ModifyTaskStatus,
+      callback);
+};
+
+
+/**
+ * @param {!proto.pb.ModifyTaskStatusReq} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.pb.ModifyTaskStatusResp>}
+ *     Promise that resolves to the response
+ */
+proto.pb.BusinessExtPromiseClient.prototype.modifyTaskStatus =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/pb.BusinessExt/ModifyTaskStatus',
+      request,
+      metadata || {},
+      methodDescriptor_BusinessExt_ModifyTaskStatus);
+};
+
+
 module.exports = proto.pb;
 
