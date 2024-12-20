@@ -238,6 +238,11 @@ func (s *rewardService) FillInviteCode(ctx context.Context, userId int64, invite
 		return "", fmt.Errorf("failed to check invite code validity: %w", err)
 	}
 
+	// 检查邀请码是否为用户自己
+	if inviterUser.Id == userId {
+		return "", fmt.Errorf("invite code cannot be your own")
+	}
+
 	// 更新用户填写邀请码的状态
 	err = repo.UserRepo.UpdateInviteCodeStatus(userId, inviteCode)
 	if err != nil {
@@ -265,7 +270,7 @@ func (s *rewardService) FillInviteCode(ctx context.Context, userId int64, invite
 	}
 
 	// 只返回被邀请人积分的奖励信息
-	return fmt.Sprintf("%d Xpoint rewarded for using invite code", inviteeRewardAmount), nil
+	return fmt.Sprintf("Your invitation code was confirmed! + %d Xpoint!", inviteeRewardAmount), nil
 }
 
 // followUser 创建关注目标用户的关系
