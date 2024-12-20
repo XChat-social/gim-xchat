@@ -40,15 +40,15 @@ func (*userDao) Get(userId int64) (*model.User, error) {
 
 // GetUserByInviteCode 根据邀请码获取用户信息
 func (*userDao) GetUserByInviteCode(inviteCode string) (*model.User, error) {
-	var user = model.User{InviteCode: inviteCode}
-	err := db.DB.First(&user).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	var user model.User
+	err := db.DB.Where("invite_code = ?", inviteCode).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, gerrors.WrapError(err)
 	}
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
-	}
-	return &user, err
+	return &user, nil
 }
 
 // Save 保存
