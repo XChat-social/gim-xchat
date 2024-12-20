@@ -239,8 +239,8 @@ func (s *rewardService) FillInviteCode(ctx context.Context, userId int64, invite
 
 	// 检查邀请码是否有效
 	inviterUser, err := repo.UserRepo.GetUserByInviteCode(inviteCode)
-	if err != nil {
-		return "", fmt.Errorf("failed to check invite code validity: %w", err)
+	if err != nil || inviterUser == nil || inviterUser.Id == userId {
+		return "", fmt.Errorf("unable to redeem invitation code")
 	}
 
 	// 更新用户填写邀请码的状态
