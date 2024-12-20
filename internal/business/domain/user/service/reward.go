@@ -233,7 +233,7 @@ func (s *rewardService) FillInviteCode(ctx context.Context, userId int64, invite
 	}
 
 	// 检查邀请码是否为用户自己
-	if inviteCode == user.InviterCode {
+	if inviteCode == user.InviteCode {
 		return "", fmt.Errorf("unable to redeem invitation code")
 	}
 
