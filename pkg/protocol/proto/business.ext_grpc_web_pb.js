@@ -750,6 +750,67 @@ proto.pb.BusinessExtPromiseClient.prototype.fillInviteCode =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.pb.WalletSignInReq,
+ *   !proto.pb.WalletSignInResp>}
+ */
+const methodDescriptor_BusinessExt_WalletSignIn = new grpc.web.MethodDescriptor(
+  '/pb.BusinessExt/WalletSignIn',
+  grpc.web.MethodType.UNARY,
+  proto.pb.WalletSignInReq,
+  proto.pb.WalletSignInResp,
+  /**
+   * @param {!proto.pb.WalletSignInReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.pb.WalletSignInResp.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.pb.WalletSignInReq} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.pb.WalletSignInResp)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.pb.WalletSignInResp>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.pb.BusinessExtClient.prototype.walletSignIn =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/pb.BusinessExt/WalletSignIn',
+      request,
+      metadata || {},
+      methodDescriptor_BusinessExt_WalletSignIn,
+      callback);
+};
+
+
+/**
+ * @param {!proto.pb.WalletSignInReq} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.pb.WalletSignInResp>}
+ *     Promise that resolves to the response
+ */
+proto.pb.BusinessExtPromiseClient.prototype.walletSignIn =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/pb.BusinessExt/WalletSignIn',
+      request,
+      metadata || {},
+      methodDescriptor_BusinessExt_WalletSignIn);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.pb.ModifyTaskStatusReq,
  *   !proto.pb.ModifyTaskStatusResp>}
  */
