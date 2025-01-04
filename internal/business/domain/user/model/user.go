@@ -21,6 +21,7 @@ type User struct {
 	FollowReward    int32     // 推特关注状态领取: 0 未领取, 1 已领取
 	InviteCode      string    // 邀请码
 	InviterCode     string    // 邀请人邀请码
+	WalletAddress   string    // 钱包地址
 }
 
 func (u *User) ToProto() *pb.User {
@@ -41,5 +42,7 @@ func (u *User) ToProto() *pb.User {
 		Xpoint:          u.Xpoint,
 		FollowReward:    u.FollowReward,
 		InviteCode:      u.InviteCode,
+		InviterCode:     u.InviterCode,
+		WalletAddress:   u.WalletAddress, // 新增的钱包地址字段
 	}
 }

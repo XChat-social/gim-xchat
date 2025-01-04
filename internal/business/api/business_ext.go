@@ -11,6 +11,8 @@ import (
 	"gim/pkg/db"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"math/rand"
 	"net/http"
@@ -171,6 +173,84 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 			InviteCode:      getNew.InviteCode,
 		},
 	}, nil
+}
+
+// WalletSignIn 实现钱包登录
+func (s *BusinessExtServer) WalletSignIn(ctx context.Context, req *pb.WalletSignInReq) (*pb.WalletSignInResp, error) {
+	if req.WalletAddress == "" || req.Signature == "" {
+		return &pb.WalletSignInResp{
+			Code:    1,
+			Message: "Address and signature are required",
+		}, errors.New("invalid parameters")
+	}
+
+	// 生成消息进行签名验证
+	message := fmt.Sprintf("Sign this message to log in to our application. Timestamp: %d", time.Now().Unix())
+
+	// 验证签名
+	valid, err := verifySignature(req.WalletAddress, req.Signature, message)
+	if err != nil || !valid {
+		return &pb.WalletSignInResp{
+			Code:    1,
+			Message: "Invalid signature",
+		}, err
+	}
+
+	// 查找或创建用户
+	isNew, userId, token, err := app2.AuthApp.WalletSignIn(ctx, req.WalletAddress)
+	if err != nil {
+		return &pb.WalletSignInResp{
+			Code:    1,
+			Message: "Failed to sign in user",
+		}, err
+	}
+
+	getNew, err := app2.UserApp.GetNew(ctx, userId)
+	if err != nil {
+		return &pb.WalletSignInResp{
+			Code:    1,
+			Message: "Failed to get user information",
+		}, err
+	}
+
+	return &pb.WalletSignInResp{
+		Code:    0,
+		Message: "Wallet sign-in successful",
+		IsNew:   isNew,
+		UserId:  userId,
+		Token:   token,
+		UserInfo: &pb.User{
+			UserId:        userId,
+			WalletAddress: req.WalletAddress,
+			InviteCode:    getNew.InviteCode,
+		},
+	}, nil
+}
+
+// verifySignature 验证签名
+func verifySignature(address string, signature string, message string) (bool, error) {
+	// 转换地址
+	addr := common.HexToAddress(address)
+
+	// 解码签名
+	sigBytes := common.Hex2Bytes(signature)
+
+	// 生成消息哈希
+	messageHash := crypto.Keccak256Hash([]byte(message))
+
+	// 恢复签名者公钥
+	pubKey, err := crypto.SigToPub(messageHash.Bytes(), sigBytes)
+	if err != nil {
+		return false, err
+	}
+
+	// 比较地址
+	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
+	if addr == recoveredAddr {
+		return true, nil
+	}
+
+	return false, errors.New("invalid signature")
 }
 
 // DailySignIn 每日签到

@@ -123,3 +123,15 @@ func (d *userDao) UpdateInviteCodeStatus(id int64, code string) error {
 	}
 	return nil
 }
+
+func (d *userDao) GetByWalletAddress(address string) (*model.User, error) {
+	var user model.User
+	err := db.DB.First(&user, "wallet_address = ?", address).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, gerrors.WrapError(err)
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &user, nil
+}

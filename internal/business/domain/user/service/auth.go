@@ -134,6 +134,54 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 	return isNew, user.Id, token, nil
 }
 
+// WalletSignIn 通过钱包地址登录
+func (s *authService) WalletSignIn(ctx context.Context, address string) (bool, int64, string, error) {
+	// Step 1: 查找用户是否已经存在
+	user, err := repo.UserRepo.GetByWalletAddress(address)
+	if err != nil {
+		return false, 0, "", err
+	}
+
+	var isNew bool
+	if user == nil {
+		// Step 2: 如果用户不存在，创建新用户
+		isNew = true
+		inviteCode, err := generateUniqueInviteCode()
+		if err != nil {
+			return false, 0, "", err
+		}
+
+		// 假设没有其他附加数据（比如昵称等），可以直接根据地址创建用户
+		user = &model.User{
+			WalletAddress: address,
+			InviteCode:    inviteCode,
+			CreateTime:    time.Now(),
+			UpdateTime:    time.Now(),
+		}
+
+		// 保存新用户
+		if err := repo.UserRepo.Save(user); err != nil {
+			return false, 0, "", err
+		}
+	}
+
+	// Step 3: 生成会话 Token
+	token := GenerateToken()
+
+	// Step 4: 保存 Token 信息
+	err = repo.AuthRepo.Set(user.Id, 0, model.Device{
+		Type:   0,
+		Token:  token,
+		Expire: time.Now().AddDate(0, 0, 1).Unix(),
+	})
+	if err != nil {
+		return false, 0, "", err
+	}
+
+	// 返回用户是否为新用户、用户 ID 和生成的 Token
+	return isNew, user.Id, token, nil
+}
+
 // generateUniqueInviteCode 生成唯一邀请码
 func generateUniqueInviteCode() (string, error) {
 	const codeLength = 8

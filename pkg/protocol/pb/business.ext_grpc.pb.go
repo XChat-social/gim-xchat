@@ -31,6 +31,7 @@ const (
 	BusinessExt_GetTaskStatus_FullMethodName          = "/pb.BusinessExt/GetTaskStatus"
 	BusinessExt_ClaimTaskReward_FullMethodName        = "/pb.BusinessExt/ClaimTaskReward"
 	BusinessExt_FillInviteCode_FullMethodName         = "/pb.BusinessExt/FillInviteCode"
+	BusinessExt_WalletSignIn_FullMethodName           = "/pb.BusinessExt/WalletSignIn"
 	BusinessExt_ModifyTaskStatus_FullMethodName       = "/pb.BusinessExt/ModifyTaskStatus"
 )
 
@@ -60,6 +61,8 @@ type BusinessExtClient interface {
 	ClaimTaskReward(ctx context.Context, in *ClaimTaskRewardReq, opts ...grpc.CallOption) (*ClaimTaskRewardResp, error)
 	// 填写邀请码
 	FillInviteCode(ctx context.Context, in *FillInviteCodeReq, opts ...grpc.CallOption) (*FillInviteCodeResp, error)
+	// 钱包登录接口
+	WalletSignIn(ctx context.Context, in *WalletSignInReq, opts ...grpc.CallOption) (*WalletSignInResp, error)
 	ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error)
 }
 
@@ -181,6 +184,16 @@ func (c *businessExtClient) FillInviteCode(ctx context.Context, in *FillInviteCo
 	return out, nil
 }
 
+func (c *businessExtClient) WalletSignIn(ctx context.Context, in *WalletSignInReq, opts ...grpc.CallOption) (*WalletSignInResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WalletSignInResp)
+	err := c.cc.Invoke(ctx, BusinessExt_WalletSignIn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *businessExtClient) ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ModifyTaskStatusResp)
@@ -217,6 +230,8 @@ type BusinessExtServer interface {
 	ClaimTaskReward(context.Context, *ClaimTaskRewardReq) (*ClaimTaskRewardResp, error)
 	// 填写邀请码
 	FillInviteCode(context.Context, *FillInviteCodeReq) (*FillInviteCodeResp, error)
+	// 钱包登录接口
+	WalletSignIn(context.Context, *WalletSignInReq) (*WalletSignInResp, error)
 	ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
@@ -260,6 +275,9 @@ func (UnimplementedBusinessExtServer) ClaimTaskReward(context.Context, *ClaimTas
 }
 func (UnimplementedBusinessExtServer) FillInviteCode(context.Context, *FillInviteCodeReq) (*FillInviteCodeResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FillInviteCode not implemented")
+}
+func (UnimplementedBusinessExtServer) WalletSignIn(context.Context, *WalletSignInReq) (*WalletSignInResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WalletSignIn not implemented")
 }
 func (UnimplementedBusinessExtServer) ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyTaskStatus not implemented")
@@ -483,6 +501,24 @@ func _BusinessExt_FillInviteCode_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BusinessExt_WalletSignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WalletSignInReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).WalletSignIn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_WalletSignIn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).WalletSignIn(ctx, req.(*WalletSignInReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BusinessExt_ModifyTaskStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ModifyTaskStatusReq)
 	if err := dec(in); err != nil {
@@ -551,6 +587,10 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FillInviteCode",
 			Handler:    _BusinessExt_FillInviteCode_Handler,
+		},
+		{
+			MethodName: "WalletSignIn",
+			Handler:    _BusinessExt_WalletSignIn_Handler,
 		},
 		{
 			MethodName: "ModifyTaskStatus",

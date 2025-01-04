@@ -22,3 +22,7 @@ func (*authApp) Auth(ctx context.Context, userId, deviceId int64, token string) 
 func (*authApp) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar, accessToken string) (bool, int64, string, error) {
 	return service.AuthService.TwitterSignIn(ctx, twitterID, name, username, avatar, accessToken)
 }
+
+func (a *authApp) WalletSignIn(ctx context.Context, address string) (bool, int64, string, error) {
+	return service.AuthService.WalletSignIn(ctx, address)
+}
