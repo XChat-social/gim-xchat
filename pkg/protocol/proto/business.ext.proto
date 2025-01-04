@@ -29,7 +29,27 @@ service BusinessExt {
   // 填写邀请码
   rpc FillInviteCode (FillInviteCodeReq) returns (FillInviteCodeResp);
 
+  // 钱包登录接口
+  rpc WalletSignIn (WalletSignInReq) returns (WalletSignInResp);
+
   rpc ModifyTaskStatus (ModifyTaskStatusReq) returns (ModifyTaskStatusResp);
+}
+
+// 钱包登录请求
+message WalletSignInReq {
+  string wallet_address = 1;        // 钱包地址 (如以太坊地址)
+  string signature = 2;             // 签名数据 (用户用钱包签名的身份验证信息)
+  string message = 3;               // 原始消息 (可以是时间戳、nonce等，用于防止重放攻击)
+}
+
+// 钱包登录响应
+message WalletSignInResp {
+  int32 code = 1;                   // 状态码
+  string message = 2;               // 消息描述
+  bool is_new = 3;                  // 是否是新用户
+  int64 user_id = 4;                // 用户ID
+  string token = 5;                 // Token (返回给客户端用于后续请求)
+  User user_info = 6;               // 用户信息
 }
 
 // 修改任务状态请求
@@ -74,6 +94,7 @@ message User {
   int32 follow_reward = 11;     // Twitter关注奖励状态: 0未领取, 1已领取
   string invite_code = 12;      // 邀请码
   string inviter_code = 13;     // 邀请人邀请码
+  string wallet_address = 14;   // 钱包地址
 }
 
 // 获取用户信息请求

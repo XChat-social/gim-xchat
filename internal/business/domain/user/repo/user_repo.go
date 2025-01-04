@@ -88,3 +88,7 @@ func (*userRepo) GetUserByInviteCode(inviteCode string) (*model.User, error) {
 func (*userRepo) UpdateInviteCodeStatus(id int64, code string) error {
 	return UserDao.UpdateInviteCodeStatus(id, code)
 }
+
+func (r *userRepo) GetByWalletAddress(address string) (*model.User, error) {
+	return UserDao.GetByWalletAddress(address)
+}
