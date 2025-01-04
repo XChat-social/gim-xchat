@@ -12,7 +12,7 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/storyicon/sigverify"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"math/rand"
 	"net/http"
@@ -184,11 +184,8 @@ func (s *BusinessExtServer) WalletSignIn(ctx context.Context, req *pb.WalletSign
 		}, errors.New("invalid parameters")
 	}
 
-	// 生成消息进行签名验证
-	message := fmt.Sprintf("Sign this message to log in to our application. Timestamp: %d", time.Now().Unix())
-
 	// 验证签名
-	valid, err := verifySignature(req.WalletAddress, req.Signature, message)
+	valid, err := verifySignature(req.WalletAddress, req.Signature, req.Message)
 	if err != nil || !valid {
 		return &pb.WalletSignInResp{
 			Code:    1,
@@ -228,29 +225,16 @@ func (s *BusinessExtServer) WalletSignIn(ctx context.Context, req *pb.WalletSign
 }
 
 // verifySignature 验证签名
-func verifySignature(address string, signature string, message string) (bool, error) {
-	// 转换地址
-	addr := common.HexToAddress(address)
-
-	// 解码签名
-	sigBytes := common.Hex2Bytes(signature)
-
-	// 生成消息哈希
-	messageHash := crypto.Keccak256Hash([]byte(message))
-
-	// 恢复签名者公钥
-	pubKey, err := crypto.SigToPub(messageHash.Bytes(), sigBytes)
+func verifySignature(address, message, signature string) (bool, error) {
+	valid, err := sigverify.VerifyEllipticCurveHexSignatureEx(
+		common.HexToAddress(address),
+		[]byte(message),
+		signature,
+	)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("签名验证失败: %v", err)
 	}
-
-	// 比较地址
-	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
-	if addr == recoveredAddr {
-		return true, nil
-	}
-
-	return false, errors.New("invalid signature")
+	return valid, nil
 }
 
 // DailySignIn 每日签到
