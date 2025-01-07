@@ -185,7 +185,7 @@ func (s *BusinessExtServer) WalletSignIn(ctx context.Context, req *pb.WalletSign
 	}
 
 	// 验证签名
-	valid, err := verifySignature(req.WalletAddress, req.Signature, req.Message)
+	valid, err := verifySignature(req.WalletAddress, req.Message, req.Signature)
 	if err != nil || !valid {
 		return &pb.WalletSignInResp{
 			Code:    1,
