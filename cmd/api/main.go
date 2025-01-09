@@ -37,6 +37,12 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	address := r.URL.Query().Get("walletAddress")
+	if address == "" {
+		http.Error(w, "State is required", http.StatusBadRequest)
+		return
+	}
+
 	// 调用 gRPC 服务
 	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure())
 	if err != nil {
@@ -50,6 +56,7 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 	grpcResp, err := client.TwitterSignIn(context.Background(), &pb.TwitterSignInReq{
 		AuthorizationCode: authorizationCode,
 		State:             state,
+		WalletAddress:     address,
 	})
 	if err != nil {
 		http.Error(w, "Failed to call gRPC service: "+err.Error(), http.StatusInternalServerError)
@@ -84,6 +91,7 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 	avatarUrl := grpcResp.UserInfo.AvatarUrl
 	twitterUsername := grpcResp.UserInfo.TwitterUsername
 	inviteCode := grpcResp.UserInfo.InviteCode
+	walletAddress := grpcResp.UserInfo.WalletAddress
 
 	// 构造插件页面的跳转 URL，附加用户信息
 	redirectURL := fmt.Sprintf(
@@ -94,6 +102,7 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 		url.QueryEscape(avatarUrl),
 		url.QueryEscape(twitterUsername),
 		url.QueryEscape(inviteCode),
+		url.QueryEscape(walletAddress),
 	)
 
 	// 重定向到插件页面
