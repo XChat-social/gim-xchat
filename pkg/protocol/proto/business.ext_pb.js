@@ -3344,7 +3344,8 @@ proto.pb.TwitterSignInReq.prototype.toObject = function(opt_includeInstance) {
 proto.pb.TwitterSignInReq.toObject = function(includeInstance, msg) {
   var f, obj = {
 authorizationCode: jspb.Message.getFieldWithDefault(msg, 1, ""),
-state: jspb.Message.getFieldWithDefault(msg, 2, "")
+state: jspb.Message.getFieldWithDefault(msg, 2, ""),
+walletAddress: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -3389,6 +3390,10 @@ proto.pb.TwitterSignInReq.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setState(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setWalletAddress(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -3432,6 +3437,13 @@ proto.pb.TwitterSignInReq.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getWalletAddress();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -3468,6 +3480,24 @@ proto.pb.TwitterSignInReq.prototype.getState = function() {
  */
 proto.pb.TwitterSignInReq.prototype.setState = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string wallet_address = 3;
+ * @return {string}
+ */
+proto.pb.TwitterSignInReq.prototype.getWalletAddress = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.pb.TwitterSignInReq} returns this
+ */
+proto.pb.TwitterSignInReq.prototype.setWalletAddress = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 

@@ -142,7 +142,7 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 		}, err
 	}
 
-	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken)
+	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken, req.WalletAddress)
 	if err != nil {
 		return &pb.TwitterSignInResp{
 			Code:    1,

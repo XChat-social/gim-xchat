@@ -60,6 +60,15 @@ func (*userDao) Save(user *model.User) error {
 	return nil
 }
 
+// Update 更新用户
+func (*userDao) Update(user *model.User) error {
+	err := db.DB.Model(&model.User{}).Where("id = ?", user.Id).Updates(user).Error
+	if err != nil {
+		return gerrors.WrapError(err)
+	}
+	return nil
+}
+
 // GetByPhoneNumber 根据手机号获取用户信息
 func (*userDao) GetByPhoneNumber(phoneNumber string) (*model.User, error) {
 	var user model.User
