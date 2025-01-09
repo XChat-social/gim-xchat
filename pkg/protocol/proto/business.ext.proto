@@ -138,6 +138,7 @@ message TwitterAuthorizeURLResp {
 message TwitterSignInReq {
   string authorization_code = 1; // 授权码
   string state = 2;              // 状态
+  string wallet_address = 3;     // 钱包地址
 }
 
 // 推特登录响应

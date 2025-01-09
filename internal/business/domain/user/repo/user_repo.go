@@ -77,6 +77,23 @@ func (*userRepo) Save(user *model.User) error {
 	return nil
 }
 
+// Update 更新用户
+func (*userRepo) Update(user *model.User) error {
+	userId := user.Id
+	err := UserDao.Update(user)
+	if err != nil {
+		return err
+	}
+
+	if userId != 0 {
+		err = UserCache.Del(user.Id)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (r *userRepo) InviteCodeExists(code string) (bool, error) {
 	return UserDao.InviteCodeExists(code)
 }
