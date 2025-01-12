@@ -39,7 +39,7 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 
 	address := r.URL.Query().Get("walletAddress")
 	if address == "" {
-		http.Error(w, "State is required", http.StatusBadRequest)
+		http.Error(w, "walletAddress is required", http.StatusBadRequest)
 		return
 	}
 
