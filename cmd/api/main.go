@@ -38,6 +38,10 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	address := r.URL.Query().Get("walletAddress")
+	if address == "" {
+		http.Error(w, "walletAddress is required", http.StatusBadRequest)
+		return
+	}
 
 	// 调用 gRPC 服务
 	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure())
