@@ -97,8 +97,8 @@ func (s *BusinessExtServer) GetTwitterAuthorizeURL(ctx context.Context, req *emp
 	}
 
 	authorizeURL := fmt.Sprintf(
-		"%s?response_type=code&client_id=%s&redirect_uri=%s&scope=tweet.read users.read follows.read follows.write&state=%s&code_challenge=%s&code_challenge_method=S256",
-		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURI), state, codeChallenge,
+		"%s?response_type=code&client_id=%s&redirect_uri=%s&scope=tweet.read users.read follows.read follows.write&state=%s&code_challenge=%s&code_challenge_method=S256&walletAddress=%s",
+		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURI), state, codeChallenge, "",
 	)
 
 	return &pb.TwitterAuthorizeURLResp{
