@@ -15,7 +15,7 @@ service BusinessExt {
   rpc SearchUser (SearchUserReq) returns (SearchUserResp);
 
   // 获取推特授权 URL
-  rpc GetTwitterAuthorizeURL (google.protobuf.Empty) returns (TwitterAuthorizeURLResp);
+  rpc GetTwitterAuthorizeURL (GetTwitterAuthorizeURLReq) returns (TwitterAuthorizeURLResp);
   // 推特登录
   rpc TwitterSignIn (TwitterSignInReq) returns (TwitterSignInResp);
   // 每日签到接口
@@ -33,6 +33,11 @@ service BusinessExt {
   rpc WalletSignIn (WalletSignInReq) returns (WalletSignInResp);
 
   rpc ModifyTaskStatus (ModifyTaskStatusReq) returns (ModifyTaskStatusResp);
+}
+
+// 请求消息，包含 walletAddress 参数
+message GetTwitterAuthorizeURLReq {
+  string wallet_address = 1;  // 钱包地址
 }
 
 // 钱包登录请求

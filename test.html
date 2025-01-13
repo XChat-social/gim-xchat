@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaMask 钱包登录</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+<h2>MetaMask 钱包登录</h2>
+<button id="connectButton">连接钱包</button><br><br>
+
+<label for="message">输入消息 (用于签名):</label><br>
+<input type="text" id="message" value="登录验证消息"><br><br>
+
+<button id="signButton" style="display:none;">签名消息</button><br><br>
+
+<div>
+    <p><strong>钱包地址:</strong> <span id="walletAddress">未连接</span></p>
+    <p><strong>签名:</strong> <span id="signature">未签名</span></p>
+    <p><strong>消息:</strong> <span id="messageContent">无</span></p>
+</div>
+
+<script>
+    // 判断 MetaMask 是否安装
+    if (typeof window.ethereum === 'undefined' && typeof window.web3 === 'undefined') {
+        alert("请安装 MetaMask 钱包!");
+    }
+
+    const connectButton = document.getElementById('connectButton');
+    const signButton = document.getElementById('signButton');
+    const walletAddressElement = document.getElementById('walletAddress');
+    const signatureElement = document.getElementById('signature');
+    const messageContentElement = document.getElementById('messageContent');
+    const messageInput = document.getElementById('message');
+
+    let signer;
+
+    // 连接钱包
+    connectButton.addEventListener('click', async () => {
+        try {
+            // 请求连接 MetaMask 钱包
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+            // 获取钱包地址
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            const walletAddress = await signer.getAddress();
+            walletAddressElement.textContent = walletAddress;
+
+            // 显示签名按钮
+            signButton.style.display = 'inline-block';
+        } catch (error) {
+            alert("连接钱包失败：" + error.message);
+        }
+    });
+
+    // 签名消息
+    signButton.addEventListener('click', async () => {
+        try {
+            const message = messageInput.value;
+            const signature = await signer.signMessage(message);
+
+            // 显示签名和消息
+            signatureElement.textContent = signature;
+            messageContentElement.textContent = message;
+
+            console.log("签名:", signature);  // 输出签名
+        } catch (error) {
+            alert("签名失败：" + error.message);
+        }
+    });
+</script>
+</body>
+</html>

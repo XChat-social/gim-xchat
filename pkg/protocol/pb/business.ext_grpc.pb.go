@@ -48,7 +48,7 @@ type BusinessExtClient interface {
 	// 搜索用户(这里简单数据库实现，生产环境建议使用ES)
 	SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
 	// 获取推特授权 URL
-	GetTwitterAuthorizeURL(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TwitterAuthorizeURLResp, error)
+	GetTwitterAuthorizeURL(ctx context.Context, in *GetTwitterAuthorizeURLReq, opts ...grpc.CallOption) (*TwitterAuthorizeURLResp, error)
 	// 推特登录
 	TwitterSignIn(ctx context.Context, in *TwitterSignInReq, opts ...grpc.CallOption) (*TwitterSignInResp, error)
 	// 每日签到接口
@@ -114,7 +114,7 @@ func (c *businessExtClient) SearchUser(ctx context.Context, in *SearchUserReq, o
 	return out, nil
 }
 
-func (c *businessExtClient) GetTwitterAuthorizeURL(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TwitterAuthorizeURLResp, error) {
+func (c *businessExtClient) GetTwitterAuthorizeURL(ctx context.Context, in *GetTwitterAuthorizeURLReq, opts ...grpc.CallOption) (*TwitterAuthorizeURLResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TwitterAuthorizeURLResp)
 	err := c.cc.Invoke(ctx, BusinessExt_GetTwitterAuthorizeURL_FullMethodName, in, out, cOpts...)
@@ -217,7 +217,7 @@ type BusinessExtServer interface {
 	// 搜索用户(这里简单数据库实现，生产环境建议使用ES)
 	SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error)
 	// 获取推特授权 URL
-	GetTwitterAuthorizeURL(context.Context, *emptypb.Empty) (*TwitterAuthorizeURLResp, error)
+	GetTwitterAuthorizeURL(context.Context, *GetTwitterAuthorizeURLReq) (*TwitterAuthorizeURLResp, error)
 	// 推特登录
 	TwitterSignIn(context.Context, *TwitterSignInReq) (*TwitterSignInResp, error)
 	// 每日签到接口
@@ -255,7 +255,7 @@ func (UnimplementedBusinessExtServer) UpdateUser(context.Context, *UpdateUserReq
 func (UnimplementedBusinessExtServer) SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
 }
-func (UnimplementedBusinessExtServer) GetTwitterAuthorizeURL(context.Context, *emptypb.Empty) (*TwitterAuthorizeURLResp, error) {
+func (UnimplementedBusinessExtServer) GetTwitterAuthorizeURL(context.Context, *GetTwitterAuthorizeURLReq) (*TwitterAuthorizeURLResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTwitterAuthorizeURL not implemented")
 }
 func (UnimplementedBusinessExtServer) TwitterSignIn(context.Context, *TwitterSignInReq) (*TwitterSignInResp, error) {
@@ -376,7 +376,7 @@ func _BusinessExt_SearchUser_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _BusinessExt_GetTwitterAuthorizeURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetTwitterAuthorizeURLReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -388,7 +388,7 @@ func _BusinessExt_GetTwitterAuthorizeURL_Handler(srv interface{}, ctx context.Co
 		FullMethod: BusinessExt_GetTwitterAuthorizeURL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BusinessExtServer).GetTwitterAuthorizeURL(ctx, req.(*emptypb.Empty))
+		return srv.(BusinessExtServer).GetTwitterAuthorizeURL(ctx, req.(*GetTwitterAuthorizeURLReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
