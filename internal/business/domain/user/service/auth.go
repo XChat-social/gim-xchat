@@ -93,16 +93,15 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 	var addressUser *model.User
 	var err error
 	user, err = repo.UserRepo.GetByTwitterID(twitterID)
-	addressUser, err = repo.UserRepo.GetByWalletAddress(walletAddress)
-
+	if walletAddress != "" {
+		addressUser, err = repo.UserRepo.GetByWalletAddress(walletAddress)
+	}
 	if err != nil {
 		return false, 0, "", err
 	}
-
 	if user != nil && addressUser != nil && user.Id != addressUser.Id {
 		return false, 0, "", gerrors.ErrUserAlreadyExists
 	}
-
 	if user == nil && addressUser != nil {
 		addressUser.TwitterID = twitterID
 		addressUser.Nickname = name
@@ -113,7 +112,6 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 			return false, 0, "", err
 		}
 	}
-
 	if user != nil && addressUser == nil {
 		user.WalletAddress = walletAddress
 		user.UpdateTime = time.Now()
@@ -121,7 +119,6 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 			return false, 0, "", err
 		}
 	}
-
 	var isNew = false
 	if user == nil {
 		// Step 2: 如果用户不存在，创建新用户
