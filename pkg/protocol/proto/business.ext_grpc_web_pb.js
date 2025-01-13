@@ -323,16 +323,16 @@ proto.pb.BusinessExtPromiseClient.prototype.searchUser =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.google.protobuf.Empty,
+ *   !proto.pb.GetTwitterAuthorizeURLReq,
  *   !proto.pb.TwitterAuthorizeURLResp>}
  */
 const methodDescriptor_BusinessExt_GetTwitterAuthorizeURL = new grpc.web.MethodDescriptor(
   '/pb.BusinessExt/GetTwitterAuthorizeURL',
   grpc.web.MethodType.UNARY,
-  google_protobuf_empty_pb.Empty,
+  proto.pb.GetTwitterAuthorizeURLReq,
   proto.pb.TwitterAuthorizeURLResp,
   /**
-   * @param {!proto.google.protobuf.Empty} request
+   * @param {!proto.pb.GetTwitterAuthorizeURLReq} request
    * @return {!Uint8Array}
    */
   function(request) {
@@ -343,7 +343,7 @@ const methodDescriptor_BusinessExt_GetTwitterAuthorizeURL = new grpc.web.MethodD
 
 
 /**
- * @param {!proto.google.protobuf.Empty} request The
+ * @param {!proto.pb.GetTwitterAuthorizeURLReq} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
@@ -364,7 +364,7 @@ proto.pb.BusinessExtClient.prototype.getTwitterAuthorizeURL =
 
 
 /**
- * @param {!proto.google.protobuf.Empty} request The
+ * @param {!proto.pb.GetTwitterAuthorizeURLReq} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
