@@ -44,7 +44,6 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid state format", http.StatusBadRequest)
 		return
 	}
-	state = stateParts[0]
 	address := stateParts[1]
 
 	// 调用 gRPC 服务
