@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"google.golang.org/grpc"
 )
@@ -37,7 +38,13 @@ func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	address := r.URL.Query().Get("walletAddress")
+	// 截取 state 中的 walletAddress
+	stateParts := strings.Split(state, ":")
+	if len(stateParts) != 2 {
+		http.Error(w, "Invalid state format", http.StatusBadRequest)
+		return
+	}
+	address := stateParts[1]
 
 	// 调用 gRPC 服务
 	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure())
