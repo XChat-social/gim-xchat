@@ -99,6 +99,10 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 		return false, 0, "", err
 	}
 
+	if user != nil && addressUser != nil && user.Id != addressUser.Id {
+		return false, 0, "", gerrors.ErrUserAlreadyExists
+	}
+
 	if user == nil && addressUser != nil {
 		addressUser.TwitterID = twitterID
 		addressUser.Nickname = name

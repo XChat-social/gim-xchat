@@ -10,12 +10,13 @@ var (
 	ErrUnauthorized = newError(10000, "请重新登录")
 	ErrBadRequest   = newError(10001, "请求参数错误")
 
-	ErrBadCode         = newError(10010, "验证码错误")
-	ErrNotInGroup      = newError(10011, "用户没有在群组中")
-	ErrGroupNotExist   = newError(10013, "群组不存在")
-	ErrDeviceNotExist  = newError(10014, "设备不存在")
-	ErrAlreadyIsFriend = newError(10015, "对方已经是好友了")
-	ErrUserNotFound    = newError(10016, "用户找不到")
+	ErrBadCode           = newError(10010, "验证码错误")
+	ErrNotInGroup        = newError(10011, "用户没有在群组中")
+	ErrGroupNotExist     = newError(10013, "群组不存在")
+	ErrDeviceNotExist    = newError(10014, "设备不存在")
+	ErrAlreadyIsFriend   = newError(10015, "对方已经是好友了")
+	ErrUserNotFound      = newError(10016, "用户找不到")
+	ErrUserAlreadyExists = newError(10016, "user already exists")
 )
 
 func newError(code int, message string) error {
