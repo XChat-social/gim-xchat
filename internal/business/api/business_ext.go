@@ -96,9 +96,12 @@ func (s *BusinessExtServer) GetTwitterAuthorizeURL(ctx context.Context, req *emp
 		}, err
 	}
 
+	// 将 walletAddress 作为 redirect_uri 的查询参数附加
+	redirectURIWithWallet := fmt.Sprintf("%s?walletAddress=%s", redirectURI, url.QueryEscape("walletAddress"))
+
 	authorizeURL := fmt.Sprintf(
 		"%s?response_type=code&client_id=%s&redirect_uri=%s&scope=tweet.read users.read follows.read follows.write&state=%s&code_challenge=%s&code_challenge_method=S256",
-		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURI), state, codeChallenge,
+		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURIWithWallet), state, codeChallenge,
 	)
 
 	return &pb.TwitterAuthorizeURLResp{
