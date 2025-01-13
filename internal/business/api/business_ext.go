@@ -85,10 +85,11 @@ func (s *BusinessExtServer) SearchUser(ctx context.Context, req *pb.SearchUserRe
 
 // GetTwitterAuthorizeURL 获取 Twitter 授权 URL
 func (s *BusinessExtServer) GetTwitterAuthorizeURL(ctx context.Context, req *pb.GetTwitterAuthorizeURLReq) (*pb.TwitterAuthorizeURLResp, error) {
+	state := generateRandomState()
 	codeVerifier := generateCodeVerifier()
 	codeChallenge := generateCodeChallenge(codeVerifier)
 	address := req.WalletAddress
-	state := fmt.Sprintf("%s:%s", generateRandomState(), address)
+	walletState := fmt.Sprintf("%s:%s", generateRandomState(), address)
 	if err := saveToRedis(state, codeVerifier); err != nil {
 		return &pb.TwitterAuthorizeURLResp{
 			Code:    1,
@@ -97,7 +98,7 @@ func (s *BusinessExtServer) GetTwitterAuthorizeURL(ctx context.Context, req *pb.
 	}
 	authorizeURL := fmt.Sprintf(
 		"%s?response_type=code&client_id=%s&redirect_uri=%s&scope=tweet.read users.read follows.read follows.write&state=%s&code_challenge=%s&code_challenge_method=S256",
-		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURI), state, codeChallenge,
+		twitterAuthorizeURL, clientID, url.QueryEscape(redirectURI), walletState, codeChallenge,
 	)
 
 	return &pb.TwitterAuthorizeURLResp{
