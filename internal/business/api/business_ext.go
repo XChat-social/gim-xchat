@@ -9,6 +9,7 @@ import (
 	"fmt"
 	app2 "gim/internal/business/domain/user/app"
 	"gim/pkg/db"
+	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
 	"github.com/ethereum/go-ethereum/common"
@@ -142,7 +143,7 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 	}
 
 	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken, req.WalletAddress)
-	if err != nil {
+	if err != nil && !errors.Is(err, gerrors.ErrUserAlreadyExists) {
 		return &pb.TwitterSignInResp{
 			Code:    1,
 			Message: "Failed to sign in user",
@@ -155,6 +156,11 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 			Code:    1,
 			Message: "Failed to get user information",
 		}, err
+	}
+
+	var errMessage string
+	if errors.Is(err, gerrors.ErrUserAlreadyExists) {
+		errMessage = gerrors.ErrUserAlreadyExists.Error()
 	}
 
 	return &pb.TwitterSignInResp{
@@ -171,6 +177,7 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 			TwitterUsername: twitterUser.Username,
 			InviteCode:      getNew.InviteCode,
 		},
+		ErrMessage: errMessage,
 	}, nil
 }
 
