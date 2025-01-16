@@ -99,6 +99,19 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 	if err != nil {
 		return false, 0, "", err
 	}
+	if user != nil && addressUser != nil && user.Id != addressUser.Id {
+		token := GenerateToken()
+		err = repo.AuthRepo.Set(user.Id, 0, model.Device{ // DeviceId 设为 0 表示无需设备信息
+			Type:        0,
+			Token:       token,
+			AccessToken: accessToken,
+			Expire:      time.Now().AddDate(0, 0, 1).Unix(),
+		})
+		if err != nil {
+			return false, 0, "", err
+		}
+		return false, 0, "", gerrors.ErrUserAlreadyExists
+	}
 	if user == nil && addressUser != nil {
 		addressUser.TwitterID = twitterID
 		addressUser.Nickname = name
@@ -150,9 +163,6 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 	})
 	if err != nil {
 		return false, 0, "", err
-	}
-	if addressUser != nil && user.Id != addressUser.Id {
-		return isNew, user.Id, token, gerrors.ErrUserAlreadyExists
 	}
 	return isNew, user.Id, token, nil
 }
