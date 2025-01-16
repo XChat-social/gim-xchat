@@ -3690,7 +3690,8 @@ message: jspb.Message.getFieldWithDefault(msg, 2, ""),
 isNew: jspb.Message.getBooleanFieldWithDefault(msg, 3, false),
 userId: jspb.Message.getFieldWithDefault(msg, 4, 0),
 token: jspb.Message.getFieldWithDefault(msg, 5, ""),
-userInfo: (f = msg.getUserInfo()) && proto.pb.User.toObject(includeInstance, f)
+userInfo: (f = msg.getUserInfo()) && proto.pb.User.toObject(includeInstance, f),
+errMessage: jspb.Message.getFieldWithDefault(msg, 7, "")
   };
 
   if (includeInstance) {
@@ -3751,6 +3752,10 @@ proto.pb.TwitterSignInResp.deserializeBinaryFromReader = function(msg, reader) {
       var value = new proto.pb.User;
       reader.readMessage(value,proto.pb.User.deserializeBinaryFromReader);
       msg.setUserInfo(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setErrMessage(value);
       break;
     default:
       reader.skipField();
@@ -3822,6 +3827,13 @@ proto.pb.TwitterSignInResp.serializeBinaryToWriter = function(message, writer) {
       6,
       f,
       proto.pb.User.serializeBinaryToWriter
+    );
+  }
+  f = message.getErrMessage();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
+      f
     );
   }
 };
@@ -3951,6 +3963,24 @@ proto.pb.TwitterSignInResp.prototype.clearUserInfo = function() {
  */
 proto.pb.TwitterSignInResp.prototype.hasUserInfo = function() {
   return jspb.Message.getField(this, 6) != null;
+};
+
+
+/**
+ * optional string err_message = 7;
+ * @return {string}
+ */
+proto.pb.TwitterSignInResp.prototype.getErrMessage = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.pb.TwitterSignInResp} returns this
+ */
+proto.pb.TwitterSignInResp.prototype.setErrMessage = function(value) {
+  return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 

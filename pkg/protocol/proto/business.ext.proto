@@ -154,6 +154,7 @@ message TwitterSignInResp {
   int64 user_id = 4;          // 用户ID
   string token = 5;           // Token
   User user_info = 6;         // 用户信息
+  string err_message = 7;
 }
 
 // 每日签到响应
