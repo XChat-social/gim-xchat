@@ -143,6 +143,10 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 	}
 
 	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken, req.WalletAddress)
+	var errMessage string
+	if errors.Is(err, gerrors.ErrUserAlreadyExists) {
+		errMessage = gerrors.ErrUserAlreadyExists.Error()
+	}
 	if err != nil && !errors.Is(err, gerrors.ErrUserAlreadyExists) {
 		return &pb.TwitterSignInResp{
 			Code:    1,
@@ -156,11 +160,6 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 			Code:    1,
 			Message: "Failed to get user information",
 		}, err
-	}
-
-	var errMessage string
-	if errors.Is(err, gerrors.ErrUserAlreadyExists) {
-		errMessage = gerrors.ErrUserAlreadyExists.Error()
 	}
 
 	return &pb.TwitterSignInResp{
