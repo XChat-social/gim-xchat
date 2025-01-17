@@ -88,7 +88,8 @@ func (*authService) Auth(ctx context.Context, userId, deviceId int64, token stri
 }
 
 // TwitterSignIn 实现 Twitter 登录逻辑
-func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar, accessToken, walletAddress string) (bool, int64, string, error) {
+func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar, accessToken, walletAddress string) (bool, int64, string, int64, error) {
+	var signStatus int64 // 0表示登录 1表示绑定
 	var user *model.User
 	var addressUser *model.User
 	var err error
@@ -97,7 +98,7 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 		addressUser, err = repo.UserRepo.GetByWalletAddress(walletAddress)
 	}
 	if err != nil {
-		return false, 0, "", err
+		return false, 0, "", signStatus, err
 	}
 	if user != nil && addressUser != nil && user.Id != addressUser.Id {
 		token := GenerateToken()
@@ -108,25 +109,27 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 			Expire:      time.Now().AddDate(0, 0, 1).Unix(),
 		})
 		if err != nil {
-			return false, 0, "", err
+			return false, 0, "", signStatus, err
 		}
-		return false, 0, "", gerrors.ErrUserAlreadyExists
+		return false, 0, "", signStatus, gerrors.ErrUserAlreadyExists
 	}
 	if user == nil && addressUser != nil {
+		signStatus = 1
 		addressUser.TwitterID = twitterID
 		addressUser.Nickname = name
 		addressUser.TwitterUsername = username
 		addressUser.AvatarUrl = avatar
 		addressUser.UpdateTime = time.Now()
 		if err = repo.UserRepo.Update(addressUser); err != nil {
-			return false, 0, "", err
+			return false, 0, "", signStatus, err
 		}
 	}
 	if user != nil && addressUser == nil {
+		signStatus = 1
 		user.WalletAddress = walletAddress
 		user.UpdateTime = time.Now()
 		if err = repo.UserRepo.Update(user); err != nil {
-			return false, 0, "", err
+			return false, 0, "", signStatus, err
 		}
 	}
 	var isNew = false
@@ -135,7 +138,7 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 		isNew = true
 		inviteCode, err := generateUniqueInviteCode()
 		if err != nil {
-			return false, 0, "", err
+			return false, 0, "", signStatus, err
 		}
 		user = &model.User{
 			TwitterID:       twitterID,
@@ -147,7 +150,7 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 			UpdateTime:      time.Now(),
 		}
 		if err := repo.UserRepo.Save(user); err != nil {
-			return false, 0, "", err
+			return false, 0, "", signStatus, err
 		}
 	}
 
@@ -162,9 +165,9 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 		Expire:      time.Now().AddDate(0, 0, 1).Unix(),
 	})
 	if err != nil {
-		return false, 0, "", err
+		return false, 0, "", signStatus, err
 	}
-	return isNew, user.Id, token, nil
+	return isNew, user.Id, token, signStatus, nil
 }
 
 // WalletSignIn 通过钱包地址登录
