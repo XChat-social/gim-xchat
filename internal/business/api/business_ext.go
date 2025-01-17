@@ -142,10 +142,13 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 		}, err
 	}
 
-	isNew, userId, token, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken, req.WalletAddress)
+	isNew, userId, token, signStatus, err := app2.AuthApp.TwitterSignIn(ctx, twitterUser.ID, twitterUser.Name, twitterUser.Username, twitterUser.Avatar, accessToken, req.WalletAddress)
 	var errMessage string
 	if errors.Is(err, gerrors.ErrUserAlreadyExists) {
-		errMessage = gerrors.ErrUserAlreadyExists.Error()
+		errMessage = "userexists"
+	}
+	if signStatus == 1 {
+		errMessage = "bindsuccess"
 	}
 	if err != nil && !errors.Is(err, gerrors.ErrUserAlreadyExists) {
 		return &pb.TwitterSignInResp{
