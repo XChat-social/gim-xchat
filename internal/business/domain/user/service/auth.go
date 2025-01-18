@@ -95,6 +95,7 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 	var err error
 	user, err = repo.UserRepo.GetByTwitterID(twitterID)
 	if walletAddress != "" {
+		signStatus = 1
 		addressUser, err = repo.UserRepo.GetByWalletAddress(walletAddress)
 	}
 	if err != nil {
@@ -114,7 +115,6 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 		return false, 0, "", signStatus, gerrors.ErrUserAlreadyExists
 	}
 	if user == nil && addressUser != nil {
-		signStatus = 1
 		addressUser.TwitterID = twitterID
 		addressUser.Nickname = name
 		addressUser.TwitterUsername = username
@@ -125,7 +125,6 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 		}
 	}
 	if user != nil && addressUser == nil {
-		signStatus = 1
 		user.WalletAddress = walletAddress
 		user.UpdateTime = time.Now()
 		if err = repo.UserRepo.Update(user); err != nil {
