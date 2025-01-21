@@ -127,8 +127,13 @@ func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username
 		return false, 0, "", signStatus, err
 	}
 
+	// 如果经过绑定处理后，需要使用正确的用户引用
+	if user == nil && addressUser != nil {
+		user = addressUser
+	}
+
 	// 创建新用户
-	if user == nil && addressUser == nil {
+	if user == nil {
 		user, err = createNewUser(twitterID, name, username, avatar, walletAddress)
 		if err != nil {
 			return false, 0, "", signStatus, err
