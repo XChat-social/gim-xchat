@@ -89,84 +89,115 @@ func (*authService) Auth(ctx context.Context, userId, deviceId int64, token stri
 
 // TwitterSignIn 实现 Twitter 登录逻辑
 func (*authService) TwitterSignIn(ctx context.Context, twitterID, name, username, avatar, accessToken, walletAddress string) (bool, int64, string, int64, error) {
-	var signStatus int64 // 0表示登录 1表示绑定
-	var user *model.User
-	var addressUser *model.User
-	var err error
+	// 初始化返回值
+	var (
+		isNew      bool
+		signStatus int64 // 0表示登录 1表示绑定
+		user       *model.User
+		err        error
+	)
+
+	// 查询 Twitter 用户
 	user, err = repo.UserRepo.GetByTwitterID(twitterID)
-	if walletAddress != "" {
-		signStatus = 1
-		addressUser, err = repo.UserRepo.GetByWalletAddress(walletAddress)
-	}
 	if err != nil {
 		return false, 0, "", signStatus, err
 	}
+
+	// 如果提供了钱包地址，查询钱包用户
+	var addressUser *model.User
+	if walletAddress != "" {
+		signStatus = 1
+		addressUser, err = repo.UserRepo.GetByWalletAddress(walletAddress)
+		if err != nil {
+			return false, 0, "", signStatus, err
+		}
+	}
+
+	// 处理用户冲突情况
 	if user != nil && addressUser != nil && user.Id != addressUser.Id {
 		token := GenerateToken()
-		err = repo.AuthRepo.Set(user.Id, 0, model.Device{ // DeviceId 设为 0 表示无需设备信息
-			Type:        0,
-			Token:       token,
-			AccessToken: accessToken,
-			Expire:      time.Now().AddDate(0, 0, 1).Unix(),
-		})
-		if err != nil {
+		if err = saveAuthToken(user.Id, token, accessToken); err != nil {
 			return false, 0, "", signStatus, err
 		}
 		return false, 0, "", signStatus, gerrors.ErrUserAlreadyExists
 	}
-	if user == nil && addressUser != nil {
-		addressUser.TwitterID = twitterID
-		addressUser.Nickname = name
-		addressUser.TwitterUsername = username
-		addressUser.AvatarUrl = avatar
-		addressUser.UpdateTime = time.Now()
-		if err = repo.UserRepo.Update(addressUser); err != nil {
-			return false, 0, "", signStatus, err
-		}
+
+	// 处理用户绑定情况
+	if err = handleUserBinding(user, addressUser, twitterID, name, username, avatar, walletAddress); err != nil {
+		return false, 0, "", signStatus, err
 	}
-	if user != nil && addressUser == nil {
-		user.WalletAddress = walletAddress
-		user.UpdateTime = time.Now()
-		if err = repo.UserRepo.Update(user); err != nil {
-			return false, 0, "", signStatus, err
-		}
-	}
-	var isNew = false
-	if user == nil {
-		// Step 2: 如果用户不存在，创建新用户
-		isNew = true
-		inviteCode, err := generateUniqueInviteCode()
+
+	// 创建新用户
+	if user == nil && addressUser == nil {
+		user, err = createNewUser(twitterID, name, username, avatar, walletAddress)
 		if err != nil {
 			return false, 0, "", signStatus, err
 		}
-		user = &model.User{
-			TwitterID:       twitterID,
-			Nickname:        name,
-			TwitterUsername: username,
-			AvatarUrl:       avatar,
-			InviteCode:      inviteCode,
-			CreateTime:      time.Now(),
-			UpdateTime:      time.Now(),
-		}
-		if err := repo.UserRepo.Save(user); err != nil {
-			return false, 0, "", signStatus, err
-		}
+		isNew = true
 	}
 
-	// Step 3: 生成 Token
+	// 生成并保存 Token
 	token := GenerateToken()
+	if err = saveAuthToken(user.Id, token, accessToken); err != nil {
+		return false, 0, "", signStatus, err
+	}
 
-	// Step 4: 保存 Token 信息
-	err = repo.AuthRepo.Set(user.Id, 0, model.Device{ // DeviceId 设为 0 表示无需设备信息
+	return isNew, user.Id, token, signStatus, nil
+}
+
+// 辅助函数：保存认证 Token
+func saveAuthToken(userId int64, token, accessToken string) error {
+	return repo.AuthRepo.Set(userId, 0, model.Device{
 		Type:        0,
 		Token:       token,
 		AccessToken: accessToken,
 		Expire:      time.Now().AddDate(0, 0, 1).Unix(),
 	})
-	if err != nil {
-		return false, 0, "", signStatus, err
+}
+
+// 辅助函数：处理用户绑定
+func handleUserBinding(user, addressUser *model.User, twitterID, name, username, avatar, walletAddress string) error {
+	if user == nil && addressUser != nil {
+		// 绑定 Twitter 信息到钱包用户
+		addressUser.TwitterID = twitterID
+		addressUser.Nickname = name
+		addressUser.TwitterUsername = username
+		addressUser.AvatarUrl = avatar
+		addressUser.UpdateTime = time.Now()
+		return repo.UserRepo.Update(addressUser)
 	}
-	return isNew, user.Id, token, signStatus, nil
+	if user != nil && addressUser == nil && walletAddress != "" {
+		// 绑定钱包地址到 Twitter 用户
+		user.WalletAddress = walletAddress
+		user.UpdateTime = time.Now()
+		return repo.UserRepo.Update(user)
+	}
+	return nil
+}
+
+// 辅助函数：创建新用户
+func createNewUser(twitterID, name, username, avatar, walletAddress string) (*model.User, error) {
+	inviteCode, err := generateUniqueInviteCode()
+	if err != nil {
+		return nil, err
+	}
+
+	user := &model.User{
+		TwitterID:       twitterID,
+		Nickname:        name,
+		TwitterUsername: username,
+		AvatarUrl:       avatar,
+		WalletAddress:   walletAddress,
+		InviteCode:      inviteCode,
+		CreateTime:      time.Now(),
+		UpdateTime:      time.Now(),
+	}
+
+	if err := repo.UserRepo.Save(user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // WalletSignIn 通过钱包地址登录
