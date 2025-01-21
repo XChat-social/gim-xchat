@@ -202,50 +202,50 @@ func createNewUser(twitterID, name, username, avatar, walletAddress string) (*mo
 
 // WalletSignIn 通过钱包地址登录
 func (s *authService) WalletSignIn(ctx context.Context, address string) (bool, int64, string, error) {
-	// Step 1: 查找用户是否已经存在
+	// 查找用户是否已经存在
 	user, err := repo.UserRepo.GetByWalletAddress(address)
 	if err != nil {
 		return false, 0, "", err
 	}
 
+	// 如果用户不存在，创建新用户
 	var isNew bool
 	if user == nil {
-		// Step 2: 如果用户不存在，创建新用户
-		isNew = true
-		inviteCode, err := generateUniqueInviteCode()
+		user, err = createWalletUser(address)
 		if err != nil {
 			return false, 0, "", err
 		}
-
-		// 假设没有其他附加数据（比如昵称等），可以直接根据地址创建用户
-		user = &model.User{
-			WalletAddress: address,
-			InviteCode:    inviteCode,
-			CreateTime:    time.Now(),
-			UpdateTime:    time.Now(),
-		}
-
-		// 保存新用户
-		if err := repo.UserRepo.Save(user); err != nil {
-			return false, 0, "", err
-		}
+		isNew = true
 	}
 
-	// Step 3: 生成会话 Token
+	// 生成并保存 Token
 	token := GenerateToken()
-
-	// Step 4: 保存 Token 信息
-	err = repo.AuthRepo.Set(user.Id, 0, model.Device{
-		Type:   0,
-		Token:  token,
-		Expire: time.Now().AddDate(0, 0, 1).Unix(),
-	})
-	if err != nil {
+	if err = saveAuthToken(user.Id, token, ""); err != nil {
 		return false, 0, "", err
 	}
 
-	// 返回用户是否为新用户、用户 ID 和生成的 Token
 	return isNew, user.Id, token, nil
+}
+
+// 辅助函数：创建钱包用户
+func createWalletUser(address string) (*model.User, error) {
+	inviteCode, err := generateUniqueInviteCode()
+	if err != nil {
+		return nil, err
+	}
+
+	user := &model.User{
+		WalletAddress: address,
+		InviteCode:    inviteCode,
+		CreateTime:    time.Now(),
+		UpdateTime:    time.Now(),
+	}
+
+	if err := repo.UserRepo.Save(user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // generateUniqueInviteCode 生成唯一邀请码
