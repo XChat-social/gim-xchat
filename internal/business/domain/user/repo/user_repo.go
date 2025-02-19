@@ -2,6 +2,7 @@ package repo
 
 import (
 	"gim/internal/business/domain/user/model"
+	"gim/pkg/db"
 )
 
 type userRepo struct{}
@@ -108,4 +109,27 @@ func (*userRepo) UpdateInviteCodeStatus(id int64, code string) error {
 
 func (r *userRepo) GetByWalletAddress(address string) (*model.User, error) {
 	return UserDao.GetByWalletAddress(address)
+}
+
+// SearchByTwitterUsername 根据推特用户名模糊查询用户
+func (s *userRepo) SearchByTwitterUsername(username string, pageSize, pageNum int) ([]*model.User, int, error) {
+	var users []*model.User
+	var total int64
+
+	offset := (pageNum - 1) * pageSize
+
+	// 查询总数
+	if err := db.DB.Model(&model.User{}).Where("twitter_username LIKE ?", "%"+username+"%").Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询数据
+	if err := db.DB.Where("twitter_username LIKE ?", "%"+username+"%").
+		Offset(offset).
+		Limit(pageSize).
+		Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, int(total), nil
 }

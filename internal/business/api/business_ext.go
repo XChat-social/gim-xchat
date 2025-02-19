@@ -391,6 +391,32 @@ func (s *BusinessExtServer) FillInviteCode(ctx context.Context, req *pb.FillInvi
 	}, nil
 }
 
+// SearchTwitterUser 根据推特用户名模糊查询用户
+func (s *BusinessExtServer) SearchTwitterUser(ctx context.Context, req *pb.SearchTwitterUserReq) (*pb.SearchTwitterUserResp, error) {
+	if req.TwitterUsername == "" {
+		return &pb.SearchTwitterUserResp{
+			Code:    1,
+			Message: "Twitter username is required",
+		}, errors.New("invalid parameters")
+	}
+
+	// 调用 app 层进行查询
+	users, total, err := app2.UserApp.SearchTwitterUser(ctx, req.TwitterUsername, int(req.PageSize), int(req.PageNum))
+	if err != nil {
+		return &pb.SearchTwitterUserResp{
+			Code:    1,
+			Message: "Failed to search users",
+		}, err
+	}
+
+	return &pb.SearchTwitterUserResp{
+		Code:    0,
+		Message: "Success",
+		Users:   users,
+		Total:   int32(total),
+	}, nil
+}
+
 // exchangeCodeForToken 用授权码换取 Access Token
 func exchangeCodeForToken(code, codeVerifier string) (string, error) {
 	data := url.Values{

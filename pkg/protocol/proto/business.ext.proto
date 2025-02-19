@@ -33,6 +33,9 @@ service BusinessExt {
   rpc WalletSignIn (WalletSignInReq) returns (WalletSignInResp);
 
   rpc ModifyTaskStatus (ModifyTaskStatusReq) returns (ModifyTaskStatusResp);
+
+  // 根据推特用户名模糊查询用户
+  rpc SearchTwitterUser (SearchTwitterUserReq) returns (SearchTwitterUserResp);
 }
 
 // 请求消息，包含 walletAddress 参数
@@ -200,4 +203,19 @@ message ClaimTaskRewardReq {
 message ClaimTaskRewardResp {
   int32 code = 1;             // 状态码
   string message = 2;         // 消息描述
+}
+
+// 根据推特用户名搜索用户请求
+message SearchTwitterUserReq {
+  string twitter_username = 1;  // 推特用户名关键字
+  int32 page_size = 2;         // 每页数量
+  int32 page_num = 3;          // 页码
+}
+
+// 根据推特用户名搜索用户响应
+message SearchTwitterUserResp {
+  int32 code = 1;              // 状态码
+  string message = 2;          // 消息描述
+  repeated User users = 3;     // 用户列表
+  int32 total = 4;            // 总数
 }
