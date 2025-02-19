@@ -90,3 +90,37 @@ func (a *userApp) ClaimTaskReward(ctx context.Context, userId int64, taskId int6
 func (a *userApp) FillInviteCode(ctx context.Context, userId int64, inviteCode string) (string, error) {
 	return service.RewardService.FillInviteCode(ctx, userId, inviteCode)
 }
+
+// SearchTwitterUser 根据推特用户名模糊查询用户
+func (s *userApp) SearchTwitterUser(ctx context.Context, username string, pageSize, pageNum int) ([]*pb.User, int, error) {
+	if pageSize <= 0 {
+		pageSize = 10 // 默认每页 10 条
+	}
+	if pageNum <= 0 {
+		pageNum = 1 // 默认第一页
+	}
+
+	// 调用 repo 层进行查询
+	users, total, err := repo.UserRepo.SearchByTwitterUsername(username, pageSize, pageNum)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 转换为 pb.User 列表
+	pbUsers := make([]*pb.User, 0, len(users))
+	for _, user := range users {
+		pbUsers = append(pbUsers, &pb.User{
+			UserId:          user.Id,
+			Nickname:        user.Nickname,
+			AvatarUrl:       user.AvatarUrl,
+			TwitterId:       user.TwitterID,
+			TwitterUsername: user.TwitterUsername,
+			WalletAddress:   user.WalletAddress,
+			InviteCode:      user.InviteCode,
+			CreateTime:      user.CreateTime.Unix(),
+			UpdateTime:      user.UpdateTime.Unix(),
+		})
+	}
+
+	return pbUsers, total, nil
+}

@@ -33,6 +33,7 @@ const (
 	BusinessExt_FillInviteCode_FullMethodName         = "/pb.BusinessExt/FillInviteCode"
 	BusinessExt_WalletSignIn_FullMethodName           = "/pb.BusinessExt/WalletSignIn"
 	BusinessExt_ModifyTaskStatus_FullMethodName       = "/pb.BusinessExt/ModifyTaskStatus"
+	BusinessExt_SearchTwitterUser_FullMethodName      = "/pb.BusinessExt/SearchTwitterUser"
 )
 
 // BusinessExtClient is the client API for BusinessExt service.
@@ -64,6 +65,8 @@ type BusinessExtClient interface {
 	// 钱包登录接口
 	WalletSignIn(ctx context.Context, in *WalletSignInReq, opts ...grpc.CallOption) (*WalletSignInResp, error)
 	ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error)
+	// 根据推特用户名模糊查询用户
+	SearchTwitterUser(ctx context.Context, in *SearchTwitterUserReq, opts ...grpc.CallOption) (*SearchTwitterUserResp, error)
 }
 
 type businessExtClient struct {
@@ -204,6 +207,16 @@ func (c *businessExtClient) ModifyTaskStatus(ctx context.Context, in *ModifyTask
 	return out, nil
 }
 
+func (c *businessExtClient) SearchTwitterUser(ctx context.Context, in *SearchTwitterUserReq, opts ...grpc.CallOption) (*SearchTwitterUserResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchTwitterUserResp)
+	err := c.cc.Invoke(ctx, BusinessExt_SearchTwitterUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BusinessExtServer is the server API for BusinessExt service.
 // All implementations must embed UnimplementedBusinessExtServer
 // for forward compatibility.
@@ -233,6 +246,8 @@ type BusinessExtServer interface {
 	// 钱包登录接口
 	WalletSignIn(context.Context, *WalletSignInReq) (*WalletSignInResp, error)
 	ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error)
+	// 根据推特用户名模糊查询用户
+	SearchTwitterUser(context.Context, *SearchTwitterUserReq) (*SearchTwitterUserResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
 
@@ -281,6 +296,9 @@ func (UnimplementedBusinessExtServer) WalletSignIn(context.Context, *WalletSignI
 }
 func (UnimplementedBusinessExtServer) ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModifyTaskStatus not implemented")
+}
+func (UnimplementedBusinessExtServer) SearchTwitterUser(context.Context, *SearchTwitterUserReq) (*SearchTwitterUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchTwitterUser not implemented")
 }
 func (UnimplementedBusinessExtServer) mustEmbedUnimplementedBusinessExtServer() {}
 func (UnimplementedBusinessExtServer) testEmbeddedByValue()                     {}
@@ -537,6 +555,24 @@ func _BusinessExt_ModifyTaskStatus_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BusinessExt_SearchTwitterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchTwitterUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).SearchTwitterUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_SearchTwitterUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).SearchTwitterUser(ctx, req.(*SearchTwitterUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BusinessExt_ServiceDesc is the grpc.ServiceDesc for BusinessExt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -595,6 +631,10 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ModifyTaskStatus",
 			Handler:    _BusinessExt_ModifyTaskStatus_Handler,
+		},
+		{
+			MethodName: "SearchTwitterUser",
+			Handler:    _BusinessExt_SearchTwitterUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
