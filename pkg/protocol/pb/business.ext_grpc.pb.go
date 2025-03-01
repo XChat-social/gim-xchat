@@ -34,6 +34,8 @@ const (
 	BusinessExt_WalletSignIn_FullMethodName           = "/pb.BusinessExt/WalletSignIn"
 	BusinessExt_ModifyTaskStatus_FullMethodName       = "/pb.BusinessExt/ModifyTaskStatus"
 	BusinessExt_SearchTwitterUser_FullMethodName      = "/pb.BusinessExt/SearchTwitterUser"
+	BusinessExt_CreateToken_FullMethodName            = "/pb.BusinessExt/CreateToken"
+	BusinessExt_GetToken_FullMethodName               = "/pb.BusinessExt/GetToken"
 )
 
 // BusinessExtClient is the client API for BusinessExt service.
@@ -67,6 +69,10 @@ type BusinessExtClient interface {
 	ModifyTaskStatus(ctx context.Context, in *ModifyTaskStatusReq, opts ...grpc.CallOption) (*ModifyTaskStatusResp, error)
 	// 根据推特用户名模糊查询用户
 	SearchTwitterUser(ctx context.Context, in *SearchTwitterUserReq, opts ...grpc.CallOption) (*SearchTwitterUserResp, error)
+	// 创建token
+	CreateToken(ctx context.Context, in *CreateTokenReq, opts ...grpc.CallOption) (*CreateTokenResp, error)
+	// 获取token信息
+	GetToken(ctx context.Context, in *GetTokenReq, opts ...grpc.CallOption) (*GetTokenResp, error)
 }
 
 type businessExtClient struct {
@@ -217,6 +223,26 @@ func (c *businessExtClient) SearchTwitterUser(ctx context.Context, in *SearchTwi
 	return out, nil
 }
 
+func (c *businessExtClient) CreateToken(ctx context.Context, in *CreateTokenReq, opts ...grpc.CallOption) (*CreateTokenResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateTokenResp)
+	err := c.cc.Invoke(ctx, BusinessExt_CreateToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *businessExtClient) GetToken(ctx context.Context, in *GetTokenReq, opts ...grpc.CallOption) (*GetTokenResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTokenResp)
+	err := c.cc.Invoke(ctx, BusinessExt_GetToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BusinessExtServer is the server API for BusinessExt service.
 // All implementations must embed UnimplementedBusinessExtServer
 // for forward compatibility.
@@ -248,6 +274,10 @@ type BusinessExtServer interface {
 	ModifyTaskStatus(context.Context, *ModifyTaskStatusReq) (*ModifyTaskStatusResp, error)
 	// 根据推特用户名模糊查询用户
 	SearchTwitterUser(context.Context, *SearchTwitterUserReq) (*SearchTwitterUserResp, error)
+	// 创建token
+	CreateToken(context.Context, *CreateTokenReq) (*CreateTokenResp, error)
+	// 获取token信息
+	GetToken(context.Context, *GetTokenReq) (*GetTokenResp, error)
 	mustEmbedUnimplementedBusinessExtServer()
 }
 
@@ -299,6 +329,12 @@ func (UnimplementedBusinessExtServer) ModifyTaskStatus(context.Context, *ModifyT
 }
 func (UnimplementedBusinessExtServer) SearchTwitterUser(context.Context, *SearchTwitterUserReq) (*SearchTwitterUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchTwitterUser not implemented")
+}
+func (UnimplementedBusinessExtServer) CreateToken(context.Context, *CreateTokenReq) (*CreateTokenResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateToken not implemented")
+}
+func (UnimplementedBusinessExtServer) GetToken(context.Context, *GetTokenReq) (*GetTokenResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetToken not implemented")
 }
 func (UnimplementedBusinessExtServer) mustEmbedUnimplementedBusinessExtServer() {}
 func (UnimplementedBusinessExtServer) testEmbeddedByValue()                     {}
@@ -573,6 +609,42 @@ func _BusinessExt_SearchTwitterUser_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BusinessExt_CreateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTokenReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).CreateToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_CreateToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).CreateToken(ctx, req.(*CreateTokenReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BusinessExt_GetToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTokenReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BusinessExtServer).GetToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BusinessExt_GetToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BusinessExtServer).GetToken(ctx, req.(*GetTokenReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BusinessExt_ServiceDesc is the grpc.ServiceDesc for BusinessExt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -635,6 +707,14 @@ var BusinessExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchTwitterUser",
 			Handler:    _BusinessExt_SearchTwitterUser_Handler,
+		},
+		{
+			MethodName: "CreateToken",
+			Handler:    _BusinessExt_CreateToken_Handler,
+		},
+		{
+			MethodName: "GetToken",
+			Handler:    _BusinessExt_GetToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
