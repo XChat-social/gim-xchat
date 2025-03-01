@@ -36,6 +36,10 @@ service BusinessExt {
 
   // 根据推特用户名模糊查询用户
   rpc SearchTwitterUser (SearchTwitterUserReq) returns (SearchTwitterUserResp);
+  // 创建token
+  rpc CreateToken (CreateTokenReq) returns (CreateTokenResp);
+  // 获取token信息
+  rpc GetToken (GetTokenReq) returns (GetTokenResp);
 }
 
 // 请求消息，包含 walletAddress 参数
@@ -218,4 +222,48 @@ message SearchTwitterUserResp {
   string message = 2;          // 消息描述
   repeated User users = 3;     // 用户列表
   int32 total = 4;            // 总数
+}
+// Token信息
+message Token {
+  int64 id = 1;                    // token ID
+  int64 user_id = 2;              // 创建者用户ID
+  string token_address = 3;        // token合约地址
+  string token_name = 4;          // token名称
+  string token_symbol = 5;        // token符号
+  int32 decimals = 6;             // token精度
+  string total_supply = 7;        // 发行总量
+  string creator_addr = 8;        // 创建者钱包地址
+  int32 chain_id = 9;             // 链ID
+  int32 status = 10;              // 状态 1:正常 0:禁用
+  int64 created_at = 11;          // 创建时间
+  int64 updated_at = 12;          // 更新时间
+}
+
+// 创建token请求
+message CreateTokenReq {
+  string token_address = 1;        // token合约地址
+  string token_name = 2;          // token名称
+  string token_symbol = 3;        // token符号
+  int32 decimals = 4;             // token精度
+  string total_supply = 5;        // 发行总量
+  int32 chain_id = 6;             // 链ID
+}
+
+// 创建token响应
+message CreateTokenResp {
+  int32 code = 1;                 // 状态码
+  string message = 2;             // 消息描述
+  Token token = 3;                // token信息
+}
+
+// 获取token请求
+message GetTokenReq {
+  string token_address = 1;       // token合约地址
+}
+
+// 获取token响应
+message GetTokenResp {
+  int32 code = 1;                 // 状态码
+  string message = 2;             // 消息描述
+  Token token = 3;                // token信息
 }

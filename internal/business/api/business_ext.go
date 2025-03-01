@@ -417,6 +417,78 @@ func (s *BusinessExtServer) SearchTwitterUser(ctx context.Context, req *pb.Searc
 	}, nil
 }
 
+// CreateToken 创建token
+func (s *BusinessExtServer) CreateToken(ctx context.Context, req *pb.CreateTokenReq) (*pb.CreateTokenResp, error) {
+	//userId, _, err := grpclib.GetCtxData(ctx)
+	//if err != nil {
+	//	return &pb.CreateTokenResp{
+	//		Code:    1,
+	//		Message: "Failed to get user ID from context",
+	//	}, err
+	//}
+
+	// 获取用户信息以获取钱包地址
+	user, err := app2.UserApp.GetNew(ctx, 1)
+	if err != nil {
+		return &pb.CreateTokenResp{
+			Code:    1,
+			Message: "Failed to get user information",
+		}, err
+	}
+
+	// 创建token
+	token, err := app2.TokenApp.Create(ctx, &pb.Token{
+		UserId:       111,
+		TokenAddress: req.TokenAddress,
+		TokenName:    req.TokenName,
+		TokenSymbol:  req.TokenSymbol,
+		Decimals:     req.Decimals,
+		TotalSupply:  req.TotalSupply,
+		CreatorAddr:  user.WalletAddress,
+		ChainId:      req.ChainId,
+		Status:       1, // 默认状态为正常
+		CreatedAt:    time.Now().Unix(),
+		UpdatedAt:    time.Now().Unix(),
+	})
+
+	if err != nil {
+		return &pb.CreateTokenResp{
+			Code:    1,
+			Message: "Failed to create token",
+		}, err
+	}
+
+	return &pb.CreateTokenResp{
+		Code:    0,
+		Message: "Token created successfully",
+		Token:   token,
+	}, nil
+}
+
+// GetToken 获取token信息
+func (s *BusinessExtServer) GetToken(ctx context.Context, req *pb.GetTokenReq) (*pb.GetTokenResp, error) {
+	if req.TokenAddress == "" {
+		return &pb.GetTokenResp{
+			Code:    1,
+			Message: "Token address is required",
+		}, errors.New("invalid parameters")
+	}
+
+	token, err := app2.TokenApp.Get(ctx, req.TokenAddress)
+	if err != nil {
+		return &pb.GetTokenResp{
+			Code:    1,
+			Message: "Failed to get token information",
+		}, err
+	}
+
+	return &pb.GetTokenResp{
+		Code:    0,
+		Message: "Success",
+		Token:   token,
+	}, nil
+}
+
 // exchangeCodeForToken 用授权码换取 Access Token
 func exchangeCodeForToken(code, codeVerifier string) (string, error) {
 	data := url.Values{
