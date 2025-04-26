@@ -1,125 +1,60 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	pb "gim/pkg/protocol/pb" // 引入生成的 gRPC 包
+	"flag"
+	"gim/internal/api"
 	"log"
-	"net/http"
-	"net/url"
-	"strconv"
-	"strings"
 
-	"google.golang.org/grpc"
+	"github.com/go-redis/redis"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-const (
-	grpcAddress = "localhost:8020" // gRPC 服务地址
-	httpAddress = ":8080"          // HTTP 服务地址
+var (
+	// HTTP 服务地址
+	httpServerEndpoint = flag.String("http-server-endpoint", ":8080", "HTTP server endpoint")
+	// 数据库连接字符串
+	dbConnStr = flag.String("db-conn-str", "xchat:6TsXay5!h.pMnm3@tcp(database-1.chw4qwku6qx0.eu-north-1.rds.amazonaws.com:3306)/xchat?charset=utf8&parseTime=true", "Database connection string")
+	//dbConnStr = flag.String("db-conn-str", "root:root@tcp(127.0.0.1:3306)/xchat?charset=utf8&parseTime=true", "Database connection string")
+	// Redis连接地址
+	redisAddr = flag.String("redis-addr", "localhost:6379", "Redis server address")
+	// Redis密码
+	redisPassword = flag.String("redis-password", "", "Redis password")
+	// Redis数据库
+	redisDB = flag.Int("redis-db", 0, "Redis database")
 )
-
-// TwitterSignInHandler 处理 Twitter 回调请求
-func TwitterSignInHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// 提取回调参数
-	authorizationCode := r.URL.Query().Get("code")
-	if authorizationCode == "" {
-		http.Error(w, "Authorization code is required", http.StatusBadRequest)
-		return
-	}
-
-	state := r.URL.Query().Get("state")
-	if state == "" {
-		http.Error(w, "State is required", http.StatusBadRequest)
-		return
-	}
-
-	// 截取 state 中的 walletAddress
-	stateParts := strings.Split(state, ":")
-	if len(stateParts) != 2 {
-		http.Error(w, "Invalid state format", http.StatusBadRequest)
-		return
-	}
-	address := stateParts[1]
-
-	// 调用 gRPC 服务
-	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure())
-	if err != nil {
-		http.Error(w, "Failed to connect to gRPC server", http.StatusInternalServerError)
-		log.Printf("gRPC connection error: %v\n", err)
-		return
-	}
-	defer conn.Close()
-
-	client := pb.NewBusinessExtClient(conn)
-	grpcResp, err := client.TwitterSignIn(context.Background(), &pb.TwitterSignInReq{
-		AuthorizationCode: authorizationCode,
-		State:             state,
-		WalletAddress:     address,
-	})
-	if err != nil {
-		http.Error(w, "Failed to call gRPC service: "+err.Error(), http.StatusInternalServerError)
-		log.Printf("gRPC call error: %v\n", err)
-		return
-	}
-
-	//// 提取 gRPC 响应中的用户信息
-	//response := map[string]interface{}{
-	//	"token":           grpcResp.Token,
-	//	"userId":          grpcResp.UserId,
-	//	"nickname":        grpcResp.UserInfo.Nickname,
-	//	"avatarUrl":       grpcResp.UserInfo.AvatarUrl,
-	//	"twitterUsername": grpcResp.UserInfo.TwitterUsername,
-	//}
-	//
-	//// 设置响应头为 JSON
-	//w.Header().Set("Content-Type", "application/json")
-	//w.WriteHeader(http.StatusOK)
-	//
-	//// 返回 JSON 响应
-	//if err := json.NewEncoder(w).Encode(response); err != nil {
-	//	http.Error(w, "Failed to encode response: "+err.Error(), http.StatusInternalServerError)
-	//	log.Printf("JSON encoding error: %v\n", err)
-	//	return
-	//}
-
-	// 提取 gRPC 响应中的用户信息
-	token := grpcResp.Token
-	userId := grpcResp.UserId
-	nickname := grpcResp.UserInfo.Nickname
-	avatarUrl := grpcResp.UserInfo.AvatarUrl
-	twitterUsername := grpcResp.UserInfo.TwitterUsername
-	inviteCode := grpcResp.UserInfo.InviteCode
-	walletAddress := grpcResp.UserInfo.WalletAddress
-	errMessage := grpcResp.ErrMessage
-
-	// 构造插件页面的跳转 URL，附加用户信息
-	redirectURL := fmt.Sprintf(
-		"https://x.com?redirect=redirectx&token=%s&userId=%s&nickname=%s&avatarUrl=%s&twitterUsername=%s&inviteCode=%s&walletAddress=%s&errMessage=%s",
-		url.QueryEscape(token),
-		url.QueryEscape(strconv.FormatInt(userId, 10)),
-		url.QueryEscape(nickname),
-		url.QueryEscape(avatarUrl),
-		url.QueryEscape(twitterUsername),
-		url.QueryEscape(inviteCode),
-		url.QueryEscape(walletAddress),
-		url.QueryEscape(errMessage),
-	)
-
-	// 重定向到插件页面
-	http.Redirect(w, r, redirectURL, http.StatusFound)
-	log.Printf("Redirecting to: %s\n", redirectURL)
-}
 
 func main() {
-	http.HandleFunc("/twitter/signin", TwitterSignInHandler)
+	flag.Parse()
 
-	log.Printf("HTTP server is running on %s\n", httpAddress)
-	if err := http.ListenAndServe(httpAddress, nil); err != nil {
-		log.Fatalf("Failed to start HTTP server: %v", err)
+	// 连接数据库
+	db, err := gorm.Open(mysql.Open(*dbConnStr), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("无法连接到数据库: %v", err)
+	}
+
+	// 连接Redis
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     *redisAddr,
+		Password: *redisPassword,
+		DB:       *redisDB,
+	})
+
+	// 测试Redis连接
+	_, err = rdb.Ping().Result()
+	if err != nil {
+		log.Fatalf("无法连接到Redis: %v", err)
+	}
+
+	// 创建API服务
+	apiService := api.NewAPIService(db, rdb)
+
+	// 初始化路由
+	r := apiService.InitRouter()
+
+	// 启动HTTP服务
+	log.Printf("HTTP API服务启动在 %s...", *httpServerEndpoint)
+	if err := r.Run(*httpServerEndpoint); err != nil {
+		log.Fatalf("启动HTTP服务失败: %v", err)
 	}
 }
