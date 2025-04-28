@@ -37,12 +37,9 @@ func main() {
 
 	// 连接Redis，启用TLS模式
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     *redisAddr,
-		Password: *redisPassword,
-		DB:       *redisDB,
-		TLSConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
-		},
+		Addr:      "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
+		Password:  "", // 密码已经设置为空
+		TLSConfig: &tls.Config{},
 	})
 
 	// 测试Redis连接
@@ -50,7 +47,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("无法连接到Redis: %v", err)
 	}
-	log.Printf("成功连接到Redis服务器(TLS模式): %s, 响应: %s", *redisAddr, pong)
+	log.Printf("成功连接到Redis服务器(TLS模式): %s, 响应: %s", rdb.Options().Addr, pong)
 
 	// 创建API服务
 	apiService := api.NewAPIService(db, rdb)
