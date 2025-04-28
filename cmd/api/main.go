@@ -32,6 +32,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("无法连接到数据库: %v", err)
 	}
+	log.Printf("成功连接到MySQL数据库: %s", *dbConnStr)
 
 	// 连接Redis
 	rdb := redis.NewClient(&redis.Options{
@@ -41,10 +42,11 @@ func main() {
 	})
 
 	// 测试Redis连接
-	_, err = rdb.Ping().Result()
+	pong, err := rdb.Ping().Result()
 	if err != nil {
 		log.Fatalf("无法连接到Redis: %v", err)
 	}
+	log.Printf("成功连接到Redis服务器: %s, 响应: %s", *redisAddr, pong)
 
 	// 创建API服务
 	apiService := api.NewAPIService(db, rdb)
