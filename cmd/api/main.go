@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"gim/internal/api"
 	"log"
@@ -34,11 +35,14 @@ func main() {
 	}
 	log.Printf("成功连接到MySQL数据库: %s", *dbConnStr)
 
-	// 连接Redis
+	// 连接Redis，启用TLS模式
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *redisAddr,
 		Password: *redisPassword,
 		DB:       *redisDB,
+		TLSConfig: &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		},
 	})
 
 	// 测试Redis连接
@@ -46,7 +50,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("无法连接到Redis: %v", err)
 	}
-	log.Printf("成功连接到Redis服务器: %s, 响应: %s", *redisAddr, pong)
+	log.Printf("成功连接到Redis服务器(TLS模式): %s, 响应: %s", *redisAddr, pong)
 
 	// 创建API服务
 	apiService := api.NewAPIService(db, rdb)
