@@ -37,7 +37,7 @@ func main() {
 
 	// 连接Redis，启用TLS模式
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
+		Addr:     "127.0.0.1:6379",
 		Password: "", // 密码已经设置为空
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: true,
