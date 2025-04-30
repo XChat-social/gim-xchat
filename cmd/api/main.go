@@ -18,7 +18,7 @@ var (
 	dbConnStr = flag.String("db-conn-str", "xchat:6TsXay5!h.pMnm3@tcp(database-1.chw4qwku6qx0.eu-north-1.rds.amazonaws.com:3306)/xchat?charset=utf8&parseTime=true", "Database connection string")
 	//dbConnStr = flag.String("db-conn-str", "root:root@tcp(127.0.0.1:3306)/xchat?charset=utf8&parseTime=true", "Database connection string")
 	// Redis连接地址
-	redisAddr = flag.String("redis-addr", "localhost:6379", "Redis server address")
+	redisAddr = flag.String("redis-addr", "127.0.0.1:6379", "Redis server address")
 	// Redis密码
 	redisPassword = flag.String("redis-password", "", "Redis password")
 	// Redis数据库
@@ -37,9 +37,11 @@ func main() {
 
 	// 连接Redis，启用TLS模式
 	rdb := redis.NewClient(&redis.Options{
-		Addr:      "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
-		Password:  "", // 密码已经设置为空
-		TLSConfig: &tls.Config{},
+		Addr:     "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
+		Password: "", // 密码已经设置为空
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
 	})
 
 	// 测试Redis连接
