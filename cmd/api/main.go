@@ -4,9 +4,9 @@ import (
 	"crypto/tls"
 	"flag"
 	"gim/internal/api"
+	"github.com/go-redis/redis"
 	"log"
 
-	"github.com/go-redis/redis"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -14,51 +14,54 @@ import (
 var (
 	// HTTP 服务地址
 	httpServerEndpoint = flag.String("http-server-endpoint", ":8080", "HTTP server endpoint")
-	// 数据库连接字符串
+
+	// ✅ 生产数据库连接字符串
 	dbConnStr = flag.String("db-conn-str", "xchat:6TsXay5!h.pMnm3@tcp(database-1.chw4qwku6qx0.eu-north-1.rds.amazonaws.com:3306)/xchat?charset=utf8&parseTime=true", "Database connection string")
-	//dbConnStr = flag.String("db-conn-str", "root:root@tcp(127.0.0.1:3306)/xchat?charset=utf8&parseTime=true", "Database connection string")
-	// Redis连接地址
-	redisAddr = flag.String("redis-addr", "127.0.0.1:6379", "Redis server address")
-	// Redis密码
+
+	// ⬇️ 如需切换到本地数据库，取消注释下面一行
+	// dbConnStr = flag.String("db-conn-str", "root:root@tcp(127.0.0.1:3306)/xchat?charset=utf8&parseTime=true", "Database connection string")
+
+	// ✅ 生产 Redis 地址（Cluster + TLS）
+	redisAddr = flag.String("redis-addr", "clustercfg.xchat-dev.y60xry.eun1.cache.amazonaws.com:6379", "Redis server address")
+
+	// ⬇️ 如需切换到本地 Redis，取消注释下面一行
+	// redisAddr = flag.String("redis-addr", "127.0.0.1:6379", "Redis server address")
+
 	redisPassword = flag.String("redis-password", "", "Redis password")
-	// Redis数据库
-	redisDB = flag.Int("redis-db", 0, "Redis database")
 )
 
 func main() {
 	flag.Parse()
 
-	// 连接数据库
+	// 连接 MySQL 数据库
 	db, err := gorm.Open(mysql.Open(*dbConnStr), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("无法连接到数据库: %v", err)
 	}
-	log.Printf("成功连接到MySQL数据库: %s", *dbConnStr)
+	log.Printf("✅ 成功连接到 MySQL 数据库: %s", *dbConnStr)
 
-	// 连接Redis，启用TLS模式
+	// 连接 Redis（集群 + TLS）
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "xchat-y60xry.serverless.eun1.cache.amazonaws.com:6379",
+		Addr:     *redisAddr,
+		Password: *redisPassword,
 		TLSConfig: &tls.Config{
 			InsecureSkipVerify: true,
 		},
 	})
 
-	// 测试Redis连接
-	pong, err := rdb.Ping().Result()
-	if err != nil {
-		log.Fatalf("无法连接到Redis: %v", err)
+	// 测试 Redis 连接
+	if pong, err := rdb.Ping().Result(); err != nil {
+		log.Fatalf("❌ 无法连接到 Redis 集群: %v", err)
+	} else {
+		log.Printf("✅ 成功连接到 Redis 集群: %s，响应: %s", *redisAddr, pong)
 	}
-	log.Printf("成功连接到Redis服务器(TLS模式): %s, 响应: %s", rdb.Options().Addr, pong)
 
-	// 创建API服务
+	// 创建 API 服务并启动 HTTP 服务器
 	apiService := api.NewAPIService(db, rdb)
-
-	// 初始化路由
 	r := apiService.InitRouter()
 
-	// 启动HTTP服务
-	log.Printf("HTTP API服务启动在 %s...", *httpServerEndpoint)
+	log.Printf("🚀 HTTP API 服务启动在 %s...", *httpServerEndpoint)
 	if err := r.Run(*httpServerEndpoint); err != nil {
-		log.Fatalf("启动HTTP服务失败: %v", err)
+		log.Fatalf("❌ 启动 HTTP 服务失败: %v", err)
 	}
 }
