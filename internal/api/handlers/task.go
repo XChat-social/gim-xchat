@@ -7,6 +7,7 @@ import (
 	"gim/internal/api/middleware"
 	"gim/internal/business/domain/user/model"
 	"gim/pkg/db"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
@@ -55,6 +56,8 @@ func (h *TaskHandler) DailySignIn(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Unauthorized"})
 		return
 	}
+
+	log.Print("UserID:", userID)
 
 	// 检查用户是否存在
 	var user model.User
