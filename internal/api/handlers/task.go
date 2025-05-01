@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gim/internal/api/middleware"
-	"gim/internal/business/domain/user/model"
+	"gim/internal/api/models"
 	"gim/pkg/db"
 	"log"
 	"math/rand"
@@ -60,7 +60,7 @@ func (h *TaskHandler) DailySignIn(c *gin.Context) {
 	log.Print("UserID:", userID)
 
 	// 检查用户是否存在
-	var user model.User
+	var user models.User
 	result := h.DB.First(&user, userID)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
@@ -123,7 +123,7 @@ func (h *TaskHandler) FollowTwitter(c *gin.Context) {
 	}
 
 	// 检查用户是否存在
-	var user model.User
+	var user models.User
 	result := h.DB.First(&user, userID)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
@@ -229,7 +229,7 @@ func (h *TaskHandler) GetTaskStatus(c *gin.Context) {
 
 		// 如果是关注任务，检查数据库中的关注状态
 		if taskID == TaskFollowTwitter {
-			var user model.User
+			var user models.User
 			result := h.DB.First(&user, userID)
 			if result.Error != nil {
 				c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
@@ -346,7 +346,7 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 		updateFields["follow_reward"] = 1
 	}
 
-	result := tx.Model(&model.User{}).Where("id = ?", userID).Updates(updateFields)
+	result := tx.Model(&models.User{}).Where("id = ?", userID).Updates(updateFields)
 	if result.Error != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to update user points"})
@@ -364,7 +364,7 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 		reason = "Twitter follow reward"
 	}
 
-	xpointLog := model.XPointLog{
+	xpointLog := models.XPointLog{
 		UserID:       uint64(userID),
 		ChangeAmount: int(rewardAmount),
 		Reason:       reason,
@@ -422,7 +422,7 @@ func (h *TaskHandler) FillInviteCode(c *gin.Context) {
 	}
 
 	// 检查用户是否存在
-	var user model.User
+	var user models.User
 	result := h.DB.First(&user, userID)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
@@ -442,7 +442,7 @@ func (h *TaskHandler) FillInviteCode(c *gin.Context) {
 	}
 
 	// 检查邀请码是否有效
-	var inviterUser model.User
+	var inviterUser models.User
 	result = h.DB.Where("invite_code = ?", req.InviteCode).First(&inviterUser)
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Unable to redeem invitation code"})
@@ -457,7 +457,7 @@ func (h *TaskHandler) FillInviteCode(c *gin.Context) {
 	}
 
 	// 更新用户填写邀请码的状态
-	result = tx.Model(&model.User{}).Where("id = ?", userID).Update("inviter_code", req.InviteCode)
+	result = tx.Model(&models.User{}).Where("id = ?", userID).Update("inviter_code", req.InviteCode)
 	if result.Error != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to update user invite code status"})
@@ -469,7 +469,7 @@ func (h *TaskHandler) FillInviteCode(c *gin.Context) {
 	inviterReason := "Invite reward for user using invite code"
 
 	// 更新邀请人的积分
-	result = tx.Model(&model.User{}).Where("id = ?", inviterUser.Id).UpdateColumn("xpoint", gorm.Expr("xpoint + ?", inviterRewardAmount))
+	result = tx.Model(&models.User{}).Where("id = ?", inviterUser.ID).UpdateColumn("xpoint", gorm.Expr("xpoint + ?", inviterRewardAmount))
 	if result.Error != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to update inviter's points"})
@@ -477,8 +477,8 @@ func (h *TaskHandler) FillInviteCode(c *gin.Context) {
 	}
 
 	// 记录邀请人积分变动日志
-	inviterXpointLog := model.XPointLog{
-		UserID:       uint64(inviterUser.Id),
+	inviterXpointLog := models.XPointLog{
+		UserID:       uint64(inviterUser.ID),
 		ChangeAmount: inviterRewardAmount,
 		Reason:       inviterReason,
 		CreateTime:   time.Now(),
@@ -496,7 +496,7 @@ func (h *TaskHandler) FillInviteCode(c *gin.Context) {
 	inviteeReason := "Reward for using invite code"
 
 	// 更新被邀请人的积分
-	result = tx.Model(&model.User{}).Where("id = ?", userID).UpdateColumn("xpoint", gorm.Expr("xpoint + ?", inviteeRewardAmount))
+	result = tx.Model(&models.User{}).Where("id = ?", userID).UpdateColumn("xpoint", gorm.Expr("xpoint + ?", inviteeRewardAmount))
 	if result.Error != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to update invitee's points"})
@@ -504,7 +504,7 @@ func (h *TaskHandler) FillInviteCode(c *gin.Context) {
 	}
 
 	// 记录被邀请人积分变动日志
-	inviteeXpointLog := model.XPointLog{
+	inviteeXpointLog := models.XPointLog{
 		UserID:       uint64(userID),
 		ChangeAmount: inviteeRewardAmount,
 		Reason:       inviteeReason,

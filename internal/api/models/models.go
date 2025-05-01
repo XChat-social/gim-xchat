@@ -17,7 +17,7 @@ type User struct {
 	CreateTime      time.Time `json:"create_time" gorm:"column:create_time"`           // 创建时间
 	UpdateTime      time.Time `json:"update_time" gorm:"column:update_time"`           // 更新时间
 	XPoint          uint      `json:"xpoint" gorm:"column:xpoint"`                     // 当前积分
-	FollowReward    bool      `json:"follow_reward" gorm:"column:follow_reward"`       // 推特关注奖励领取状态：false=未领取，true=已领取
+	FollowReward    int       `json:"follow_reward" gorm:"column:follow_reward"`       // 推特关注奖励领取状态：false=未领取，true=已领取
 	InviterCode     string    `json:"inviter_code" gorm:"column:inviter_code"`         // 填写的邀请码
 	InviteCode      string    `json:"invite_code" gorm:"column:invite_code"`           // 用户的邀请码
 	WalletAddress   string    `json:"wallet_address" gorm:"column:wallet_address"`     // 钱包地址
@@ -49,18 +49,16 @@ func (Token) TableName() string {
 	return "token"
 }
 
-// Task 任务模型
-type Task struct {
-	ID         int64     `json:"id" gorm:"primaryKey;column:id"`
-	UserID     int64     `json:"user_id" gorm:"column:user_id"`
-	TaskType   int32     `json:"task_type" gorm:"column:task_type"`
-	Status     int32     `json:"status" gorm:"column:status"`
-	Reward     int32     `json:"reward" gorm:"column:reward"`
-	CreateTime time.Time `json:"create_time" gorm:"column:create_time"`
-	UpdateTime time.Time `json:"update_time" gorm:"column:update_time"`
+// XPointLog 积分变动日志
+type XPointLog struct {
+	ID           uint64    `json:"id" gorm:"primaryKey;column:id"`                       // 日志ID
+	UserID       uint64    `json:"user_id" gorm:"column:user_id"`                        // 用户ID
+	ChangeAmount int       `json:"change_amount" gorm:"column:change_amount"`            // 积分变化值
+	Reason       string    `json:"reason" gorm:"column:reason"`                          // 变动原因（如每日签到、连续签到奖励等）
+	CreateTime   time.Time `json:"create_time" gorm:"column:create_time;autoCreateTime"` // 变动时间
 }
 
-// TableName 设置表名
-func (Task) TableName() string {
-	return "tasks"
+// TableName 指定表名
+func (XPointLog) TableName() string {
+	return "xpoint_log"
 }
