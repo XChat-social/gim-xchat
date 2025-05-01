@@ -37,17 +37,17 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 
 	// 创建Token
 	token := models.Token{
-		UserID:       userID,
-		TokenAddress: req.TokenAddress,
-		TokenName:    req.TokenName,
-		TokenSymbol:  req.TokenSymbol,
-		Decimals:     req.Decimals,
-		TotalSupply:  req.TotalSupply,
-		CreatorAddr:  "", // 实际项目中应该设置为用户的钱包地址
-		ChainID:      req.ChainID,
-		Status:       1,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		UserID:         userID,
+		TokenAddress:   req.TokenAddress,
+		TokenName:      req.TokenName,
+		TokenSymbol:    req.TokenSymbol,
+		Decimals:       int(req.Decimals),
+		TotalSupply:    req.TotalSupply,
+		CreatorAddress: "", // 实际项目中应该设置为用户的钱包地址
+		ChainID:        int(req.ChainID),
+		Status:         1,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
 
 	result := h.DB.Create(&token)

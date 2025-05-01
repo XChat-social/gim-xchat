@@ -203,7 +203,7 @@ func (h *UserHandler) WalletSignIn(c *gin.Context) {
 		}
 	}
 
-	token, err := middleware.GenerateToken(user.UserID)
+	token, err := middleware.GenerateToken(int64(user.ID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to generate token: " + err.Error()})
 		return
@@ -213,7 +213,7 @@ func (h *UserHandler) WalletSignIn(c *gin.Context) {
 		"code":      200,
 		"message":   "Success",
 		"is_new":    isNew,
-		"user_id":   user.UserID,
+		"user_id":   user.ID,
 		"token":     token,
 		"user_info": user,
 	})
