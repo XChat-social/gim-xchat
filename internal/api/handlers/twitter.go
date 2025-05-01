@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gim/internal/api/middleware"
+	"gim/internal/api/models"
 	"gim/internal/business/domain/user/model"
 	"math/rand"
 	"net/http"
@@ -157,16 +158,16 @@ func (h *TwitterHandler) TwitterSignIn(c *gin.Context) {
 		fmt.Printf("Failed to save Twitter access token to Redis: %v\n", err)
 	}
 
-	var user model.User
+	var user models.User
 	result := h.DB.Where("twitter_id = ?", twitterUser.ID).First(&user)
 	isNew := result.Error != nil
 
 	inviteCode := randomString(8)
 
 	if isNew {
-		user = model.User{
+		user = models.User{
 			Nickname:        twitterUser.Name,
-			AvatarUrl:       twitterUser.Avatar,
+			AvatarURL:       twitterUser.Avatar,
 			TwitterID:       twitterUser.ID,
 			TwitterUsername: twitterUser.Username,
 			InviteCode:      inviteCode,
@@ -193,7 +194,7 @@ func (h *TwitterHandler) TwitterSignIn(c *gin.Context) {
 		}
 	}
 
-	token, err := middleware.GenerateToken(user.Id)
+	token, err := middleware.GenerateToken(int64(user.ID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to generate token: " + err.Error()})
 		return
@@ -205,7 +206,7 @@ func (h *TwitterHandler) TwitterSignIn(c *gin.Context) {
 		"code":        200,
 		"message":     "Success",
 		"is_new":      isNew,
-		"user_id":     user.Id,
+		"user_id":     user.ID,
 		"token":       token,
 		"user_info":   user,
 		"err_message": "",
