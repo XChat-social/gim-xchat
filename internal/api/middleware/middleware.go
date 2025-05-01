@@ -36,60 +36,49 @@ func CORS() gin.HandlerFunc {
 	}
 }
 
-// Auth 认证中间件
+// Auth 认证中间件（完成版）
 func Auth(rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 从请求头获取token
+		// 从请求头获取 token
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "未授权：缺少Authorization头"})
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Missing or invalid token"})
 			c.Abort()
 			return
 		}
 
-		// 检查Authorization格式
-		parts := strings.SplitN(authHeader, " ", 2)
-		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "未授权：Authorization格式错误"})
-			c.Abort()
-			return
-		}
+		// 解析 token 字符串
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-		tokenString := parts[1]
-
-		// 解析JWT token
+		// 解析 JWT
 		token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-			// 验证签名算法
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
 			return []byte(JWTSecret), nil
 		})
-
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "未授权：" + err.Error()})
+		if err != nil || !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Invalid token"})
 			c.Abort()
 			return
 		}
 
-		// 验证token是否有效
-		if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
-			// 检查token是否在Redis黑名单中（用于登出）
-			_, err := rdb.Get(fmt.Sprintf("token:blacklist:%s", tokenString)).Result()
-			if err == nil {
-				c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "未授权：token已失效"})
-				c.Abort()
-				return
-			}
-
-			// 将用户ID存储在上下文中
-			c.Set("userID", claims.UserID)
-			c.Next()
-		} else {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "未授权：无效的token"})
+		// 提取用户ID
+		claims, ok := token.Claims.(*UserClaims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Invalid token claims"})
 			c.Abort()
 			return
 		}
+
+		// （可选）判断 token 是否过期
+		if claims.ExpiresAt != nil && claims.ExpiresAt.Time.Before(time.Now()) {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Token expired"})
+			c.Abort()
+			return
+		}
+
+		// 将 userID 放入上下文
+		c.Set("userID", claims.UserID)
+
+		c.Next()
 	}
 }
 
