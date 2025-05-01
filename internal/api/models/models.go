@@ -4,22 +4,23 @@ import (
 	"time"
 )
 
-// User 用户模型
+// User 表示用户信息
 type User struct {
-	UserID          int64     `json:"user_id" gorm:"primaryKey;column:user_id"`
-	Nickname        string    `json:"nickname" gorm:"column:nickname"`
-	Sex             int32     `json:"sex" gorm:"column:sex"`
-	AvatarURL       string    `json:"avatar_url" gorm:"column:avatar_url"`
-	Extra           string    `json:"extra" gorm:"column:extra"`
-	CreateTime      time.Time `json:"create_time" gorm:"column:create_time"`
-	UpdateTime      time.Time `json:"update_time" gorm:"column:update_time"`
-	TwitterID       string    `json:"twitter_id" gorm:"column:twitter_id"`
-	TwitterUsername string    `json:"twitter_username" gorm:"column:twitter_username"`
-	XPoint          int32     `json:"xpoint" gorm:"column:xpoint"`
-	FollowReward    int32     `json:"follow_reward" gorm:"column:follow_reward"`
-	InviteCode      string    `json:"invite_code" gorm:"column:invite_code"`
-	InviterCode     string    `json:"inviter_code" gorm:"column:inviter_code"`
-	WalletAddress   string    `json:"wallet_address" gorm:"column:wallet_address"`
+	ID              uint64    `json:"id" gorm:"primaryKey;column:id"`                  // 自增主键
+	PhoneNumber     string    `json:"phone_number" gorm:"column:phone_number"`         // 手机号
+	Nickname        string    `json:"nickname" gorm:"column:nickname"`                 // 昵称
+	Sex             int8      `json:"sex" gorm:"column:sex"`                           // 性别：0 未知，1 男，2 女
+	AvatarURL       string    `json:"avatar_url" gorm:"column:avatar_url"`             // 用户头像链接
+	Extra           string    `json:"extra" gorm:"column:extra"`                       // 附加属性（可存储 JSON 等扩展信息）
+	TwitterID       string    `json:"twitter_id" gorm:"column:twitter_id"`             // Twitter ID（可为空）
+	TwitterUsername string    `json:"twitter_username" gorm:"column:twitter_username"` // Twitter 用户名
+	CreateTime      time.Time `json:"create_time" gorm:"column:create_time"`           // 创建时间
+	UpdateTime      time.Time `json:"update_time" gorm:"column:update_time"`           // 更新时间
+	XPoint          uint      `json:"xpoint" gorm:"column:xpoint"`                     // 当前积分
+	FollowReward    bool      `json:"follow_reward" gorm:"column:follow_reward"`       // 推特关注奖励领取状态：false=未领取，true=已领取
+	InviterCode     string    `json:"inviter_code" gorm:"column:inviter_code"`         // 填写的邀请码
+	InviteCode      string    `json:"invite_code" gorm:"column:invite_code"`           // 用户的邀请码
+	WalletAddress   string    `json:"wallet_address" gorm:"column:wallet_address"`     // 钱包地址
 }
 
 // TableName 设置表名
@@ -27,20 +28,20 @@ func (User) TableName() string {
 	return "user"
 }
 
-// Token 代币模型
+// Token 表示用户创建的 Token 信息
 type Token struct {
-	ID           int64     `json:"id" gorm:"primaryKey;column:id"`
-	UserID       int64     `json:"user_id" gorm:"column:user_id"`
-	TokenAddress string    `json:"token_address" gorm:"column:token_address"`
-	TokenName    string    `json:"token_name" gorm:"column:token_name"`
-	TokenSymbol  string    `json:"token_symbol" gorm:"column:token_symbol"`
-	Decimals     int32     `json:"decimals" gorm:"column:decimals"`
-	TotalSupply  string    `json:"total_supply" gorm:"column:total_supply"`
-	CreatorAddr  string    `json:"creator_addr" gorm:"column:creator_addr"`
-	ChainID      int32     `json:"chain_id" gorm:"column:chain_id"`
-	Status       int32     `json:"status" gorm:"column:status"`
-	CreatedAt    time.Time `json:"created_at" gorm:"column:created_at"`
-	UpdatedAt    time.Time `json:"updated_at" gorm:"column:updated_at"`
+	ID             int64     `json:"id" gorm:"primaryKey;column:id"`                // 主键ID
+	UserID         int64     `json:"user_id" gorm:"column:user_id"`                 // 创建者用户ID
+	TokenAddress   string    `json:"token_address" gorm:"column:token_address"`     // Token 合约地址
+	TokenName      string    `json:"token_name" gorm:"column:token_name"`           // Token 名称
+	TokenSymbol    string    `json:"token_symbol" gorm:"column:token_symbol"`       // Token 符号
+	Decimals       int       `json:"decimals" gorm:"column:decimals"`               // Token 精度（默认 18）
+	TotalSupply    string    `json:"total_supply" gorm:"column:total_supply"`       // Token 发行总量
+	CreatorAddress string    `json:"creator_address" gorm:"column:creator_address"` // 创建者钱包地址
+	ChainID        int       `json:"chain_id" gorm:"column:chain_id"`               // 链 ID（如：1=Ethereum, 56=BSC）
+	Status         int8      `json:"status" gorm:"column:status"`                   // 状态：1=正常，0=禁用
+	CreatedAt      time.Time `json:"created_at" gorm:"column:created_at"`           // 创建时间
+	UpdatedAt      time.Time `json:"updated_at" gorm:"column:updated_at"`           // 更新时间
 }
 
 // TableName 设置表名
