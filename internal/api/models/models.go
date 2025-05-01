@@ -24,7 +24,7 @@ type User struct {
 
 // TableName 设置表名
 func (User) TableName() string {
-	return "users"
+	return "user"
 }
 
 // Token 代币模型
@@ -45,7 +45,7 @@ type Token struct {
 
 // TableName 设置表名
 func (Token) TableName() string {
-	return "tokens"
+	return "token"
 }
 
 // Task 任务模型
