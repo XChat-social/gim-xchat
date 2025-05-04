@@ -104,7 +104,7 @@ func (h *TwitterHandler) HandleTwitterCallback(c *gin.Context) {
 	}
 
 	redirectURL := fmt.Sprintf(
-		"https://x.com?redirect=redirectx&temp_token=%s",
+		"http://localhost:3000?redirect=redirectx&temp_token=%s",
 		url.QueryEscape(tempToken),
 	)
 
