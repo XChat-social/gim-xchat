@@ -153,6 +153,7 @@ func (h *UserHandler) SearchUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"code":  200,
 		"users": users,
 	})
 }
