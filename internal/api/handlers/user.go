@@ -70,13 +70,10 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 // UpdateUser 更新用户信息
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	var req struct {
-		Nickname    string `json:"nickname"`
-		Sex         int32  `json:"sex"`
-		AvatarURL   string `json:"avatar_url"`
-		Extra       string `json:"extra"`
-		Description string `json:"description"`
-		Email       string `json:"email"`
-		Birthday    string `json:"birthday"`
+		Nickname  string `json:"nickname"`
+		Sex       int32  `json:"sex"`
+		AvatarURL string `json:"avatar_url"`
+		Extra     string `json:"extra"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -105,15 +102,6 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	}
 	if req.Extra != "" {
 		updates["extra"] = req.Extra
-	}
-	if req.Description != "" {
-		updates["description"] = req.Description
-	}
-	if req.Email != "" {
-		updates["email"] = req.Email
-	}
-	if req.Birthday != "" {
-		updates["birthday"] = req.Birthday
 	}
 
 	if len(updates) <= 1 {
