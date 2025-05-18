@@ -5,11 +5,12 @@ import (
 	"gim/internal/api/middleware"
 	"gim/internal/api/models"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/go-redis/redis"
-	"github.com/storyicon/sigverify"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -208,15 +209,22 @@ func (h *UserHandler) WalletSignIn(c *gin.Context) {
 	})
 }
 
-// verifySignature 验证签名
-func verifySignature(address, message, signature string) (bool, error) {
-	valid, err := sigverify.VerifyEllipticCurveHexSignatureEx(
-		common.HexToAddress(address),
-		[]byte(message),
-		signature,
-	)
-	if err != nil {
-		return false, fmt.Errorf("signature verification failed: %v", err)
+// verifySignature 验证 personal_sign 签名
+func verifySignature(message, signatureHex, address string) (bool, error) {
+	prefixedMsg := fmt.Sprintf("\x19Ethereum Signed Message:\n%d%s", len(message), message)
+	msgHash := crypto.Keccak256Hash([]byte(prefixedMsg))
+	sig := common.FromHex(signatureHex)
+	if len(sig) != 65 {
+		return false, fmt.Errorf("signature must be 65 bytes long")
 	}
-	return valid, nil
+	if sig[64] >= 27 {
+		sig[64] -= 27
+	}
+	pubKey, err := crypto.SigToPub(msgHash.Bytes(), sig)
+	if err != nil {
+		return false, fmt.Errorf("invalid signature: %v", err)
+	}
+	recoveredAddr := crypto.PubkeyToAddress(*pubKey)
+	match := strings.EqualFold(recoveredAddr.Hex(), address)
+	return match, nil
 }
