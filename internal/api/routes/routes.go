@@ -50,7 +50,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		api.POST("/wallet/sign-in", userHandler.WalletSignIn)
 
 		// Token相关接口
-		api.POST("/tokens", middleware.Auth(rdb), tokenHandler.CreateToken)
+		api.POST("/tokens/create-token", middleware.Auth(rdb), tokenHandler.CreateToken)
 		api.GET("/tokens/:tokenAddress", tokenHandler.GetToken)
 	}
 
