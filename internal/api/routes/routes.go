@@ -10,6 +10,9 @@ import (
 
 // SetupRoutes 配置所有API路由
 func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
+	// 静态资源映射（icon访问路径）
+	r.Static("/static", "./static")
+
 	// 创建处理器
 	userHandler := &handlers.UserHandler{DB: db, RDB: rdb}
 	twitterHandler := &handlers.TwitterHandler{DB: db, RDB: rdb}
@@ -52,6 +55,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		// Token相关接口
 		api.POST("/tokens/create-token", middleware.Auth(rdb), tokenHandler.CreateToken)
 		api.GET("/tokens/:tokenAddress", tokenHandler.GetToken)
+		api.POST("/tokens/upload-icon", middleware.Auth(rdb), tokenHandler.UploadTokenIcon)
 	}
 
 	// 处理Twitter回调

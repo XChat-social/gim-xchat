@@ -39,9 +39,10 @@ type Token struct {
 	TotalSupply    string    `json:"total_supply" gorm:"column:total_supply"`       // Token 发行总量
 	CreatorAddress string    `json:"creator_address" gorm:"column:creator_address"` // 创建者钱包地址
 	ChainID        int       `json:"chain_id" gorm:"column:chain_id"`               // 链 ID（如：1=Ethereum, 56=BSC）
-	Status         int8      `json:"status" gorm:"column:status"`                   // 状态：1=正常，0=禁用
-	CreatedAt      time.Time `json:"created_at" gorm:"column:created_at"`           // 创建时间
-	UpdatedAt      time.Time `json:"updated_at" gorm:"column:updated_at"`           // 更新时间
+	IconUrl        string    `json:"icon_url" gorm:"column:icon_url"`
+	Status         int8      `json:"status" gorm:"column:status"`         // 状态：1=正常，0=禁用
+	CreatedAt      time.Time `json:"created_at" gorm:"column:created_at"` // 创建时间
+	UpdatedAt      time.Time `json:"updated_at" gorm:"column:updated_at"` // 更新时间
 }
 
 // TableName 设置表名
