@@ -110,7 +110,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	result := h.DB.Model(&models.User{}).Where("user_id = ?", userID).Updates(updates)
+	result := h.DB.Model(&models.User{}).Where("id = ?", userID).Updates(updates)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Update failed: " + result.Error.Error()})
 		return
