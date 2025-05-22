@@ -246,15 +246,12 @@ func (h *TwitterHandler) FollowTwitter(c *gin.Context) {
 	}
 
 	// 调用 API 创建关注关系
-	isFollowing, err := h.followUser(accessToken, user.TwitterID, officialTwitterID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to follow official Twitter account"})
-		return
-	}
-
-	// 如果未成功创建关注关系
-	if !isFollowing {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Failed to follow the official Twitter account"})
+	_, errFollowing := h.followUser(accessToken, user.TwitterID, officialTwitterID)
+	if errFollowing != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": fmt.Sprintf("Failed to follow official Twitter account: %v", err),
+		})
 		return
 	}
 
