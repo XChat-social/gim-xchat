@@ -223,7 +223,7 @@ func (h *TwitterHandler) FollowTwitter(c *gin.Context) {
 	}
 
 	// 查询用户信息
-	var user model.User
+	var user models.User
 	result := h.DB.First(&user, userID)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})

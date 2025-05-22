@@ -7,8 +7,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/go-redis/redis"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -123,6 +125,44 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		"code":      200,
 		"message":   "Update successful",
 		"user_info": user,
+	})
+}
+
+// UploadAvatar uploads a user avatar
+func (h *UserHandler) UploadAvatar(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Failed to retrieve file"})
+		return
+	}
+
+	// Get file extension
+	ext := filepath.Ext(file.Filename)
+	if ext == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Invalid file type"})
+		return
+	}
+
+	// Generate unique file name
+	filename := uuid.New().String() + ext
+
+	// Save path (relative or absolute)
+	savePath := filepath.Join("static/avatars", filename)
+
+	if err := c.SaveUploadedFile(file, savePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to save file"})
+		return
+	}
+
+	// Build access URL (adjust domain as needed)
+	fileURL := fmt.Sprintf("https://api.xchat.social/api/static/avatars/%s", filename)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Upload success",
+		"data": gin.H{
+			"avatar_url": fileURL,
+		},
 	})
 }
 

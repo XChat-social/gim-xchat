@@ -129,7 +129,7 @@ func (h *TaskHandler) FollowTwitter(c *gin.Context) {
 
 	// 检查用户是否存在
 	var user models.User
-	result := h.DB.First(&user, userID)
+	result := h.DB.Where("id = ?", userID).First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
 		return
