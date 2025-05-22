@@ -248,10 +248,14 @@ func (h *TwitterHandler) FollowTwitter(c *gin.Context) {
 	// 调用 API 创建关注关系
 	_, errFollowing := h.followUser(accessToken, user.TwitterID, officialTwitterID)
 	if errFollowing != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": fmt.Sprintf("Failed to follow official Twitter account: %v", err),
-		})
+		// 如果包含具体 HTTP 状态码，如 429 或 401
+		if strings.Contains(errFollowing.Error(), "HTTP 429") {
+			c.JSON(http.StatusTooManyRequests, gin.H{"code": 429, "message": errFollowing.Error()})
+		} else if strings.Contains(errFollowing.Error(), "HTTP 401") {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": errFollowing.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": errFollowing.Error()})
+		}
 		return
 	}
 
