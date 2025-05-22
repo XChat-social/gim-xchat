@@ -30,6 +30,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		api.GET("/users/:userId", userHandler.GetUser)
 		api.PUT("/users", middleware.Auth(rdb), userHandler.UpdateUser)
 		api.GET("/users/search", userHandler.SearchUser)
+		api.POST("/users/upload-avatar", middleware.Auth(rdb), tokenHandler.UploadTokenIcon)
 
 		// 推特相关接口
 		api.GET("/twitter/authorize-url", twitterHandler.GetTwitterAuthorizeURL)
