@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 	"gim/internal/api/middleware"
 	"gim/internal/api/models"
 	"gim/internal/business/domain/user/model"
+	"gim/pkg/db"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -243,20 +245,30 @@ func (h *TwitterHandler) FollowTwitter(c *gin.Context) {
 		return
 	}
 
-	// 调用Twitter API关注官方账号
-	err = followTwitterUser(accessToken, officialTwitterID)
+	// 调用 API 创建关注关系
+	isFollowing, err := h.followUser(accessToken, user.TwitterID, officialTwitterID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to follow Twitter user: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to follow official Twitter account"})
 		return
 	}
 
-	// 更新用户关注状态
-	h.DB.Model(&user).Update("has_followed_official", true)
+	// 如果未成功创建关注关系
+	if !isFollowing {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Failed to follow the official Twitter account"})
+		return
+	}
+
+	// 保存状态到 Redis，设置为待领取状态
+	key := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskFollowTwitter)
+	err = db.RedisCli.Set(key, TaskStatusClaimed, 24*time.Hour).Err() // 设置过期时间为 24 小时
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to save task status to Redis"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
-		"message": "Success",
-		"success": 1,
+		"message": "Follow successfully!",
 	})
 }
 
@@ -304,40 +316,47 @@ func (h *TwitterHandler) getTwitterAccessToken(twitterID string) (string, error)
 }
 
 // 关注Twitter用户
-func followTwitterUser(accessToken, targetUserID string) error {
-	followURL := fmt.Sprintf("https://api.twitter.com/2/users/%s/following", targetUserID)
+// followUser 创建关注目标用户的关系
+func (h *TwitterHandler) followUser(accessToken, userId, targetId string) (bool, error) {
+	// 构造 API 请求 URL
+	url := fmt.Sprintf("https://api.twitter.com/2/users/%s/following", userId)
 
-	// 构建请求体
-	requestBody, err := json.Marshal(map[string]string{
-		"target_user_id": officialTwitterID,
-	})
+	// 构造请求体
+	payload := map[string]string{
+		"target_user_id": targetId,
+	}
+	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		return fmt.Errorf("failed to marshal request body: %w", err)
+		return false, fmt.Errorf("failed to encode payload: %w", err)
 	}
 
-	// 创建请求
-	req, err := http.NewRequest("POST", followURL, strings.NewReader(string(requestBody)))
+	// 创建 HTTP 请求
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
+		return false, fmt.Errorf("failed to create request: %w", err)
 	}
-
-	// 设置请求头
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// 发送请求
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("HTTP request failed: %w", err)
+		return false, fmt.Errorf("HTTP request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// 检查响应状态
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("failed to follow user: status code %d", resp.StatusCode)
+		var errorResp struct {
+			Title  string `json:"title"`
+			Detail string `json:"detail"`
+		}
+		_ = json.NewDecoder(resp.Body).Decode(&errorResp)
+		return false, fmt.Errorf("failed to follow user: %s (%s)", errorResp.Title, errorResp.Detail)
 	}
 
-	return nil
+	// 成功创建关注关系
+	return true, nil
 }
 
 // SearchTwitterUser 搜索Twitter用户
