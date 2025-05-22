@@ -83,20 +83,20 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 func (h *TokenHandler) GetToken(c *gin.Context) {
 	tokenAddress := c.Param("tokenAddress")
 	if tokenAddress == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Token地址不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Token address cannot be empty"})
 		return
 	}
 
 	var token models.Token
 	result := h.DB.Where("token_address = ?", tokenAddress).First(&token)
 	if result.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "Token不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "Token not found"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
-		"message": "成功",
+		"message": "Success",
 		"token":   token,
 	})
 }
