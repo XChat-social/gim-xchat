@@ -33,7 +33,7 @@ const (
 	twitterTokenURL     = "https://api.twitter.com/2/oauth2/token"
 	twitterUserInfoURL  = "https://api.twitter.com/2/users/me"
 	clientID            = "YS01bVJhaXdIdEN4X3N5cjNlQzM6MTpjaQ"                 // Twitter Client ID
-	clientSecret        = "JbYIsa77FIbRVc_ZY4238KaPV3Y-K-G5ylbOfuDHgVr8WtgEvO" // Twitter Client Secret
+	clientSecret        = "giFBx7xavYUbX0Z_UXMVOudZOWQbq8l_IfQp6N_9S9AZMFrEjj" // Twitter Client Secret
 	redirectURI         = "https://api.xchat.social/api/twitter/signin"
 	officialTwitterID   = "1837782128660017152" // XChat 官方 Twitter ID
 	stateTTL            = 5 * time.Minute       // Redis state & verifier TTL
