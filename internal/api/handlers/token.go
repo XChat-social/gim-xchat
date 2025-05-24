@@ -101,6 +101,33 @@ func (h *TokenHandler) GetToken(c *gin.Context) {
 	})
 }
 
+// GetTokenByUserID 根据用户ID获取Token信息
+func (h *TokenHandler) GetTokenByUserID(c *gin.Context) {
+	userID := c.Param("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "User ID cannot be empty"})
+		return
+	}
+
+	var tokens []models.Token
+	result := h.DB.Where("user_id = ?", userID).Find(&tokens)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Database error"})
+		return
+	}
+
+	if len(tokens) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "No tokens found for this user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Success",
+		"tokens":  tokens,
+	})
+}
+
 // UploadTokenIcon 上传Token图标
 func (h *TokenHandler) UploadTokenIcon(c *gin.Context) {
 	file, err := c.FormFile("file")
