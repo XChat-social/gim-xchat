@@ -103,7 +103,7 @@ func (h *TokenHandler) GetToken(c *gin.Context) {
 
 // GetTokenByUserID 根据用户ID获取Token信息
 func (h *TokenHandler) GetTokenByUserID(c *gin.Context) {
-	userID := c.Param("user_id")
+	userID := c.Query("user_id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "User ID cannot be empty"})
 		return
