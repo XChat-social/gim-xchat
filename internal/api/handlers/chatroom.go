@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"gim/internal/api/models"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
@@ -34,13 +33,6 @@ func (h *ChatRoomHandler) CreateChatRoom(c *gin.Context) {
 		return
 	}
 
-	// 获取当前用户ID
-	userID, _, err := grpclib.GetCtxData(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
-		return
-	}
-
 	// 调用gRPC服务创建聊天室
 	resp, err := rpc.GetLogicExtClient().CreateChatRoom(c.Request.Context(), &pb.CreateChatRoomReq{
 		Name:           req.Name,
@@ -52,34 +44,6 @@ func (h *ChatRoomHandler) CreateChatRoom(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
-		return
-	}
-
-	// 创建聊天室记录
-	chatRoom := &models.ChatRoom{
-		RoomID:         resp.RoomId,
-		Name:           req.Name,
-		AvatarURL:      req.AvatarURL,
-		Introduction:   req.Introduction,
-		MaxMemberCount: req.MaxMemberCount,
-		Extra:          req.Extra,
-		CreatorID:      userID,
-	}
-
-	if err := h.DB.Create(chatRoom).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "创建聊天室失败"})
-		return
-	}
-
-	// 创建者自动加入聊天室
-	member := &models.ChatRoomMember{
-		RoomID:   resp.RoomId,
-		UserID:   userID,
-		JoinTime: time.Now(),
-	}
-
-	if err := h.DB.Create(member).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "加入聊天室失败"})
 		return
 	}
 
@@ -97,32 +61,26 @@ func (h *ChatRoomHandler) GetChatRoom(c *gin.Context) {
 		return
 	}
 
-	var chatRoom models.ChatRoom
-	if err := h.DB.Where("room_id = ?", roomID).First(&chatRoom).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "聊天室不存在"})
+	resp, err := rpc.GetLogicExtClient().GetChatRoom(c.Request.Context(), &pb.GetChatRoomReq{
+		RoomId: roomID,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
 	}
-
-	// 获取在线人数
-	onlineCount := 0 // TODO: 从Redis获取在线人数
-
-	// 获取成员总数
-	var memberCount int64
-	h.DB.Model(&models.ChatRoomMember{}).Where("room_id = ?", roomID).Count(&memberCount)
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": gin.H{
-			"room_id":          chatRoom.RoomID,
-			"name":             chatRoom.Name,
-			"avatar_url":       chatRoom.AvatarURL,
-			"introduction":     chatRoom.Introduction,
-			"max_member_count": chatRoom.MaxMemberCount,
-			"online_count":     onlineCount,
-			"member_count":     memberCount,
-			"extra":            chatRoom.Extra,
-			"creator_id":       chatRoom.CreatorID,
-			"create_time":      chatRoom.CreatedAt.Unix(),
+			"room_id":          resp.Room.RoomId,
+			"name":             resp.Room.Name,
+			"avatar_url":       resp.Room.AvatarUrl,
+			"introduction":     resp.Room.Introduction,
+			"max_member_count": resp.Room.MaxMemberCount,
+			"online_count":     resp.Room.OnlineCount,
+			"member_count":     resp.Room.MemberCount,
+			"extra":            resp.Room.Extra,
+			"create_time":      resp.Room.CreateTime,
 		},
 	})
 }
@@ -132,32 +90,27 @@ func (h *ChatRoomHandler) GetChatRooms(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	var chatRooms []models.ChatRoom
-	var total int64
-
-	h.DB.Model(&models.ChatRoom{}).Count(&total)
-	h.DB.Offset((page - 1) * pageSize).Limit(pageSize).Find(&chatRooms)
+	resp, err := rpc.GetLogicExtClient().GetChatRooms(c.Request.Context(), &pb.GetChatRoomsReq{
+		PageNumber: int32(page),     // 错误：应该是 page_number
+		PageSize:   int32(pageSize), // 正确
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
 
 	var roomList []gin.H
-	for _, room := range chatRooms {
-		// 获取在线人数
-		onlineCount := 0 // TODO: 从Redis获取在线人数
-
-		// 获取成员总数
-		var memberCount int64
-		h.DB.Model(&models.ChatRoomMember{}).Where("room_id = ?", room.RoomID).Count(&memberCount)
-
+	for _, room := range resp.Rooms {
 		roomList = append(roomList, gin.H{
-			"room_id":          room.RoomID,
+			"room_id":          room.RoomId,
 			"name":             room.Name,
-			"avatar_url":       room.AvatarURL,
+			"avatar_url":       room.AvatarUrl,
 			"introduction":     room.Introduction,
 			"max_member_count": room.MaxMemberCount,
-			"online_count":     onlineCount,
-			"member_count":     memberCount,
+			"online_count":     room.OnlineCount,
+			"member_count":     room.MemberCount,
 			"extra":            room.Extra,
-			"creator_id":       room.CreatorID,
-			"create_time":      room.CreatedAt.Unix(),
+			"create_time":      room.CreateTime,
 		})
 	}
 
@@ -165,87 +118,57 @@ func (h *ChatRoomHandler) GetChatRooms(c *gin.Context) {
 		"code": 200,
 		"data": gin.H{
 			"rooms": roomList,
-			"total": total,
+			"total": resp.Total,
 		},
 	})
 }
 
 // JoinChatRoom 加入聊天室
 func (h *ChatRoomHandler) JoinChatRoom(c *gin.Context) {
-	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
-		return
-	}
-
-	userID, _, err := grpclib.GetCtxData(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
-		return
-	}
-
-	// 检查聊天室是否存在
-	var chatRoom models.ChatRoom
-	if err := h.DB.Where("room_id = ?", roomID).First(&chatRoom).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "聊天室不存在"})
-		return
-	}
-
-	// 检查是否已经是成员
-	var count int64
-	h.DB.Model(&models.ChatRoomMember{}).Where("room_id = ? AND user_id = ?", roomID, userID).Count(&count)
-	if count > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "已经是聊天室成员"})
-		return
-	}
-
-	// 检查成员数量是否达到上限
-	h.DB.Model(&models.ChatRoomMember{}).Where("room_id = ?", roomID).Count(&count)
-	if count >= int64(chatRoom.MaxMemberCount) {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "聊天室已满"})
-		return
-	}
-
-	// 加入聊天室
-	member := &models.ChatRoomMember{
-		RoomID:   roomID,
-		UserID:   userID,
-		JoinTime: time.Now(),
-	}
-
-	if err := h.DB.Create(member).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "加入聊天室失败"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"code": 200})
+	//roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
+	//	return
+	//}
+	//
+	//_, _, err = grpclib.GetCtxData(c.Request.Context())
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
+	//	return
+	//}
+	//
+	//err, _ = rpc.GetLogicExtClient().JoinChatRoom(c.Request.Context(), &pb.JoinChatRoomReq{
+	//	RoomId: roomID,
+	//})
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+	//	return
+	//}
+	//
+	//c.JSON(http.StatusOK, gin.H{"code": 200})
 }
 
 // LeaveChatRoom 离开聊天室
 func (h *ChatRoomHandler) LeaveChatRoom(c *gin.Context) {
-	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
-		return
-	}
-
-	userID, _, err := grpclib.GetCtxData(c.Request.Context())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 400, "message": "获取用户信息失败"})
-		return
-	}
-
-	// 删除成员记录
-	result := h.DB.Where("room_id = ? AND user_id = ?", roomID, userID).Delete(&models.ChatRoomMember{})
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "离开聊天室失败"})
-		return
-	}
-
-	if result.RowsAffected == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "不是聊天室成员"})
-		return
-	}
+	//roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
+	//	return
+	//}
+	//
+	//userID, _, err := grpclib.GetCtxData(c.Request.Context())
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
+	//	return
+	//}
+	//
+	//err = rpc.GetLogicExtClient().LeaveChatRoom(c.Request.Context(), &pb.LeaveChatRoomReq{
+	//	RoomId: roomID,
+	//})
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+	//	return
+	//}
 
 	c.JSON(http.StatusOK, gin.H{"code": 200})
 }
@@ -261,19 +184,21 @@ func (h *ChatRoomHandler) GetChatRoomMembers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	var members []models.ChatRoomMember
-	var total int64
-
-	h.DB.Model(&models.ChatRoomMember{}).Where("room_id = ?", roomID).Count(&total)
-	h.DB.Where("room_id = ?", roomID).Offset((page - 1) * pageSize).Limit(pageSize).Find(&members)
+	resp, err := rpc.GetLogicExtClient().GetChatRoomMembers(c.Request.Context(), &pb.GetChatRoomMembersReq{
+		RoomId:     roomID,
+		PageSize:   int32(pageSize),
+		PageNumber: int32(page),
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
 
 	var memberList []gin.H
-	for _, member := range members {
-		// TODO: 获取用户信息和在线状态
+	for _, member := range resp.Members {
 		memberList = append(memberList, gin.H{
-			"user_id":   member.UserID,
-			"join_time": member.JoinTime.Unix(),
-			"extra":     member.Extra,
+			"user_id":   member.UserId,
+			"join_time": member.JoinTime,
 		})
 	}
 
@@ -281,7 +206,7 @@ func (h *ChatRoomHandler) GetChatRoomMembers(c *gin.Context) {
 		"code": 200,
 		"data": gin.H{
 			"members": memberList,
-			"total":   total,
+			"total":   resp.Total,
 		},
 	})
 }
@@ -301,14 +226,6 @@ func (h *ChatRoomHandler) SendMessage(c *gin.Context) {
 		return
 	}
 
-	// 检查用户是否是聊天室成员
-	var count int64
-	h.DB.Model(&models.ChatRoomMember{}).Where("room_id = ? AND user_id = ?", roomID, userID).Count(&count)
-	if count == 0 {
-		c.JSON(http.StatusForbidden, gin.H{"code": 403, "message": "不是聊天室成员"})
-		return
-	}
-
 	var req struct {
 		Content  []byte `json:"content" binding:"required"`
 		SendTime int64  `json:"send_time,omitempty"`
@@ -324,10 +241,10 @@ func (h *ChatRoomHandler) SendMessage(c *gin.Context) {
 		req.SendTime = time.Now().Unix()
 	}
 
-	// 调用gRPC服务发送消息x
+	// 调用gRPC服务发送消息
 	resp, err := rpc.GetLogicExtClient().SendChatRoomMessage(c.Request.Context(), &pb.SendChatRoomMessageReq{
 		RoomId:   roomID,
-		UserId:   userID, // 添加发送者ID
+		UserId:   userID,
 		Content:  req.Content,
 		SendTime: req.SendTime,
 	})

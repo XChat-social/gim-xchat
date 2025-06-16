@@ -9,6 +9,7 @@ import (
 	"gim/pkg/mq"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
+	"gim/pkg/sequence"
 	"gim/pkg/util"
 	"time"
 
@@ -133,7 +134,7 @@ func (s *service) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq)
 	}
 
 	// 生成聊天室ID
-	roomId, err := util.GetNextSeq("chat_room")
+	roomId, err := sequence.GetNextSeq("chat_room")
 
 	chatRoom := &pb.ChatRoom{
 		RoomId:         roomId,
