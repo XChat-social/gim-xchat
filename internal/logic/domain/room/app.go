@@ -23,3 +23,33 @@ func (s *app) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomReq) error
 func (s *app) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq) (*pb.CreateChatRoomResp, error) {
 	return Service.CreateChatRoom(ctx, req)
 }
+
+// GetChatRoom 获取聊天室信息
+func (s *app) GetChatRoom(ctx context.Context, req *pb.GetChatRoomReq) (*pb.GetChatRoomResp, error) {
+	return Service.GetChatRoom(ctx, req)
+}
+
+// GetChatRooms 获取聊天室列表
+func (s *app) GetChatRooms(ctx context.Context, req *pb.GetChatRoomsReq) (*pb.GetChatRoomsResp, error) {
+	return Service.GetChatRooms(ctx, req)
+}
+
+// JoinChatRoom 加入聊天室
+func (s *app) JoinChatRoom(ctx context.Context, req *pb.JoinChatRoomReq) error {
+	return Service.JoinChatRoom(ctx, req)
+}
+
+// LeaveChatRoom 离开聊天室
+func (s *app) LeaveChatRoom(ctx context.Context, req *pb.LeaveChatRoomReq) error {
+	return Service.LeaveChatRoom(ctx, req)
+}
+
+// GetChatRoomMembers 获取聊天室成员
+func (s *app) GetChatRoomMembers(ctx context.Context, req *pb.GetChatRoomMembersReq) (*pb.GetChatRoomMembersResp, error) {
+	return Service.GetChatRoomMembers(ctx, req)
+}
+
+// SendChatRoomMessage 发送聊天室消息
+func (s *app) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomMessageReq) (*pb.SendChatRoomMessageResp, error) {
+	return Service.SendChatRoomMessage(ctx, req)
+}

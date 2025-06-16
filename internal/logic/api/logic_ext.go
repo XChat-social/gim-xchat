@@ -174,3 +174,43 @@ func (s *LogicExtServer) GetGroupMembers(ctx context.Context, in *pb.GetGroupMem
 	members, err := group.App.GetMembers(ctx, in.GroupId)
 	return &pb.GetGroupMembersResp{Members: members}, err
 }
+
+// CreateChatRoom 创建聊天室
+func (*LogicExtServer) CreateChatRoom(ctx context.Context, in *pb.CreateChatRoomReq) (*pb.CreateChatRoomResp, error) {
+	_, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return room.App.CreateChatRoom(ctx, in)
+}
+
+// GetChatRoom 获取聊天室信息
+func (*LogicExtServer) GetChatRoom(ctx context.Context, in *pb.GetChatRoomReq) (*pb.GetChatRoomResp, error) {
+	return room.App.GetChatRoom(ctx, in)
+}
+
+// GetChatRooms 获取聊天室列表
+func (*LogicExtServer) GetChatRooms(ctx context.Context, in *pb.GetChatRoomsReq) (*pb.GetChatRoomsResp, error) {
+	return room.App.GetChatRooms(ctx, in)
+}
+
+// JoinChatRoom 加入聊天室
+func (*LogicExtServer) JoinChatRoom(ctx context.Context, in *pb.JoinChatRoomReq) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, room.App.JoinChatRoom(ctx, in)
+}
+
+// LeaveChatRoom 离开聊天室
+func (*LogicExtServer) LeaveChatRoom(ctx context.Context, in *pb.LeaveChatRoomReq) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, room.App.LeaveChatRoom(ctx, in)
+}
+
+// GetChatRoomMembers 获取聊天室成员
+func (*LogicExtServer) GetChatRoomMembers(ctx context.Context, in *pb.GetChatRoomMembersReq) (*pb.GetChatRoomMembersResp, error) {
+	return room.App.GetChatRoomMembers(ctx, in)
+}
+
+// SendChatRoomMessage 发送聊天室消息
+func (*LogicExtServer) SendChatRoomMessage(ctx context.Context, in *pb.SendChatRoomMessageReq) (*pb.SendChatRoomMessageResp, error) {
+	return room.App.SendChatRoomMessage(ctx, in)
+}
