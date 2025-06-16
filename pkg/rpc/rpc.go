@@ -4,12 +4,14 @@ import (
 	"context"
 	"gim/config"
 	"gim/pkg/protocol/pb"
+	"google.golang.org/grpc"
 )
 
 var (
 	connectIntClient  pb.ConnectIntClient
 	logicIntClient    pb.LogicIntClient
 	businessIntClient pb.BusinessIntClient
+	logicExtClient    pb.LogicExtClient
 )
 
 func GetConnectIntClient() pb.ConnectIntClient {
@@ -31,6 +33,17 @@ func GetBusinessIntClient() pb.BusinessIntClient {
 		businessIntClient = config.Config.BusinessIntClientBuilder()
 	}
 	return businessIntClient
+}
+
+func GetLogicExtClient() pb.LogicExtClient {
+	if logicExtClient == nil {
+		conn, err := grpc.Dial("127.0.0.1:8010", grpc.WithInsecure())
+		if err != nil {
+			panic(err)
+		}
+		logicExtClient = pb.NewLogicExtClient(conn)
+	}
+	return logicExtClient
 }
 
 func GetSender(deviceID, userID int64) (*pb.Sender, error) {

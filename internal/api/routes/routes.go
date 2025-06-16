@@ -3,6 +3,7 @@ package routes
 import (
 	"gim/internal/api/handlers"
 	"gim/internal/api/middleware"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
@@ -62,4 +63,20 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 
 	// 处理Twitter回调
 	r.GET("/twitter/signin", twitterHandler.HandleTwitterCallback)
+
+	// 创建聊天室处理器
+	chatRoomHandler := &handlers.ChatRoomHandler{DB: db, RDB: rdb}
+	{
+		// 聊天室相关接口
+		chatroom := api.Group("/chatrooms", middleware.Auth(rdb))
+		{
+			chatroom.POST("", chatRoomHandler.CreateChatRoom)                    // 创建聊天室
+			chatroom.GET("/:roomId", chatRoomHandler.GetChatRoom)                // 获取聊天室信息
+			chatroom.GET("", chatRoomHandler.GetChatRooms)                       // 获取聊天室列表
+			chatroom.POST("/:roomId/join", chatRoomHandler.JoinChatRoom)         // 加入聊天室
+			chatroom.POST("/:roomId/leave", chatRoomHandler.LeaveChatRoom)       // 离开聊天室
+			chatroom.GET("/:roomId/members", chatRoomHandler.GetChatRoomMembers) // 获取成员列表
+			chatroom.POST("/:roomId/message", chatRoomHandler.SendMessage)       // 发送聊天室消息
+		}
+	}
 }

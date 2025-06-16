@@ -41,6 +41,20 @@ service LogicExt {
   rpc DeleteGroupMember (DeleteGroupMemberReq) returns (google.protobuf.Empty);
   // 获取群组成员
   rpc GetGroupMembers (GetGroupMembersReq) returns (GetGroupMembersResp);
+  // 创建聊天室
+  rpc CreateChatRoom (CreateChatRoomReq) returns (CreateChatRoomResp);
+  // 获取聊天室信息
+  rpc GetChatRoom (GetChatRoomReq) returns (GetChatRoomResp);
+  // 获取聊天室列表
+  rpc GetChatRooms (GetChatRoomsReq) returns (GetChatRoomsResp);
+  // 加入聊天室
+  rpc JoinChatRoom (JoinChatRoomReq) returns (google.protobuf.Empty);
+  // 离开聊天室
+  rpc LeaveChatRoom (LeaveChatRoomReq) returns (google.protobuf.Empty);
+  // 获取聊天室成员
+  rpc GetChatRoomMembers (GetChatRoomMembersReq) returns (GetChatRoomMembersResp);
+  // 发送聊天室消息
+  rpc SendChatRoomMessage (SendChatRoomMessageReq) returns (SendChatRoomMessageResp);
 }
 
 message RegisterDeviceReq {
@@ -191,4 +205,91 @@ message GroupMember {
   MemberType member_type = 6; // 成员类型
   string remarks = 7; // 备注
   string extra = 8; // 群组成员附加字段
+}
+
+message CreateChatRoomReq {
+  string name = 1; // 聊天室名称
+  string avatar_url = 2; // 聊天室头像
+  string introduction = 3; // 聊天室简介
+  string extra = 4; // 附加字段
+  int32 max_member_count = 5; // 最大成员数量
+}
+
+message CreateChatRoomResp {
+  int64 room_id = 1; // 聊天室ID
+}
+
+message GetChatRoomReq {
+  int64 room_id = 1; // 聊天室ID
+}
+
+message GetChatRoomResp {
+  ChatRoom room = 1; // 聊天室信息
+}
+
+message GetChatRoomsReq {
+  int32 page_size = 1; // 每页大小
+  int32 page_number = 2; // 页码
+}
+
+message GetChatRoomsResp {
+  repeated ChatRoom rooms = 1; // 聊天室列表
+  int32 total = 2; // 总数
+}
+
+message ChatRoom {
+  int64 room_id = 1; // 聊天室ID
+  string name = 2; // 名称
+  string avatar_url = 3; // 头像
+  string introduction = 4; // 简介
+  int32 online_count = 5; // 在线人数
+  int32 member_count = 6; // 成员总数
+  int32 max_member_count = 7; // 最大成员数量
+  string extra = 8; // 附加字段
+  int64 create_time = 9; // 创建时间
+  int64 update_time = 10; // 更新时间
+}
+
+message JoinChatRoomReq {
+  int64 room_id = 1; // 聊天室ID
+}
+
+message LeaveChatRoomReq {
+  int64 room_id = 1; // 聊天室ID
+}
+
+message GetChatRoomMembersReq {
+  int64 room_id = 1; // 聊天室ID
+  int32 page_size = 2; // 每页大小
+  int32 page_number = 3; // 页码
+}
+
+message GetChatRoomMembersResp {
+  repeated ChatRoomMember members = 1; // 成员列表
+  int32 total = 2; // 总数
+}
+
+message ChatRoomMember {
+  int64 user_id = 1; // 用户ID
+  string nickname = 2; // 昵称
+  string avatar_url = 3; // 头像
+  int64 join_time = 4; // 加入时间
+  bool is_online = 5; // 是否在线
+}
+
+message SendChatRoomMessageReq {
+  int64 room_id = 1; // 聊天室ID
+  int64 user_id = 2; // 发送者ID
+  bytes content = 3; // 消息内容
+  int64 send_time = 4; // 发送时间
+}
+
+message SendChatRoomMessageResp {
+  int64 seq = 1; // 消息序列号
+}
+
+message ChatRoomMessageData {
+    int64 sender_id = 1;    // 发送者ID
+    string sender_name = 2; // 发送者昵称
+    bytes content = 3;      // 消息内容
 }
