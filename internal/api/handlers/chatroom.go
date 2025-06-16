@@ -125,50 +125,39 @@ func (h *ChatRoomHandler) GetChatRooms(c *gin.Context) {
 
 // JoinChatRoom 加入聊天室
 func (h *ChatRoomHandler) JoinChatRoom(c *gin.Context) {
-	//roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
-	//	return
-	//}
-	//
-	//_, _, err = grpclib.GetCtxData(c.Request.Context())
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
-	//	return
-	//}
-	//
-	//err, _ = rpc.GetLogicExtClient().JoinChatRoom(c.Request.Context(), &pb.JoinChatRoomReq{
-	//	RoomId: roomID,
-	//})
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
-	//	return
-	//}
-	//
-	//c.JSON(http.StatusOK, gin.H{"code": 200})
+	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
+		return
+	}
+
+	// 只接收第二个返回值（error）
+	_, err = rpc.GetLogicExtClient().JoinChatRoom(c.Request.Context(), &pb.JoinChatRoomReq{
+		RoomId: roomID,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 200})
 }
 
 // LeaveChatRoom 离开聊天室
 func (h *ChatRoomHandler) LeaveChatRoom(c *gin.Context) {
-	//roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
-	//	return
-	//}
-	//
-	//userID, _, err := grpclib.GetCtxData(c.Request.Context())
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
-	//	return
-	//}
-	//
-	//err = rpc.GetLogicExtClient().LeaveChatRoom(c.Request.Context(), &pb.LeaveChatRoomReq{
-	//	RoomId: roomID,
-	//})
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
-	//	return
-	//}
+	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
+		return
+	}
+
+	_, err = rpc.GetLogicExtClient().LeaveChatRoom(c.Request.Context(), &pb.LeaveChatRoomReq{
+		RoomId: roomID,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"code": 200})
 }
