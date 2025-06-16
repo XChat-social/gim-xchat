@@ -17,6 +17,7 @@ var (
 	ErrAlreadyIsFriend   = newError(10015, "对方已经是好友了")
 	ErrUserNotFound      = newError(10016, "用户找不到")
 	ErrUserAlreadyExists = newError(10016, "userexists")
+	ErrNotInChatRoom     = newError(10017, "用户不在聊天室中")
 )
 
 func newError(code int, message string) error {

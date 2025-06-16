@@ -18,3 +18,8 @@ func (s *app) Push(ctx context.Context, req *pb.PushRoomReq) error {
 func (s *app) SubscribeRoom(ctx context.Context, req *pb.SubscribeRoomReq) error {
 	return Service.SubscribeRoom(ctx, req)
 }
+
+// CreateChatRoom 创建聊天室
+func (s *app) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq) (*pb.CreateChatRoomResp, error) {
+	return Service.CreateChatRoom(ctx, req)
+}
