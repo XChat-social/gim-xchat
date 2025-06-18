@@ -2,12 +2,13 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
-	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // JWTSecret JWT密钥
@@ -68,15 +69,10 @@ func Auth(rdb *redis.Client) gin.HandlerFunc {
 			return
 		}
 
-		// （可选）判断 token 是否过期
-		if claims.ExpiresAt != nil && claims.ExpiresAt.Time.Before(time.Now()) {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Token expired"})
-			c.Abort()
-			return
-		}
-
-		// 将 userID 放入上下文
-		c.Set("userID", claims.UserID)
+		// 将认证信息放入上下文
+		c.Set("user_id", claims.UserID) // 改为 user_id
+		c.Set("device_id", 1)           // 设置一个默认的 device_id
+		c.Set("token", tokenString)     // 保存原始 token
 
 		c.Next()
 	}
