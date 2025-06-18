@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/hex"
+	"gim/internal/api/middleware"
 	"gim/internal/business/domain/user/model"
 	"gim/internal/business/domain/user/repo"
 	"gim/pkg/gerrors"
@@ -10,6 +11,8 @@ import (
 	"gim/pkg/rpc"
 	"math/rand"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type authService struct{}
@@ -46,9 +49,19 @@ func (*authService) SignIn(ctx context.Context, phoneNumber, code string, device
 		return false, 0, "", err
 	}
 
-	// 方便测试
-	token := "0"
-	//token := util.RandString(40)
+	// 生成 JWT token
+	claims := middleware.UserClaims{
+		UserID: user.Id,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 24小时过期
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(middleware.JWTSecret))
+	if err != nil {
+		return false, 0, "", err
+	}
+
 	err = repo.AuthRepo.Set(user.Id, resp.Device.DeviceId, model.Device{
 		Type:   resp.Device.Type,
 		Token:  token,
@@ -68,6 +81,21 @@ func Verify(phoneNumber, code string) bool {
 
 // Auth 验证用户是否登录
 func (*authService) Auth(ctx context.Context, userId, deviceId int64, token string) error {
+	// 首先验证 JWT token
+	claims := &middleware.UserClaims{}
+	jwtToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(middleware.JWTSecret), nil
+	})
+	if err != nil || !jwtToken.Valid {
+		return gerrors.ErrUnauthorized
+	}
+
+	// 验证 token 中的 user_id 是否匹配
+	if claims.UserID != userId {
+		return gerrors.ErrUnauthorized
+	}
+
+	// 验证设备是否存在且未过期
 	device, err := repo.AuthRepo.Get(userId, deviceId)
 	if err != nil {
 		return err
@@ -81,9 +109,6 @@ func (*authService) Auth(ctx context.Context, userId, deviceId int64, token stri
 		return gerrors.ErrUnauthorized
 	}
 
-	if device.Token != token {
-		return gerrors.ErrUnauthorized
-	}
 	return nil
 }
 
