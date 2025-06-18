@@ -4,6 +4,7 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
+	"google.golang.org/grpc/metadata"
 	"net/http"
 	"strconv"
 	"time"
@@ -33,8 +34,20 @@ func (h *ChatRoomHandler) CreateChatRoom(c *gin.Context) {
 		return
 	}
 
-	// 调用gRPC服务创建聊天室
-	resp, err := rpc.GetLogicExtClient().CreateChatRoom(c.Request.Context(), &pb.CreateChatRoomReq{
+	// 从 gin.Context 中获取用户信息
+	userID := c.GetInt64("user_id")
+	deviceID := c.GetInt64("device_id")
+	token := c.GetString("token")
+
+	// 创建带认证信息的 context
+	ctx := metadata.NewOutgoingContext(c.Request.Context(), metadata.Pairs(
+		"user_id", strconv.FormatInt(userID, 10),
+		"device_id", strconv.FormatInt(deviceID, 10),
+		"token", token,
+	))
+
+	// 使用新的 context 调用 gRPC
+	resp, err := rpc.GetLogicExtClient().CreateChatRoom(ctx, &pb.CreateChatRoomReq{
 		Name:           req.Name,
 		AvatarUrl:      req.AvatarURL,
 		Introduction:   req.Introduction,

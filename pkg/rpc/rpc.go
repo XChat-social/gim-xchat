@@ -5,6 +5,7 @@ import (
 	"gim/config"
 	"gim/pkg/protocol/pb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -37,7 +38,20 @@ func GetBusinessIntClient() pb.BusinessIntClient {
 
 func GetLogicExtClient() pb.LogicExtClient {
 	if logicExtClient == nil {
-		conn, err := grpc.Dial("127.0.0.1:8010", grpc.WithInsecure())
+		// 添加认证信息拦截器
+		conn, err := grpc.Dial("127.0.0.1:8010",
+			grpc.WithInsecure(),
+			grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+				// 从 gin.Context 中获取认证信息
+				if md, ok := metadata.FromIncomingContext(ctx); ok {
+					// 创建新的 metadata
+					outCtx := metadata.NewOutgoingContext(ctx, md)
+					// 使用新的 context 调用
+					return invoker(outCtx, method, req, reply, cc, opts...)
+				}
+				return invoker(ctx, method, req, reply, cc, opts...)
+			}),
+		)
 		if err != nil {
 			panic(err)
 		}
