@@ -6,6 +6,7 @@ import (
 	"gim/pkg/logger"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -108,15 +109,31 @@ func NewAndCopyRequestId(ctx context.Context) context.Context {
 	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestId, requestIds[0]))
 }
 
-// NewContext 创建带认证信息的 context
-func NewContext(ctx context.Context) context.Context {
-	userID := Get(ctx, CtxUserId)
-	deviceID := Get(ctx, CtxDeviceId)
-	token := Get(ctx, CtxToken)
+// NewContextFromGin 从 gin.Context 创建带认证信息的 gRPC context
+func NewContextFromGin(ginCtx *gin.Context) context.Context {
+	// 从 gin 上下文中获取认证信息
+	userID, _ := ginCtx.Get("user_id")
+	deviceID, _ := ginCtx.Get("device_id")
+	token, _ := ginCtx.Get("token")
 
-	return metadata.NewOutgoingContext(ctx, metadata.Pairs(
-		CtxUserId, userID,
-		CtxDeviceId, deviceID,
-		CtxToken, token,
+	// 转换为字符串
+	userIDStr := ""
+	deviceIDStr := ""
+	tokenStr := ""
+
+	if userID != nil {
+		userIDStr = strconv.FormatInt(userID.(int64), 10)
+	}
+	if deviceID != nil {
+		deviceIDStr = strconv.FormatInt(deviceID.(int64), 10)
+	}
+	if token != nil {
+		tokenStr = token.(string)
+	}
+
+	return metadata.NewOutgoingContext(ginCtx.Request.Context(), metadata.Pairs(
+		CtxUserId, userIDStr,
+		CtxDeviceId, deviceIDStr,
+		CtxToken, tokenStr,
 	))
 }
