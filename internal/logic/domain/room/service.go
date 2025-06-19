@@ -166,7 +166,6 @@ func (s *service) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq)
 		UserId:    creatorId,
 		Nickname:  userInfo.User.Nickname,
 		AvatarUrl: userInfo.User.AvatarUrl,
-		IsOnline:  true,
 		JoinTime:  util.UnixMilliTime(time.Now()),
 		Status:    1,
 	}
@@ -235,7 +234,6 @@ func (s *service) JoinChatRoom(ctx context.Context, req *pb.JoinChatRoomReq) err
 	member := &pb.ChatRoomMember{
 		UserId:   userId,
 		JoinTime: util.UnixMilliTime(time.Now()),
-		IsOnline: true,
 	}
 
 	// 添加成员
