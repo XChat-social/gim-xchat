@@ -51,6 +51,20 @@ func Auth(rdb *redis.Client) gin.HandlerFunc {
 		// 解析 token 字符串
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
+		// 检查token是否在黑名单中
+		blacklistKey := fmt.Sprintf("token:blacklist:%s", tokenString)
+		exists, err := rdb.Exists(blacklistKey).Result()
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Token validation failed"})
+			c.Abort()
+			return
+		}
+		if exists > 0 {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Token has been invalidated"})
+			c.Abort()
+			return
+		}
+
 		// 解析 JWT
 		token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(JWTSecret), nil
