@@ -82,6 +82,16 @@ func (r *chatRoomMemberRepo) List(ctx context.Context, roomId int64, offset, lim
 	return members, nil
 }
 
+// ListByUserId 获取用户加入的所有聊天室
+func (r *chatRoomMemberRepo) ListByUserId(ctx context.Context, userId int64) ([]*pb.ChatRoomMember, error) {
+	var members []*pb.ChatRoomMember
+	err := db.DB.Where("user_id = ?", userId).Find(&members).Error
+	if err != nil {
+		return nil, gerrors.WrapError(err)
+	}
+	return members, nil
+}
+
 func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb.ChatRoomMember, error) {
 	var member pb.ChatRoomMember
 	err := db.DB.Where("room_id = ? AND user_id = ?", roomId, userId).First(&member).Error
@@ -92,4 +102,14 @@ func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb
 		return nil, err
 	}
 	return &member, nil
+}
+
+// IncrOnlineCount 增加聊天室在线人数
+func (r *chatRoomRepo) IncrOnlineCount(ctx context.Context, roomId int64) error {
+	return db.DB.Model(&pb.ChatRoom{}).Where("room_id = ?", roomId).UpdateColumn("online_count", gorm.Expr("online_count + ?", 1)).Error
+}
+
+// DecrOnlineCount 减少聊天室在线人数
+func (r *chatRoomRepo) DecrOnlineCount(ctx context.Context, roomId int64) error {
+	return db.DB.Model(&pb.ChatRoom{}).Where("room_id = ?", roomId).UpdateColumn("online_count", gorm.Expr("online_count - ?", 1)).Error
 }
