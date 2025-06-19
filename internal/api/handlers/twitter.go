@@ -204,6 +204,16 @@ func (h *TwitterHandler) TwitterSignIn(c *gin.Context) {
 
 	h.RDB.Del(fmt.Sprintf("twitter:temp_token:%s", req.TempToken))
 
+	// 查询用户创建的聊天室ID
+	var roomId int64 = 0
+	var chatRooms []struct {
+		RoomID int64 `gorm:"column:room_id"`
+	}
+	err = h.DB.Table("chat_rooms").Select("room_id").Where("creator_id = ?", user.ID).Limit(1).Find(&chatRooms).Error
+	if err == nil && len(chatRooms) > 0 {
+		roomId = chatRooms[0].RoomID // 取第一个创建的聊天室ID
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":        200,
 		"message":     "Success",
@@ -211,6 +221,7 @@ func (h *TwitterHandler) TwitterSignIn(c *gin.Context) {
 		"user_id":     user.ID,
 		"token":       token,
 		"user_info":   user,
+		"room_id":     roomId,
 		"err_message": "",
 	})
 }

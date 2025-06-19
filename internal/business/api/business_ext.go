@@ -166,17 +166,6 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 		}, err
 	}
 
-	// 获取用户创建的聊天室ID
-	var roomId int64 = 0
-	// 直接查询数据库获取用户创建的聊天室
-	var chatRooms []struct {
-		RoomID int64 `gorm:"column:room_id"`
-	}
-	err = db.DB.Table("chat_rooms").Select("room_id").Where("creator_id = ?", userId).Limit(1).Find(&chatRooms).Error
-	if err == nil && len(chatRooms) > 0 {
-		roomId = chatRooms[0].RoomID // 取第一个创建的聊天室ID
-	}
-
 	return &pb.TwitterSignInResp{
 		Code:    0,
 		Message: "Twitter sign-in successful",
@@ -192,7 +181,6 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 			InviteCode:      getNew.InviteCode,
 		},
 		ErrMessage: errMessage,
-		RoomId:     roomId,
 	}, nil
 }
 
