@@ -2,6 +2,7 @@ package room
 
 import (
 	"context"
+	"gim/internal/api/models"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"gim/pkg/protocol/pb"
@@ -24,12 +25,25 @@ func (r *chatRoomRepo) Add(ctx context.Context, chatRoom *pb.ChatRoom) error {
 
 // Get 获取聊天室信息
 func (r *chatRoomRepo) Get(ctx context.Context, roomId int64) (*pb.ChatRoom, error) {
-	var chatRoom pb.ChatRoom
+	var chatRoom models.ChatRoom
 	err := db.DB.Where("room_id = ?", roomId).First(&chatRoom).Error
 	if err != nil {
 		return nil, gerrors.WrapError(err)
 	}
-	return &chatRoom, nil
+
+	// 转换为 proto 消息
+	return &pb.ChatRoom{
+		RoomId:         chatRoom.RoomID,
+		Name:           chatRoom.Name,
+		AvatarUrl:      chatRoom.AvatarURL,
+		Introduction:   chatRoom.Introduction,
+		OnlineCount:    chatRoom.OnlineCount,
+		MemberCount:    chatRoom.MemberCount,
+		MaxMemberCount: chatRoom.MaxMemberCount,
+		Extra:          chatRoom.Extra,
+		CreateTime:     chatRoom.CreateTime.Unix(), // 转换为 Unix 时间戳
+		UpdateTime:     chatRoom.UpdateTime.Unix(), // 转换为 Unix 时间戳
+	}, nil
 }
 
 // List 获取聊天室列表
