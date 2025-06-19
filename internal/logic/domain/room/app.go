@@ -49,7 +49,7 @@ func (s *app) LeaveChatRoom(ctx context.Context, req *pb.LeaveChatRoomReq) error
 	return Service.LeaveChatRoom(ctx, req)
 }
 
-// GetChatRoomMembers 获取聊天室成员
+// GetChatRoomMembers 获取聊天室成员列表
 func (s *app) GetChatRoomMembers(ctx context.Context, req *pb.GetChatRoomMembersReq) (*pb.GetChatRoomMembersResp, error) {
 	return Service.GetChatRoomMembers(ctx, req)
 }
@@ -57,4 +57,9 @@ func (s *app) GetChatRoomMembers(ctx context.Context, req *pb.GetChatRoomMembers
 // SendChatRoomMessage 发送聊天室消息
 func (s *app) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomMessageReq) (*pb.SendChatRoomMessageResp, error) {
 	return Service.SendChatRoomMessage(ctx, req)
+}
+
+// GetUserCreatedChatRooms 获取用户创建的聊天室列表
+func (s *app) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]*pb.ChatRoom, error) {
+	return Service.GetUserCreatedChatRooms(ctx, userId)
 }

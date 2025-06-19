@@ -220,6 +220,17 @@ func (*LogicExtServer) GetChatRoomMembers(ctx context.Context, in *pb.GetChatRoo
 }
 
 // SendChatRoomMessage 发送聊天室消息
-func (*LogicExtServer) SendChatRoomMessage(ctx context.Context, in *pb.SendChatRoomMessageReq) (*pb.SendChatRoomMessageResp, error) {
+func (s *LogicExtServer) SendChatRoomMessage(ctx context.Context, in *pb.SendChatRoomMessageReq) (*pb.SendChatRoomMessageResp, error) {
 	return room.App.SendChatRoomMessage(ctx, in)
+}
+
+// GetUserCreatedChatRooms 获取用户创建的聊天室列表
+func (s *LogicExtServer) GetUserCreatedChatRooms(ctx context.Context, in *pb.GetUserCreatedChatRoomsReq) (*pb.GetUserCreatedChatRoomsResp, error) {
+	chatRooms, err := room.App.GetUserCreatedChatRooms(ctx, in.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetUserCreatedChatRoomsResp{
+		ChatRooms: chatRooms,
+	}, nil
 }
