@@ -27,12 +27,13 @@ func (r *chatRoomRepo) Add(ctx context.Context, chatRoom *pb.ChatRoom) error {
 		Name:           chatRoom.Name,
 		AvatarURL:      chatRoom.AvatarUrl,
 		Introduction:   chatRoom.Introduction,
+		CreatorId:      chatRoom.CreatorId,
 		OnlineCount:    chatRoom.OnlineCount,
 		MemberCount:    chatRoom.MemberCount,
 		MaxMemberCount: chatRoom.MaxMemberCount,
 		Extra:          chatRoom.Extra,
-		CreateTime:     time.Unix(chatRoom.CreateTime, 0), // 从 Unix 时间戳转换为 time.Time
-		UpdateTime:     time.Unix(chatRoom.UpdateTime, 0), // 从 Unix 时间戳转换为 time.Time
+		CreateTime:     time.Unix(chatRoom.CreateTime/1000, (chatRoom.CreateTime%1000)*1000000), // 从毫秒级时间戳转换为 time.Time
+		UpdateTime:     time.Unix(chatRoom.UpdateTime/1000, (chatRoom.UpdateTime%1000)*1000000), // 从毫秒级时间戳转换为 time.Time
 	}
 	return db.DB.Create(modelChatRoom).Error
 }
