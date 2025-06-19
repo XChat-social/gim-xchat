@@ -133,6 +133,15 @@ func (s *service) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq)
 		return nil, err
 	}
 
+	// 检查用户是否已经创建过聊天室
+	rooms, err := ChatRoomRepo.ListByCreatorId(ctx, creatorId)
+	if err != nil {
+		return nil, err
+	}
+	if len(rooms) > 0 {
+		return nil, gerrors.ErrAlreadyInChatRoom
+	}
+
 	// 生成聊天室ID
 	roomId, err := sequence.GetNextSeq("chat_room")
 
@@ -145,6 +154,7 @@ func (s *service) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq)
 		MemberCount:    1, // 初始成员数为1（创建者）
 		MaxMemberCount: req.MaxMemberCount,
 		Extra:          req.Extra,
+		CreatorId:      creatorId,
 		CreateTime:     util.UnixMilliTime(time.Now()),
 		UpdateTime:     util.UnixMilliTime(time.Now()),
 	}

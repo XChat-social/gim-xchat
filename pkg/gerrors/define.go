@@ -18,6 +18,8 @@ var (
 	ErrUserNotFound      = newError(10016, "用户找不到")
 	ErrUserAlreadyExists = newError(10016, "userexists")
 	ErrNotInChatRoom     = newError(10017, "用户不在聊天室中")
+	// 每个用户只能创建一个聊天室
+	ErrAlreadyInChatRoom = newError(10018, "Only one chat room can be created per user")
 )
 
 func newError(code int, message string) error {
