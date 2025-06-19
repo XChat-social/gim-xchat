@@ -232,6 +232,30 @@ func (s *service) GetChatRooms(ctx context.Context, req *pb.GetChatRoomsReq) (*p
 	}, nil
 }
 
+// GetUserChatRooms 获取用户加入的聊天室列表
+func (s *service) GetUserChatRooms(ctx context.Context, userId int64, req *pb.GetUserChatRoomsReq) (*pb.GetUserChatRoomsResp, error) {
+	// 获取用户加入的聊天室总数
+	total, err := ChatRoomMemberRepo.CountByUserId(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 计算分页参数
+	offset := (req.PageNumber - 1) * req.PageSize
+	limit := req.PageSize
+
+	// 获取用户加入的聊天室列表
+	rooms, err := ChatRoomRepo.ListByUserId(ctx, userId, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetUserChatRoomsResp{
+		ChatRooms: rooms,
+		Total:     int32(total),
+	}, nil
+}
+
 // JoinChatRoom 加入聊天室
 func (s *service) JoinChatRoom(ctx context.Context, req *pb.JoinChatRoomReq) error {
 	// 获取用户信息

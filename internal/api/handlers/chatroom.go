@@ -87,40 +87,52 @@ func (h *ChatRoomHandler) GetChatRoom(c *gin.Context) {
 
 // GetChatRooms 获取聊天室列表
 func (h *ChatRoomHandler) GetChatRooms(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-
-	resp, err := rpc.GetLogicExtClient().GetChatRooms(grpclib.NewContextFromGin(c), &pb.GetChatRoomsReq{
-		PageNumber: int32(page),     // 错误：应该是 page_number
-		PageSize:   int32(pageSize), // 正确
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+	var req pb.GetChatRoomsReq
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	var roomList []gin.H
-	for _, room := range resp.Rooms {
-		roomList = append(roomList, gin.H{
-			"room_id":          room.RoomId,
-			"name":             room.Name,
-			"avatar_url":       room.AvatarUrl,
-			"introduction":     room.Introduction,
-			"max_member_count": room.MaxMemberCount,
-			"online_count":     room.OnlineCount,
-			"member_count":     room.MemberCount,
-			"extra":            room.Extra,
-			"create_time":      room.CreateTime,
-		})
+	// 设置默认值
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+	if req.PageNumber <= 0 {
+		req.PageNumber = 1
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"data": gin.H{
-			"rooms": roomList,
-			"total": resp.Total,
-		},
-	})
+	resp, err := rpc.GetLogicExtClient().GetChatRooms(c, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+// GetUserChatRooms 获取用户加入的聊天室列表
+func (h *ChatRoomHandler) GetUserChatRooms(c *gin.Context) {
+	var req pb.GetUserChatRoomsReq
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 设置默认值
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+	if req.PageNumber <= 0 {
+		req.PageNumber = 1
+	}
+
+	resp, err := rpc.GetLogicExtClient().GetUserChatRooms(c, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 // JoinChatRoom 加入聊天室

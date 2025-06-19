@@ -195,6 +195,15 @@ func (*LogicExtServer) GetChatRooms(ctx context.Context, in *pb.GetChatRoomsReq)
 	return room.App.GetChatRooms(ctx, in)
 }
 
+// GetUserChatRooms 获取用户加入的聊天室列表
+func (*LogicExtServer) GetUserChatRooms(ctx context.Context, in *pb.GetUserChatRoomsReq) (*pb.GetUserChatRoomsResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return room.App.GetUserChatRooms(ctx, userId, in)
+}
+
 // JoinChatRoom 加入聊天室
 func (*LogicExtServer) JoinChatRoom(ctx context.Context, in *pb.JoinChatRoomReq) (*emptypb.Empty, error) {
 	return &emptypb.Empty{}, room.App.JoinChatRoom(ctx, in)
