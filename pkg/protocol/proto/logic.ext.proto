@@ -270,11 +270,13 @@ message GetChatRoomMembersResp {
 }
 
 message ChatRoomMember {
-  int64 user_id = 1; // 用户ID
-  string nickname = 2; // 昵称
-  string avatar_url = 3; // 头像
-  int64 join_time = 4; // 加入时间
-  bool is_online = 5; // 是否在线
+  int64 room_id = 1;    // 聊天室ID
+  int64 user_id = 2;    // 用户ID
+  string nickname = 3;   // 昵称
+  string avatar_url = 4; // 头像
+  int64 join_time = 5;   // 加入时间
+  bool is_online = 6;    // 是否在线
+  int32 status = 7;      // 状态 1:正常
 }
 
 message SendChatRoomMessageReq {

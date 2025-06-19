@@ -162,16 +162,24 @@ func (s *service) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq)
 
 	// 创建者自动加入聊天室
 	member := &pb.ChatRoomMember{
+		RoomId:    roomId,
 		UserId:    creatorId,
 		Nickname:  userInfo.User.Nickname,
 		AvatarUrl: userInfo.User.AvatarUrl,
-		JoinTime:  util.UnixMilliTime(time.Now()),
 		IsOnline:  true,
+		JoinTime:  util.UnixMilliTime(time.Now()),
+		Status:    1,
 	}
 
+	// 添加成员
 	if err := ChatRoomMemberRepo.Add(ctx, member); err != nil {
 		return nil, err
 	}
+
+	//// 设置成员在线状态
+	//if err := s.setMemberOnlineStatus(ctx, roomId, creatorId, true); err != nil {
+	//	return nil, err
+	//}
 
 	return &pb.CreateChatRoomResp{
 		RoomId: roomId,
@@ -274,6 +282,15 @@ func (s *service) GetChatRoomMembers(ctx context.Context, req *pb.GetChatRoomMem
 		return nil, err
 	}
 
+	//// 获取在线状态
+	//for _, member := range members {
+	//	online, err := s.getMemberOnlineStatus(ctx, req.RoomId, member.UserId)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	member.IsOnline = online
+	//}
+
 	return &pb.GetChatRoomMembersResp{
 		Members: members,
 		Total:   int32(total),
@@ -341,3 +358,89 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 		Seq: seq,
 	}, nil
 }
+
+//const (
+//	// Redis key格式
+//	ChatRoomOnlineMembersKey = "chat_room:%d:online_members" // chat_room:1:online_members
+//)
+//
+//// 获取聊天室在线成员Redis key
+//func getChatRoomOnlineMembersKey(roomId int64) string {
+//	return fmt.Sprintf(ChatRoomOnlineMembersKey, roomId)
+//}
+//
+//// 设置成员在线状态
+//func (s *service) setMemberOnlineStatus(ctx context.Context, roomId, userId int64, online bool) error {
+//	key := getChatRoomOnlineMembersKey(roomId) + ":" + strconv.FormatInt(userId, 10)
+//
+//	if online {
+//		// 设置在线状态
+//		err := db.RedisCli.Set(key, 1, 24*time.Hour).Err()
+//		if err != nil {
+//			return gerrors.WrapError(err)
+//		}
+//		// 更新聊天室在线人数
+//		err = ChatRoomRepo.IncrOnlineCount(ctx, roomId)
+//		if err != nil {
+//			return err
+//		}
+//	} else {
+//		// 删除在线状态
+//		err := db.RedisCli.Del(key).Err()
+//		if err != nil {
+//			return gerrors.WrapError(err)
+//		}
+//		// 更新聊天室在线人数
+//		err = ChatRoomRepo.DecrOnlineCount(ctx, roomId)
+//		if err != nil {
+//			return err
+//		}
+//	}
+//	return nil
+//}
+//
+//// 获取成员在线状态
+//func (s *service) getMemberOnlineStatus(ctx context.Context, roomId, userId int64) (bool, error) {
+//	key := getChatRoomOnlineMembersKey(roomId) + ":" + strconv.FormatInt(userId, 10)
+//	exists, err := db.RedisCli.Exists(key).Result()
+//	if err != nil {
+//		return false, gerrors.WrapError(err)
+//	}
+//	return exists == 1, nil
+//}
+//
+//// HandleMemberDisconnect 处理成员断开连接
+//func (s *service) HandleMemberDisconnect(ctx context.Context, userId int64) error {
+//	// 获取用户加入的所有聊天室
+//	rooms, err := ChatRoomMemberRepo.ListByUserId(ctx, userId)
+//	if err != nil {
+//		return err
+//	}
+//
+//	// 更新所有聊天室中该用户的在线状态
+//	for _, room := range rooms {
+//		err = s.setMemberOnlineStatus(ctx, room.RoomId, userId, false)
+//		if err != nil {
+//			logger.Sugar.Errorf("设置成员离线状态失败: %v", err)
+//		}
+//	}
+//	return nil
+//}
+//
+//// HandleMemberConnect 处理成员连接
+//func (s *service) HandleMemberConnect(ctx context.Context, userId int64) error {
+//	// 获取用户加入的所有聊天室
+//	rooms, err := ChatRoomMemberRepo.ListByUserId(ctx, userId)
+//	if err != nil {
+//		return err
+//	}
+//
+//	// 更新所有聊天室中该用户的在线状态
+//	for _, room := range rooms {
+//		err = s.setMemberOnlineStatus(ctx, room.RoomId, userId, true)
+//		if err != nil {
+//			logger.Sugar.Errorf("设置成员在线状态失败: %v", err)
+//		}
+//	}
+//	return nil
+//}
