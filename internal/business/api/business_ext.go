@@ -12,13 +12,14 @@ import (
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/storyicon/sigverify"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/storyicon/sigverify"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type BusinessExtServer struct {
@@ -167,9 +168,13 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 
 	// 获取用户创建的聊天室ID
 	var roomId int64 = 0
-	rooms, err := app2.ChatRoomApp.GetUserCreatedChatRooms(ctx, userId)
-	if err == nil && len(rooms) > 0 {
-		roomId = rooms[0].RoomId // 取第一个创建的聊天室ID
+	// 直接查询数据库获取用户创建的聊天室
+	var chatRooms []struct {
+		RoomID int64 `gorm:"column:room_id"`
+	}
+	err = db.DB.Table("chat_rooms").Select("room_id").Where("creator_id = ?", userId).Limit(1).Find(&chatRooms).Error
+	if err == nil && len(chatRooms) > 0 {
+		roomId = chatRooms[0].RoomID // 取第一个创建的聊天室ID
 	}
 
 	return &pb.TwitterSignInResp{
