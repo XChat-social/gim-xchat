@@ -138,6 +138,16 @@ func (r *chatRoomMemberRepo) ListByUserId(ctx context.Context, userId int64) ([]
 	return members, nil
 }
 
+// CountByUserId 获取用户加入的聊天室总数
+func (r *chatRoomMemberRepo) CountByUserId(ctx context.Context, userId int64) (int64, error) {
+	var count int64
+	err := db.DB.Model(&pb.ChatRoomMember{}).Where("user_id = ?", userId).Count(&count).Error
+	if err != nil {
+		return 0, gerrors.WrapError(err)
+	}
+	return count, nil
+}
+
 func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb.ChatRoomMember, error) {
 	var member pb.ChatRoomMember
 	err := db.DB.Where("room_id = ? AND user_id = ?", roomId, userId).First(&member).Error
@@ -176,6 +186,38 @@ func (r *chatRoomRepo) ListByCreatorId(ctx context.Context, creatorId int64) ([]
 			Name:           room.Name,
 			AvatarUrl:      room.AvatarURL,
 			Introduction:   room.Introduction,
+			OnlineCount:    room.OnlineCount,
+			MemberCount:    room.MemberCount,
+			MaxMemberCount: room.MaxMemberCount,
+			Extra:          room.Extra,
+			CreateTime:     room.CreateTime.Unix(),
+			UpdateTime:     room.UpdateTime.Unix(),
+		})
+	}
+	return chatRooms, nil
+}
+
+// ListByUserId 获取用户加入的聊天室列表
+func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, limit int32) ([]*pb.ChatRoom, error) {
+	var modelChatRooms []models.ChatRoom
+	err := db.DB.Table("chat_room").
+		Joins("JOIN chat_room_member ON chat_room.room_id = chat_room_member.room_id").
+		Where("chat_room_member.user_id = ?", userId).
+		Offset(int(offset)).Limit(int(limit)).
+		Find(&modelChatRooms).Error
+	if err != nil {
+		return nil, gerrors.WrapError(err)
+	}
+
+	// 转换为 proto 消息列表
+	chatRooms := make([]*pb.ChatRoom, 0, len(modelChatRooms))
+	for _, room := range modelChatRooms {
+		chatRooms = append(chatRooms, &pb.ChatRoom{
+			RoomId:         room.RoomID,
+			Name:           room.Name,
+			AvatarUrl:      room.AvatarURL,
+			Introduction:   room.Introduction,
+			CreatorId:      room.CreatorId,
 			OnlineCount:    room.OnlineCount,
 			MemberCount:    room.MemberCount,
 			MaxMemberCount: room.MaxMemberCount,

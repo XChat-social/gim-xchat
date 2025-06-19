@@ -70,6 +70,116 @@ func (MemberType) EnumDescriptor() ([]byte, []int) {
 	return file_logic_ext_proto_rawDescGZIP(), []int{0}
 }
 
+type GetUserChatRoomsReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PageSize   int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`       // 每页数量
+	PageNumber int32 `protobuf:"varint,2,opt,name=page_number,json=pageNumber,proto3" json:"page_number,omitempty"` // 偏移量
+}
+
+func (x *GetUserChatRoomsReq) Reset() {
+	*x = GetUserChatRoomsReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logic_ext_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetUserChatRoomsReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserChatRoomsReq) ProtoMessage() {}
+
+func (x *GetUserChatRoomsReq) ProtoReflect() protoreflect.Message {
+	mi := &file_logic_ext_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserChatRoomsReq.ProtoReflect.Descriptor instead.
+func (*GetUserChatRoomsReq) Descriptor() ([]byte, []int) {
+	return file_logic_ext_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetUserChatRoomsReq) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *GetUserChatRoomsReq) GetPageNumber() int32 {
+	if x != nil {
+		return x.PageNumber
+	}
+	return 0
+}
+
+type GetUserChatRoomsResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ChatRooms []*ChatRoom `protobuf:"bytes,1,rep,name=chat_rooms,json=chatRooms,proto3" json:"chat_rooms,omitempty"` // 聊天室列表
+	Total     int32       `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                         // 总数
+}
+
+func (x *GetUserChatRoomsResp) Reset() {
+	*x = GetUserChatRoomsResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_logic_ext_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetUserChatRoomsResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserChatRoomsResp) ProtoMessage() {}
+
+func (x *GetUserChatRoomsResp) ProtoReflect() protoreflect.Message {
+	mi := &file_logic_ext_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserChatRoomsResp.ProtoReflect.Descriptor instead.
+func (*GetUserChatRoomsResp) Descriptor() ([]byte, []int) {
+	return file_logic_ext_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GetUserChatRoomsResp) GetChatRooms() []*ChatRoom {
+	if x != nil {
+		return x.ChatRooms
+	}
+	return nil
+}
+
+func (x *GetUserChatRoomsResp) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
 type RegisterDeviceReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -85,7 +195,7 @@ type RegisterDeviceReq struct {
 func (x *RegisterDeviceReq) Reset() {
 	*x = RegisterDeviceReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[0]
+		mi := &file_logic_ext_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -98,7 +208,7 @@ func (x *RegisterDeviceReq) String() string {
 func (*RegisterDeviceReq) ProtoMessage() {}
 
 func (x *RegisterDeviceReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[0]
+	mi := &file_logic_ext_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -111,7 +221,7 @@ func (x *RegisterDeviceReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterDeviceReq.ProtoReflect.Descriptor instead.
 func (*RegisterDeviceReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{0}
+	return file_logic_ext_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *RegisterDeviceReq) GetType() int32 {
@@ -160,7 +270,7 @@ type RegisterDeviceResp struct {
 func (x *RegisterDeviceResp) Reset() {
 	*x = RegisterDeviceResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[1]
+		mi := &file_logic_ext_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -173,7 +283,7 @@ func (x *RegisterDeviceResp) String() string {
 func (*RegisterDeviceResp) ProtoMessage() {}
 
 func (x *RegisterDeviceResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[1]
+	mi := &file_logic_ext_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -186,7 +296,7 @@ func (x *RegisterDeviceResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterDeviceResp.ProtoReflect.Descriptor instead.
 func (*RegisterDeviceResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{1}
+	return file_logic_ext_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RegisterDeviceResp) GetDeviceId() int64 {
@@ -209,7 +319,7 @@ type SendMessageReq struct {
 func (x *SendMessageReq) Reset() {
 	*x = SendMessageReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[2]
+		mi := &file_logic_ext_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -222,7 +332,7 @@ func (x *SendMessageReq) String() string {
 func (*SendMessageReq) ProtoMessage() {}
 
 func (x *SendMessageReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[2]
+	mi := &file_logic_ext_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -235,7 +345,7 @@ func (x *SendMessageReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageReq.ProtoReflect.Descriptor instead.
 func (*SendMessageReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{2}
+	return file_logic_ext_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SendMessageReq) GetReceiverId() int64 {
@@ -270,7 +380,7 @@ type SendMessageResp struct {
 func (x *SendMessageResp) Reset() {
 	*x = SendMessageResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[3]
+		mi := &file_logic_ext_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -283,7 +393,7 @@ func (x *SendMessageResp) String() string {
 func (*SendMessageResp) ProtoMessage() {}
 
 func (x *SendMessageResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[3]
+	mi := &file_logic_ext_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -296,7 +406,7 @@ func (x *SendMessageResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendMessageResp.ProtoReflect.Descriptor instead.
 func (*SendMessageResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{3}
+	return file_logic_ext_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SendMessageResp) GetSeq() int64 {
@@ -322,7 +432,7 @@ type PushRoomReq struct {
 func (x *PushRoomReq) Reset() {
 	*x = PushRoomReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[4]
+		mi := &file_logic_ext_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -335,7 +445,7 @@ func (x *PushRoomReq) String() string {
 func (*PushRoomReq) ProtoMessage() {}
 
 func (x *PushRoomReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[4]
+	mi := &file_logic_ext_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -348,7 +458,7 @@ func (x *PushRoomReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushRoomReq.ProtoReflect.Descriptor instead.
 func (*PushRoomReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{4}
+	return file_logic_ext_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PushRoomReq) GetRoomId() int64 {
@@ -406,7 +516,7 @@ type AddFriendReq struct {
 func (x *AddFriendReq) Reset() {
 	*x = AddFriendReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[5]
+		mi := &file_logic_ext_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -419,7 +529,7 @@ func (x *AddFriendReq) String() string {
 func (*AddFriendReq) ProtoMessage() {}
 
 func (x *AddFriendReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[5]
+	mi := &file_logic_ext_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -432,7 +542,7 @@ func (x *AddFriendReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddFriendReq.ProtoReflect.Descriptor instead.
 func (*AddFriendReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{5}
+	return file_logic_ext_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *AddFriendReq) GetFriendId() int64 {
@@ -468,7 +578,7 @@ type AgreeAddFriendReq struct {
 func (x *AgreeAddFriendReq) Reset() {
 	*x = AgreeAddFriendReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[6]
+		mi := &file_logic_ext_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -481,7 +591,7 @@ func (x *AgreeAddFriendReq) String() string {
 func (*AgreeAddFriendReq) ProtoMessage() {}
 
 func (x *AgreeAddFriendReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[6]
+	mi := &file_logic_ext_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -494,7 +604,7 @@ func (x *AgreeAddFriendReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AgreeAddFriendReq.ProtoReflect.Descriptor instead.
 func (*AgreeAddFriendReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{6}
+	return file_logic_ext_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AgreeAddFriendReq) GetUserId() int64 {
@@ -524,7 +634,7 @@ type SetFriendReq struct {
 func (x *SetFriendReq) Reset() {
 	*x = SetFriendReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[7]
+		mi := &file_logic_ext_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -537,7 +647,7 @@ func (x *SetFriendReq) String() string {
 func (*SetFriendReq) ProtoMessage() {}
 
 func (x *SetFriendReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[7]
+	mi := &file_logic_ext_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -550,7 +660,7 @@ func (x *SetFriendReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetFriendReq.ProtoReflect.Descriptor instead.
 func (*SetFriendReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{7}
+	return file_logic_ext_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SetFriendReq) GetFriendId() int64 {
@@ -587,7 +697,7 @@ type SetFriendResp struct {
 func (x *SetFriendResp) Reset() {
 	*x = SetFriendResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[8]
+		mi := &file_logic_ext_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -600,7 +710,7 @@ func (x *SetFriendResp) String() string {
 func (*SetFriendResp) ProtoMessage() {}
 
 func (x *SetFriendResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[8]
+	mi := &file_logic_ext_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -613,7 +723,7 @@ func (x *SetFriendResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetFriendResp.ProtoReflect.Descriptor instead.
 func (*SetFriendResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{8}
+	return file_logic_ext_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SetFriendResp) GetFriendId() int64 {
@@ -655,7 +765,7 @@ type Friend struct {
 func (x *Friend) Reset() {
 	*x = Friend{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[9]
+		mi := &file_logic_ext_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -668,7 +778,7 @@ func (x *Friend) String() string {
 func (*Friend) ProtoMessage() {}
 
 func (x *Friend) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[9]
+	mi := &file_logic_ext_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -681,7 +791,7 @@ func (x *Friend) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Friend.ProtoReflect.Descriptor instead.
 func (*Friend) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{9}
+	return file_logic_ext_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Friend) GetUserId() int64 {
@@ -751,7 +861,7 @@ type GetFriendsResp struct {
 func (x *GetFriendsResp) Reset() {
 	*x = GetFriendsResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[10]
+		mi := &file_logic_ext_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -764,7 +874,7 @@ func (x *GetFriendsResp) String() string {
 func (*GetFriendsResp) ProtoMessage() {}
 
 func (x *GetFriendsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[10]
+	mi := &file_logic_ext_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -777,7 +887,7 @@ func (x *GetFriendsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFriendsResp.ProtoReflect.Descriptor instead.
 func (*GetFriendsResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{10}
+	return file_logic_ext_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetFriendsResp) GetFriends() []*Friend {
@@ -802,7 +912,7 @@ type CreateGroupReq struct {
 func (x *CreateGroupReq) Reset() {
 	*x = CreateGroupReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[11]
+		mi := &file_logic_ext_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -815,7 +925,7 @@ func (x *CreateGroupReq) String() string {
 func (*CreateGroupReq) ProtoMessage() {}
 
 func (x *CreateGroupReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[11]
+	mi := &file_logic_ext_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -828,7 +938,7 @@ func (x *CreateGroupReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateGroupReq.ProtoReflect.Descriptor instead.
 func (*CreateGroupReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{11}
+	return file_logic_ext_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateGroupReq) GetName() string {
@@ -877,7 +987,7 @@ type CreateGroupResp struct {
 func (x *CreateGroupResp) Reset() {
 	*x = CreateGroupResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[12]
+		mi := &file_logic_ext_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -890,7 +1000,7 @@ func (x *CreateGroupResp) String() string {
 func (*CreateGroupResp) ProtoMessage() {}
 
 func (x *CreateGroupResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[12]
+	mi := &file_logic_ext_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -903,7 +1013,7 @@ func (x *CreateGroupResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateGroupResp.ProtoReflect.Descriptor instead.
 func (*CreateGroupResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{12}
+	return file_logic_ext_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateGroupResp) GetGroupId() int64 {
@@ -928,7 +1038,7 @@ type UpdateGroupReq struct {
 func (x *UpdateGroupReq) Reset() {
 	*x = UpdateGroupReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[13]
+		mi := &file_logic_ext_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -941,7 +1051,7 @@ func (x *UpdateGroupReq) String() string {
 func (*UpdateGroupReq) ProtoMessage() {}
 
 func (x *UpdateGroupReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[13]
+	mi := &file_logic_ext_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -954,7 +1064,7 @@ func (x *UpdateGroupReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGroupReq.ProtoReflect.Descriptor instead.
 func (*UpdateGroupReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{13}
+	return file_logic_ext_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *UpdateGroupReq) GetGroupId() int64 {
@@ -1003,7 +1113,7 @@ type GetGroupReq struct {
 func (x *GetGroupReq) Reset() {
 	*x = GetGroupReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[14]
+		mi := &file_logic_ext_proto_msgTypes[16]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1016,7 +1126,7 @@ func (x *GetGroupReq) String() string {
 func (*GetGroupReq) ProtoMessage() {}
 
 func (x *GetGroupReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[14]
+	mi := &file_logic_ext_proto_msgTypes[16]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1029,7 +1139,7 @@ func (x *GetGroupReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupReq.ProtoReflect.Descriptor instead.
 func (*GetGroupReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{14}
+	return file_logic_ext_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetGroupReq) GetGroupId() int64 {
@@ -1050,7 +1160,7 @@ type GetGroupResp struct {
 func (x *GetGroupResp) Reset() {
 	*x = GetGroupResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[15]
+		mi := &file_logic_ext_proto_msgTypes[17]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1063,7 +1173,7 @@ func (x *GetGroupResp) String() string {
 func (*GetGroupResp) ProtoMessage() {}
 
 func (x *GetGroupResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[15]
+	mi := &file_logic_ext_proto_msgTypes[17]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1076,7 +1186,7 @@ func (x *GetGroupResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupResp.ProtoReflect.Descriptor instead.
 func (*GetGroupResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{15}
+	return file_logic_ext_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetGroupResp) GetGroup() *Group {
@@ -1104,7 +1214,7 @@ type Group struct {
 func (x *Group) Reset() {
 	*x = Group{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[16]
+		mi := &file_logic_ext_proto_msgTypes[18]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1117,7 +1227,7 @@ func (x *Group) String() string {
 func (*Group) ProtoMessage() {}
 
 func (x *Group) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[16]
+	mi := &file_logic_ext_proto_msgTypes[18]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1130,7 +1240,7 @@ func (x *Group) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Group.ProtoReflect.Descriptor instead.
 func (*Group) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{16}
+	return file_logic_ext_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *Group) GetGroupId() int64 {
@@ -1200,7 +1310,7 @@ type GetGroupsResp struct {
 func (x *GetGroupsResp) Reset() {
 	*x = GetGroupsResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[17]
+		mi := &file_logic_ext_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1213,7 +1323,7 @@ func (x *GetGroupsResp) String() string {
 func (*GetGroupsResp) ProtoMessage() {}
 
 func (x *GetGroupsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[17]
+	mi := &file_logic_ext_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1226,7 +1336,7 @@ func (x *GetGroupsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupsResp.ProtoReflect.Descriptor instead.
 func (*GetGroupsResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{17}
+	return file_logic_ext_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetGroupsResp) GetGroups() []*Group {
@@ -1248,7 +1358,7 @@ type AddGroupMembersReq struct {
 func (x *AddGroupMembersReq) Reset() {
 	*x = AddGroupMembersReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[18]
+		mi := &file_logic_ext_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1261,7 +1371,7 @@ func (x *AddGroupMembersReq) String() string {
 func (*AddGroupMembersReq) ProtoMessage() {}
 
 func (x *AddGroupMembersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[18]
+	mi := &file_logic_ext_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1274,7 +1384,7 @@ func (x *AddGroupMembersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddGroupMembersReq.ProtoReflect.Descriptor instead.
 func (*AddGroupMembersReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{18}
+	return file_logic_ext_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AddGroupMembersReq) GetGroupId() int64 {
@@ -1302,7 +1412,7 @@ type AddGroupMembersResp struct {
 func (x *AddGroupMembersResp) Reset() {
 	*x = AddGroupMembersResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[19]
+		mi := &file_logic_ext_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1315,7 +1425,7 @@ func (x *AddGroupMembersResp) String() string {
 func (*AddGroupMembersResp) ProtoMessage() {}
 
 func (x *AddGroupMembersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[19]
+	mi := &file_logic_ext_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1328,7 +1438,7 @@ func (x *AddGroupMembersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddGroupMembersResp.ProtoReflect.Descriptor instead.
 func (*AddGroupMembersResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{19}
+	return file_logic_ext_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *AddGroupMembersResp) GetUserIds() []int64 {
@@ -1353,7 +1463,7 @@ type UpdateGroupMemberReq struct {
 func (x *UpdateGroupMemberReq) Reset() {
 	*x = UpdateGroupMemberReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[20]
+		mi := &file_logic_ext_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1366,7 +1476,7 @@ func (x *UpdateGroupMemberReq) String() string {
 func (*UpdateGroupMemberReq) ProtoMessage() {}
 
 func (x *UpdateGroupMemberReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[20]
+	mi := &file_logic_ext_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1379,7 +1489,7 @@ func (x *UpdateGroupMemberReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGroupMemberReq.ProtoReflect.Descriptor instead.
 func (*UpdateGroupMemberReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{20}
+	return file_logic_ext_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *UpdateGroupMemberReq) GetGroupId() int64 {
@@ -1429,7 +1539,7 @@ type DeleteGroupMemberReq struct {
 func (x *DeleteGroupMemberReq) Reset() {
 	*x = DeleteGroupMemberReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[21]
+		mi := &file_logic_ext_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1442,7 +1552,7 @@ func (x *DeleteGroupMemberReq) String() string {
 func (*DeleteGroupMemberReq) ProtoMessage() {}
 
 func (x *DeleteGroupMemberReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[21]
+	mi := &file_logic_ext_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1455,7 +1565,7 @@ func (x *DeleteGroupMemberReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupMemberReq.ProtoReflect.Descriptor instead.
 func (*DeleteGroupMemberReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{21}
+	return file_logic_ext_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DeleteGroupMemberReq) GetGroupId() int64 {
@@ -1483,7 +1593,7 @@ type GetGroupMembersReq struct {
 func (x *GetGroupMembersReq) Reset() {
 	*x = GetGroupMembersReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[22]
+		mi := &file_logic_ext_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1496,7 +1606,7 @@ func (x *GetGroupMembersReq) String() string {
 func (*GetGroupMembersReq) ProtoMessage() {}
 
 func (x *GetGroupMembersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[22]
+	mi := &file_logic_ext_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1509,7 +1619,7 @@ func (x *GetGroupMembersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupMembersReq.ProtoReflect.Descriptor instead.
 func (*GetGroupMembersReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{22}
+	return file_logic_ext_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetGroupMembersReq) GetGroupId() int64 {
@@ -1530,7 +1640,7 @@ type GetGroupMembersResp struct {
 func (x *GetGroupMembersResp) Reset() {
 	*x = GetGroupMembersResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[23]
+		mi := &file_logic_ext_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1543,7 +1653,7 @@ func (x *GetGroupMembersResp) String() string {
 func (*GetGroupMembersResp) ProtoMessage() {}
 
 func (x *GetGroupMembersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[23]
+	mi := &file_logic_ext_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1556,7 +1666,7 @@ func (x *GetGroupMembersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupMembersResp.ProtoReflect.Descriptor instead.
 func (*GetGroupMembersResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{23}
+	return file_logic_ext_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetGroupMembersResp) GetMembers() []*GroupMember {
@@ -1584,7 +1694,7 @@ type GroupMember struct {
 func (x *GroupMember) Reset() {
 	*x = GroupMember{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[24]
+		mi := &file_logic_ext_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1597,7 +1707,7 @@ func (x *GroupMember) String() string {
 func (*GroupMember) ProtoMessage() {}
 
 func (x *GroupMember) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[24]
+	mi := &file_logic_ext_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1610,7 +1720,7 @@ func (x *GroupMember) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GroupMember.ProtoReflect.Descriptor instead.
 func (*GroupMember) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{24}
+	return file_logic_ext_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GroupMember) GetUserId() int64 {
@@ -1684,7 +1794,7 @@ type CreateChatRoomReq struct {
 func (x *CreateChatRoomReq) Reset() {
 	*x = CreateChatRoomReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[25]
+		mi := &file_logic_ext_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1697,7 +1807,7 @@ func (x *CreateChatRoomReq) String() string {
 func (*CreateChatRoomReq) ProtoMessage() {}
 
 func (x *CreateChatRoomReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[25]
+	mi := &file_logic_ext_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1710,7 +1820,7 @@ func (x *CreateChatRoomReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateChatRoomReq.ProtoReflect.Descriptor instead.
 func (*CreateChatRoomReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{25}
+	return file_logic_ext_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *CreateChatRoomReq) GetName() string {
@@ -1759,7 +1869,7 @@ type CreateChatRoomResp struct {
 func (x *CreateChatRoomResp) Reset() {
 	*x = CreateChatRoomResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[26]
+		mi := &file_logic_ext_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1772,7 +1882,7 @@ func (x *CreateChatRoomResp) String() string {
 func (*CreateChatRoomResp) ProtoMessage() {}
 
 func (x *CreateChatRoomResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[26]
+	mi := &file_logic_ext_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1785,7 +1895,7 @@ func (x *CreateChatRoomResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateChatRoomResp.ProtoReflect.Descriptor instead.
 func (*CreateChatRoomResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{26}
+	return file_logic_ext_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CreateChatRoomResp) GetRoomId() int64 {
@@ -1806,7 +1916,7 @@ type GetChatRoomReq struct {
 func (x *GetChatRoomReq) Reset() {
 	*x = GetChatRoomReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[27]
+		mi := &file_logic_ext_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1819,7 +1929,7 @@ func (x *GetChatRoomReq) String() string {
 func (*GetChatRoomReq) ProtoMessage() {}
 
 func (x *GetChatRoomReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[27]
+	mi := &file_logic_ext_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1832,7 +1942,7 @@ func (x *GetChatRoomReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomReq.ProtoReflect.Descriptor instead.
 func (*GetChatRoomReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{27}
+	return file_logic_ext_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetChatRoomReq) GetRoomId() int64 {
@@ -1853,7 +1963,7 @@ type GetChatRoomResp struct {
 func (x *GetChatRoomResp) Reset() {
 	*x = GetChatRoomResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[28]
+		mi := &file_logic_ext_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1866,7 +1976,7 @@ func (x *GetChatRoomResp) String() string {
 func (*GetChatRoomResp) ProtoMessage() {}
 
 func (x *GetChatRoomResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[28]
+	mi := &file_logic_ext_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1879,7 +1989,7 @@ func (x *GetChatRoomResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomResp.ProtoReflect.Descriptor instead.
 func (*GetChatRoomResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{28}
+	return file_logic_ext_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetChatRoomResp) GetRoom() *ChatRoom {
@@ -1901,7 +2011,7 @@ type GetChatRoomsReq struct {
 func (x *GetChatRoomsReq) Reset() {
 	*x = GetChatRoomsReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[29]
+		mi := &file_logic_ext_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1914,7 +2024,7 @@ func (x *GetChatRoomsReq) String() string {
 func (*GetChatRoomsReq) ProtoMessage() {}
 
 func (x *GetChatRoomsReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[29]
+	mi := &file_logic_ext_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1927,7 +2037,7 @@ func (x *GetChatRoomsReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomsReq.ProtoReflect.Descriptor instead.
 func (*GetChatRoomsReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{29}
+	return file_logic_ext_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetChatRoomsReq) GetPageSize() int32 {
@@ -1956,7 +2066,7 @@ type GetChatRoomsResp struct {
 func (x *GetChatRoomsResp) Reset() {
 	*x = GetChatRoomsResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[30]
+		mi := &file_logic_ext_proto_msgTypes[32]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1969,7 +2079,7 @@ func (x *GetChatRoomsResp) String() string {
 func (*GetChatRoomsResp) ProtoMessage() {}
 
 func (x *GetChatRoomsResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[30]
+	mi := &file_logic_ext_proto_msgTypes[32]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1982,7 +2092,7 @@ func (x *GetChatRoomsResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomsResp.ProtoReflect.Descriptor instead.
 func (*GetChatRoomsResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{30}
+	return file_logic_ext_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetChatRoomsResp) GetRooms() []*ChatRoom {
@@ -2020,7 +2130,7 @@ type ChatRoom struct {
 func (x *ChatRoom) Reset() {
 	*x = ChatRoom{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[31]
+		mi := &file_logic_ext_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2033,7 +2143,7 @@ func (x *ChatRoom) String() string {
 func (*ChatRoom) ProtoMessage() {}
 
 func (x *ChatRoom) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[31]
+	mi := &file_logic_ext_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2046,7 +2156,7 @@ func (x *ChatRoom) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatRoom.ProtoReflect.Descriptor instead.
 func (*ChatRoom) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{31}
+	return file_logic_ext_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ChatRoom) GetRoomId() int64 {
@@ -2137,7 +2247,7 @@ type JoinChatRoomReq struct {
 func (x *JoinChatRoomReq) Reset() {
 	*x = JoinChatRoomReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[32]
+		mi := &file_logic_ext_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2150,7 +2260,7 @@ func (x *JoinChatRoomReq) String() string {
 func (*JoinChatRoomReq) ProtoMessage() {}
 
 func (x *JoinChatRoomReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[32]
+	mi := &file_logic_ext_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2163,7 +2273,7 @@ func (x *JoinChatRoomReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JoinChatRoomReq.ProtoReflect.Descriptor instead.
 func (*JoinChatRoomReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{32}
+	return file_logic_ext_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *JoinChatRoomReq) GetRoomId() int64 {
@@ -2184,7 +2294,7 @@ type LeaveChatRoomReq struct {
 func (x *LeaveChatRoomReq) Reset() {
 	*x = LeaveChatRoomReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[33]
+		mi := &file_logic_ext_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2197,7 +2307,7 @@ func (x *LeaveChatRoomReq) String() string {
 func (*LeaveChatRoomReq) ProtoMessage() {}
 
 func (x *LeaveChatRoomReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[33]
+	mi := &file_logic_ext_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2210,7 +2320,7 @@ func (x *LeaveChatRoomReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LeaveChatRoomReq.ProtoReflect.Descriptor instead.
 func (*LeaveChatRoomReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{33}
+	return file_logic_ext_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *LeaveChatRoomReq) GetRoomId() int64 {
@@ -2233,7 +2343,7 @@ type GetChatRoomMembersReq struct {
 func (x *GetChatRoomMembersReq) Reset() {
 	*x = GetChatRoomMembersReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[34]
+		mi := &file_logic_ext_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2246,7 +2356,7 @@ func (x *GetChatRoomMembersReq) String() string {
 func (*GetChatRoomMembersReq) ProtoMessage() {}
 
 func (x *GetChatRoomMembersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[34]
+	mi := &file_logic_ext_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2259,7 +2369,7 @@ func (x *GetChatRoomMembersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomMembersReq.ProtoReflect.Descriptor instead.
 func (*GetChatRoomMembersReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{34}
+	return file_logic_ext_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetChatRoomMembersReq) GetRoomId() int64 {
@@ -2295,7 +2405,7 @@ type GetChatRoomMembersResp struct {
 func (x *GetChatRoomMembersResp) Reset() {
 	*x = GetChatRoomMembersResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[35]
+		mi := &file_logic_ext_proto_msgTypes[37]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2308,7 +2418,7 @@ func (x *GetChatRoomMembersResp) String() string {
 func (*GetChatRoomMembersResp) ProtoMessage() {}
 
 func (x *GetChatRoomMembersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[35]
+	mi := &file_logic_ext_proto_msgTypes[37]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2321,7 +2431,7 @@ func (x *GetChatRoomMembersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomMembersResp.ProtoReflect.Descriptor instead.
 func (*GetChatRoomMembersResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{35}
+	return file_logic_ext_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetChatRoomMembersResp) GetMembers() []*ChatRoomMember {
@@ -2354,7 +2464,7 @@ type ChatRoomMember struct {
 func (x *ChatRoomMember) Reset() {
 	*x = ChatRoomMember{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[36]
+		mi := &file_logic_ext_proto_msgTypes[38]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2367,7 +2477,7 @@ func (x *ChatRoomMember) String() string {
 func (*ChatRoomMember) ProtoMessage() {}
 
 func (x *ChatRoomMember) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[36]
+	mi := &file_logic_ext_proto_msgTypes[38]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2380,7 +2490,7 @@ func (x *ChatRoomMember) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatRoomMember.ProtoReflect.Descriptor instead.
 func (*ChatRoomMember) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{36}
+	return file_logic_ext_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ChatRoomMember) GetRoomId() int64 {
@@ -2439,7 +2549,7 @@ type SendChatRoomMessageReq struct {
 func (x *SendChatRoomMessageReq) Reset() {
 	*x = SendChatRoomMessageReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[37]
+		mi := &file_logic_ext_proto_msgTypes[39]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2452,7 +2562,7 @@ func (x *SendChatRoomMessageReq) String() string {
 func (*SendChatRoomMessageReq) ProtoMessage() {}
 
 func (x *SendChatRoomMessageReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[37]
+	mi := &file_logic_ext_proto_msgTypes[39]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2465,7 +2575,7 @@ func (x *SendChatRoomMessageReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatRoomMessageReq.ProtoReflect.Descriptor instead.
 func (*SendChatRoomMessageReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{37}
+	return file_logic_ext_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *SendChatRoomMessageReq) GetRoomId() int64 {
@@ -2507,7 +2617,7 @@ type SendChatRoomMessageResp struct {
 func (x *SendChatRoomMessageResp) Reset() {
 	*x = SendChatRoomMessageResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[38]
+		mi := &file_logic_ext_proto_msgTypes[40]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2520,7 +2630,7 @@ func (x *SendChatRoomMessageResp) String() string {
 func (*SendChatRoomMessageResp) ProtoMessage() {}
 
 func (x *SendChatRoomMessageResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[38]
+	mi := &file_logic_ext_proto_msgTypes[40]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2533,7 +2643,7 @@ func (x *SendChatRoomMessageResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatRoomMessageResp.ProtoReflect.Descriptor instead.
 func (*SendChatRoomMessageResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{38}
+	return file_logic_ext_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *SendChatRoomMessageResp) GetSeq() int64 {
@@ -2556,7 +2666,7 @@ type ChatRoomMessageData struct {
 func (x *ChatRoomMessageData) Reset() {
 	*x = ChatRoomMessageData{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_logic_ext_proto_msgTypes[39]
+		mi := &file_logic_ext_proto_msgTypes[41]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2569,7 +2679,7 @@ func (x *ChatRoomMessageData) String() string {
 func (*ChatRoomMessageData) ProtoMessage() {}
 
 func (x *ChatRoomMessageData) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[39]
+	mi := &file_logic_ext_proto_msgTypes[41]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2582,7 +2692,7 @@ func (x *ChatRoomMessageData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatRoomMessageData.ProtoReflect.Descriptor instead.
 func (*ChatRoomMessageData) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{39}
+	return file_logic_ext_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ChatRoomMessageData) GetSenderId() int64 {
@@ -2612,7 +2722,18 @@ var file_logic_ext_proto_rawDesc = []byte{
 	0x0a, 0x0f, 0x6c, 0x6f, 0x67, 0x69, 0x63, 0x2e, 0x65, 0x78, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x12, 0x02, 0x70, 0x62, 0x1a, 0x1b, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x22, 0x9b, 0x01, 0x0a, 0x11, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x44,
+	0x74, 0x6f, 0x22, 0x53, 0x0a, 0x13, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61,
+	0x74, 0x52, 0x6f, 0x6f, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x12, 0x1b, 0x0a, 0x09, 0x70, 0x61, 0x67,
+	0x65, 0x5f, 0x73, 0x69, 0x7a, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x70, 0x61,
+	0x67, 0x65, 0x53, 0x69, 0x7a, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x70, 0x61, 0x67, 0x65, 0x5f, 0x6e,
+	0x75, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x70, 0x61, 0x67,
+	0x65, 0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x59, 0x0a, 0x14, 0x47, 0x65, 0x74, 0x55, 0x73,
+	0x65, 0x72, 0x43, 0x68, 0x61, 0x74, 0x52, 0x6f, 0x6f, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x12,
+	0x2b, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x74, 0x5f, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x18, 0x01, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x70, 0x62, 0x2e, 0x43, 0x68, 0x61, 0x74, 0x52, 0x6f, 0x6f,
+	0x6d, 0x52, 0x09, 0x63, 0x68, 0x61, 0x74, 0x52, 0x6f, 0x6f, 0x6d, 0x73, 0x12, 0x14, 0x0a, 0x05,
+	0x74, 0x6f, 0x74, 0x61, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x74, 0x6f, 0x74,
+	0x61, 0x6c, 0x22, 0x9b, 0x01, 0x0a, 0x11, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x44,
 	0x65, 0x76, 0x69, 0x63, 0x65, 0x52, 0x65, 0x71, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65,
 	0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x14, 0x0a, 0x05,
 	0x62, 0x72, 0x61, 0x6e, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x62, 0x72, 0x61,
@@ -2881,7 +3002,7 @@ var file_logic_ext_proto_rawDesc = []byte{
 	0x3c, 0x0a, 0x0a, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x54, 0x79, 0x70, 0x65, 0x12, 0x0f, 0x0a,
 	0x0b, 0x47, 0x4d, 0x54, 0x5f, 0x55, 0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00, 0x12, 0x0d,
 	0x0a, 0x09, 0x47, 0x4d, 0x54, 0x5f, 0x41, 0x44, 0x4d, 0x49, 0x4e, 0x10, 0x01, 0x12, 0x0e, 0x0a,
-	0x0a, 0x47, 0x4d, 0x54, 0x5f, 0x4d, 0x45, 0x4d, 0x42, 0x45, 0x52, 0x10, 0x02, 0x32, 0xa0, 0x0b,
+	0x0a, 0x47, 0x4d, 0x54, 0x5f, 0x4d, 0x45, 0x4d, 0x42, 0x45, 0x52, 0x10, 0x02, 0x32, 0xe7, 0x0b,
 	0x0a, 0x08, 0x4c, 0x6f, 0x67, 0x69, 0x63, 0x45, 0x78, 0x74, 0x12, 0x3f, 0x0a, 0x0e, 0x52, 0x65,
 	0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65, 0x12, 0x15, 0x2e, 0x70,
 	0x62, 0x2e, 0x52, 0x65, 0x67, 0x69, 0x73, 0x74, 0x65, 0x72, 0x44, 0x65, 0x76, 0x69, 0x63, 0x65,
@@ -2972,9 +3093,13 @@ var file_logic_ext_proto_rawDesc = []byte{
 	0x64, 0x43, 0x68, 0x61, 0x74, 0x52, 0x6f, 0x6f, 0x6d, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
 	0x52, 0x65, 0x71, 0x1a, 0x1b, 0x2e, 0x70, 0x62, 0x2e, 0x53, 0x65, 0x6e, 0x64, 0x43, 0x68, 0x61,
 	0x74, 0x52, 0x6f, 0x6f, 0x6d, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70,
-	0x42, 0x1b, 0x5a, 0x19, 0x67, 0x69, 0x6d, 0x2d, 0x78, 0x63, 0x68, 0x61, 0x74, 0x2f, 0x70, 0x6b,
-	0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x12, 0x45, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61, 0x74, 0x52,
+	0x6f, 0x6f, 0x6d, 0x73, 0x12, 0x17, 0x2e, 0x70, 0x62, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65,
+	0x72, 0x43, 0x68, 0x61, 0x74, 0x52, 0x6f, 0x6f, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x1a, 0x18, 0x2e,
+	0x70, 0x62, 0x2e, 0x47, 0x65, 0x74, 0x55, 0x73, 0x65, 0x72, 0x43, 0x68, 0x61, 0x74, 0x52, 0x6f,
+	0x6f, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x42, 0x1b, 0x5a, 0x19, 0x67, 0x69, 0x6d, 0x2d, 0x78,
+	0x63, 0x68, 0x61, 0x74, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f,
+	0x6c, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2990,112 +3115,117 @@ func file_logic_ext_proto_rawDescGZIP() []byte {
 }
 
 var file_logic_ext_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 40)
+var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_logic_ext_proto_goTypes = []any{
 	(MemberType)(0),                 // 0: pb.MemberType
-	(*RegisterDeviceReq)(nil),       // 1: pb.RegisterDeviceReq
-	(*RegisterDeviceResp)(nil),      // 2: pb.RegisterDeviceResp
-	(*SendMessageReq)(nil),          // 3: pb.SendMessageReq
-	(*SendMessageResp)(nil),         // 4: pb.SendMessageResp
-	(*PushRoomReq)(nil),             // 5: pb.PushRoomReq
-	(*AddFriendReq)(nil),            // 6: pb.AddFriendReq
-	(*AgreeAddFriendReq)(nil),       // 7: pb.AgreeAddFriendReq
-	(*SetFriendReq)(nil),            // 8: pb.SetFriendReq
-	(*SetFriendResp)(nil),           // 9: pb.SetFriendResp
-	(*Friend)(nil),                  // 10: pb.Friend
-	(*GetFriendsResp)(nil),          // 11: pb.GetFriendsResp
-	(*CreateGroupReq)(nil),          // 12: pb.CreateGroupReq
-	(*CreateGroupResp)(nil),         // 13: pb.CreateGroupResp
-	(*UpdateGroupReq)(nil),          // 14: pb.UpdateGroupReq
-	(*GetGroupReq)(nil),             // 15: pb.GetGroupReq
-	(*GetGroupResp)(nil),            // 16: pb.GetGroupResp
-	(*Group)(nil),                   // 17: pb.Group
-	(*GetGroupsResp)(nil),           // 18: pb.GetGroupsResp
-	(*AddGroupMembersReq)(nil),      // 19: pb.AddGroupMembersReq
-	(*AddGroupMembersResp)(nil),     // 20: pb.AddGroupMembersResp
-	(*UpdateGroupMemberReq)(nil),    // 21: pb.UpdateGroupMemberReq
-	(*DeleteGroupMemberReq)(nil),    // 22: pb.DeleteGroupMemberReq
-	(*GetGroupMembersReq)(nil),      // 23: pb.GetGroupMembersReq
-	(*GetGroupMembersResp)(nil),     // 24: pb.GetGroupMembersResp
-	(*GroupMember)(nil),             // 25: pb.GroupMember
-	(*CreateChatRoomReq)(nil),       // 26: pb.CreateChatRoomReq
-	(*CreateChatRoomResp)(nil),      // 27: pb.CreateChatRoomResp
-	(*GetChatRoomReq)(nil),          // 28: pb.GetChatRoomReq
-	(*GetChatRoomResp)(nil),         // 29: pb.GetChatRoomResp
-	(*GetChatRoomsReq)(nil),         // 30: pb.GetChatRoomsReq
-	(*GetChatRoomsResp)(nil),        // 31: pb.GetChatRoomsResp
-	(*ChatRoom)(nil),                // 32: pb.ChatRoom
-	(*JoinChatRoomReq)(nil),         // 33: pb.JoinChatRoomReq
-	(*LeaveChatRoomReq)(nil),        // 34: pb.LeaveChatRoomReq
-	(*GetChatRoomMembersReq)(nil),   // 35: pb.GetChatRoomMembersReq
-	(*GetChatRoomMembersResp)(nil),  // 36: pb.GetChatRoomMembersResp
-	(*ChatRoomMember)(nil),          // 37: pb.ChatRoomMember
-	(*SendChatRoomMessageReq)(nil),  // 38: pb.SendChatRoomMessageReq
-	(*SendChatRoomMessageResp)(nil), // 39: pb.SendChatRoomMessageResp
-	(*ChatRoomMessageData)(nil),     // 40: pb.ChatRoomMessageData
-	(*emptypb.Empty)(nil),           // 41: google.protobuf.Empty
+	(*GetUserChatRoomsReq)(nil),     // 1: pb.GetUserChatRoomsReq
+	(*GetUserChatRoomsResp)(nil),    // 2: pb.GetUserChatRoomsResp
+	(*RegisterDeviceReq)(nil),       // 3: pb.RegisterDeviceReq
+	(*RegisterDeviceResp)(nil),      // 4: pb.RegisterDeviceResp
+	(*SendMessageReq)(nil),          // 5: pb.SendMessageReq
+	(*SendMessageResp)(nil),         // 6: pb.SendMessageResp
+	(*PushRoomReq)(nil),             // 7: pb.PushRoomReq
+	(*AddFriendReq)(nil),            // 8: pb.AddFriendReq
+	(*AgreeAddFriendReq)(nil),       // 9: pb.AgreeAddFriendReq
+	(*SetFriendReq)(nil),            // 10: pb.SetFriendReq
+	(*SetFriendResp)(nil),           // 11: pb.SetFriendResp
+	(*Friend)(nil),                  // 12: pb.Friend
+	(*GetFriendsResp)(nil),          // 13: pb.GetFriendsResp
+	(*CreateGroupReq)(nil),          // 14: pb.CreateGroupReq
+	(*CreateGroupResp)(nil),         // 15: pb.CreateGroupResp
+	(*UpdateGroupReq)(nil),          // 16: pb.UpdateGroupReq
+	(*GetGroupReq)(nil),             // 17: pb.GetGroupReq
+	(*GetGroupResp)(nil),            // 18: pb.GetGroupResp
+	(*Group)(nil),                   // 19: pb.Group
+	(*GetGroupsResp)(nil),           // 20: pb.GetGroupsResp
+	(*AddGroupMembersReq)(nil),      // 21: pb.AddGroupMembersReq
+	(*AddGroupMembersResp)(nil),     // 22: pb.AddGroupMembersResp
+	(*UpdateGroupMemberReq)(nil),    // 23: pb.UpdateGroupMemberReq
+	(*DeleteGroupMemberReq)(nil),    // 24: pb.DeleteGroupMemberReq
+	(*GetGroupMembersReq)(nil),      // 25: pb.GetGroupMembersReq
+	(*GetGroupMembersResp)(nil),     // 26: pb.GetGroupMembersResp
+	(*GroupMember)(nil),             // 27: pb.GroupMember
+	(*CreateChatRoomReq)(nil),       // 28: pb.CreateChatRoomReq
+	(*CreateChatRoomResp)(nil),      // 29: pb.CreateChatRoomResp
+	(*GetChatRoomReq)(nil),          // 30: pb.GetChatRoomReq
+	(*GetChatRoomResp)(nil),         // 31: pb.GetChatRoomResp
+	(*GetChatRoomsReq)(nil),         // 32: pb.GetChatRoomsReq
+	(*GetChatRoomsResp)(nil),        // 33: pb.GetChatRoomsResp
+	(*ChatRoom)(nil),                // 34: pb.ChatRoom
+	(*JoinChatRoomReq)(nil),         // 35: pb.JoinChatRoomReq
+	(*LeaveChatRoomReq)(nil),        // 36: pb.LeaveChatRoomReq
+	(*GetChatRoomMembersReq)(nil),   // 37: pb.GetChatRoomMembersReq
+	(*GetChatRoomMembersResp)(nil),  // 38: pb.GetChatRoomMembersResp
+	(*ChatRoomMember)(nil),          // 39: pb.ChatRoomMember
+	(*SendChatRoomMessageReq)(nil),  // 40: pb.SendChatRoomMessageReq
+	(*SendChatRoomMessageResp)(nil), // 41: pb.SendChatRoomMessageResp
+	(*ChatRoomMessageData)(nil),     // 42: pb.ChatRoomMessageData
+	(*emptypb.Empty)(nil),           // 43: google.protobuf.Empty
 }
 var file_logic_ext_proto_depIdxs = []int32{
-	10, // 0: pb.GetFriendsResp.friends:type_name -> pb.Friend
-	17, // 1: pb.GetGroupResp.group:type_name -> pb.Group
-	17, // 2: pb.GetGroupsResp.groups:type_name -> pb.Group
-	0,  // 3: pb.UpdateGroupMemberReq.member_type:type_name -> pb.MemberType
-	25, // 4: pb.GetGroupMembersResp.members:type_name -> pb.GroupMember
-	0,  // 5: pb.GroupMember.member_type:type_name -> pb.MemberType
-	32, // 6: pb.GetChatRoomResp.room:type_name -> pb.ChatRoom
-	32, // 7: pb.GetChatRoomsResp.rooms:type_name -> pb.ChatRoom
-	37, // 8: pb.GetChatRoomMembersResp.members:type_name -> pb.ChatRoomMember
-	1,  // 9: pb.LogicExt.RegisterDevice:input_type -> pb.RegisterDeviceReq
-	5,  // 10: pb.LogicExt.PushRoom:input_type -> pb.PushRoomReq
-	3,  // 11: pb.LogicExt.SendMessageToFriend:input_type -> pb.SendMessageReq
-	6,  // 12: pb.LogicExt.AddFriend:input_type -> pb.AddFriendReq
-	7,  // 13: pb.LogicExt.AgreeAddFriend:input_type -> pb.AgreeAddFriendReq
-	8,  // 14: pb.LogicExt.SetFriend:input_type -> pb.SetFriendReq
-	41, // 15: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
-	3,  // 16: pb.LogicExt.SendMessageToGroup:input_type -> pb.SendMessageReq
-	12, // 17: pb.LogicExt.CreateGroup:input_type -> pb.CreateGroupReq
-	14, // 18: pb.LogicExt.UpdateGroup:input_type -> pb.UpdateGroupReq
-	15, // 19: pb.LogicExt.GetGroup:input_type -> pb.GetGroupReq
-	41, // 20: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
-	19, // 21: pb.LogicExt.AddGroupMembers:input_type -> pb.AddGroupMembersReq
-	21, // 22: pb.LogicExt.UpdateGroupMember:input_type -> pb.UpdateGroupMemberReq
-	22, // 23: pb.LogicExt.DeleteGroupMember:input_type -> pb.DeleteGroupMemberReq
-	23, // 24: pb.LogicExt.GetGroupMembers:input_type -> pb.GetGroupMembersReq
-	26, // 25: pb.LogicExt.CreateChatRoom:input_type -> pb.CreateChatRoomReq
-	28, // 26: pb.LogicExt.GetChatRoom:input_type -> pb.GetChatRoomReq
-	30, // 27: pb.LogicExt.GetChatRooms:input_type -> pb.GetChatRoomsReq
-	33, // 28: pb.LogicExt.JoinChatRoom:input_type -> pb.JoinChatRoomReq
-	34, // 29: pb.LogicExt.LeaveChatRoom:input_type -> pb.LeaveChatRoomReq
-	35, // 30: pb.LogicExt.GetChatRoomMembers:input_type -> pb.GetChatRoomMembersReq
-	38, // 31: pb.LogicExt.SendChatRoomMessage:input_type -> pb.SendChatRoomMessageReq
-	2,  // 32: pb.LogicExt.RegisterDevice:output_type -> pb.RegisterDeviceResp
-	41, // 33: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
-	4,  // 34: pb.LogicExt.SendMessageToFriend:output_type -> pb.SendMessageResp
-	41, // 35: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
-	41, // 36: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
-	9,  // 37: pb.LogicExt.SetFriend:output_type -> pb.SetFriendResp
-	11, // 38: pb.LogicExt.GetFriends:output_type -> pb.GetFriendsResp
-	4,  // 39: pb.LogicExt.SendMessageToGroup:output_type -> pb.SendMessageResp
-	13, // 40: pb.LogicExt.CreateGroup:output_type -> pb.CreateGroupResp
-	41, // 41: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
-	16, // 42: pb.LogicExt.GetGroup:output_type -> pb.GetGroupResp
-	18, // 43: pb.LogicExt.GetGroups:output_type -> pb.GetGroupsResp
-	20, // 44: pb.LogicExt.AddGroupMembers:output_type -> pb.AddGroupMembersResp
-	41, // 45: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
-	41, // 46: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
-	24, // 47: pb.LogicExt.GetGroupMembers:output_type -> pb.GetGroupMembersResp
-	27, // 48: pb.LogicExt.CreateChatRoom:output_type -> pb.CreateChatRoomResp
-	29, // 49: pb.LogicExt.GetChatRoom:output_type -> pb.GetChatRoomResp
-	31, // 50: pb.LogicExt.GetChatRooms:output_type -> pb.GetChatRoomsResp
-	41, // 51: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
-	41, // 52: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
-	36, // 53: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
-	39, // 54: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
-	32, // [32:55] is the sub-list for method output_type
-	9,  // [9:32] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	34, // 0: pb.GetUserChatRoomsResp.chat_rooms:type_name -> pb.ChatRoom
+	12, // 1: pb.GetFriendsResp.friends:type_name -> pb.Friend
+	19, // 2: pb.GetGroupResp.group:type_name -> pb.Group
+	19, // 3: pb.GetGroupsResp.groups:type_name -> pb.Group
+	0,  // 4: pb.UpdateGroupMemberReq.member_type:type_name -> pb.MemberType
+	27, // 5: pb.GetGroupMembersResp.members:type_name -> pb.GroupMember
+	0,  // 6: pb.GroupMember.member_type:type_name -> pb.MemberType
+	34, // 7: pb.GetChatRoomResp.room:type_name -> pb.ChatRoom
+	34, // 8: pb.GetChatRoomsResp.rooms:type_name -> pb.ChatRoom
+	39, // 9: pb.GetChatRoomMembersResp.members:type_name -> pb.ChatRoomMember
+	3,  // 10: pb.LogicExt.RegisterDevice:input_type -> pb.RegisterDeviceReq
+	7,  // 11: pb.LogicExt.PushRoom:input_type -> pb.PushRoomReq
+	5,  // 12: pb.LogicExt.SendMessageToFriend:input_type -> pb.SendMessageReq
+	8,  // 13: pb.LogicExt.AddFriend:input_type -> pb.AddFriendReq
+	9,  // 14: pb.LogicExt.AgreeAddFriend:input_type -> pb.AgreeAddFriendReq
+	10, // 15: pb.LogicExt.SetFriend:input_type -> pb.SetFriendReq
+	43, // 16: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
+	5,  // 17: pb.LogicExt.SendMessageToGroup:input_type -> pb.SendMessageReq
+	14, // 18: pb.LogicExt.CreateGroup:input_type -> pb.CreateGroupReq
+	16, // 19: pb.LogicExt.UpdateGroup:input_type -> pb.UpdateGroupReq
+	17, // 20: pb.LogicExt.GetGroup:input_type -> pb.GetGroupReq
+	43, // 21: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
+	21, // 22: pb.LogicExt.AddGroupMembers:input_type -> pb.AddGroupMembersReq
+	23, // 23: pb.LogicExt.UpdateGroupMember:input_type -> pb.UpdateGroupMemberReq
+	24, // 24: pb.LogicExt.DeleteGroupMember:input_type -> pb.DeleteGroupMemberReq
+	25, // 25: pb.LogicExt.GetGroupMembers:input_type -> pb.GetGroupMembersReq
+	28, // 26: pb.LogicExt.CreateChatRoom:input_type -> pb.CreateChatRoomReq
+	30, // 27: pb.LogicExt.GetChatRoom:input_type -> pb.GetChatRoomReq
+	32, // 28: pb.LogicExt.GetChatRooms:input_type -> pb.GetChatRoomsReq
+	35, // 29: pb.LogicExt.JoinChatRoom:input_type -> pb.JoinChatRoomReq
+	36, // 30: pb.LogicExt.LeaveChatRoom:input_type -> pb.LeaveChatRoomReq
+	37, // 31: pb.LogicExt.GetChatRoomMembers:input_type -> pb.GetChatRoomMembersReq
+	40, // 32: pb.LogicExt.SendChatRoomMessage:input_type -> pb.SendChatRoomMessageReq
+	1,  // 33: pb.LogicExt.GetUserChatRooms:input_type -> pb.GetUserChatRoomsReq
+	4,  // 34: pb.LogicExt.RegisterDevice:output_type -> pb.RegisterDeviceResp
+	43, // 35: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
+	6,  // 36: pb.LogicExt.SendMessageToFriend:output_type -> pb.SendMessageResp
+	43, // 37: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
+	43, // 38: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
+	11, // 39: pb.LogicExt.SetFriend:output_type -> pb.SetFriendResp
+	13, // 40: pb.LogicExt.GetFriends:output_type -> pb.GetFriendsResp
+	6,  // 41: pb.LogicExt.SendMessageToGroup:output_type -> pb.SendMessageResp
+	15, // 42: pb.LogicExt.CreateGroup:output_type -> pb.CreateGroupResp
+	43, // 43: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
+	18, // 44: pb.LogicExt.GetGroup:output_type -> pb.GetGroupResp
+	20, // 45: pb.LogicExt.GetGroups:output_type -> pb.GetGroupsResp
+	22, // 46: pb.LogicExt.AddGroupMembers:output_type -> pb.AddGroupMembersResp
+	43, // 47: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
+	43, // 48: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
+	26, // 49: pb.LogicExt.GetGroupMembers:output_type -> pb.GetGroupMembersResp
+	29, // 50: pb.LogicExt.CreateChatRoom:output_type -> pb.CreateChatRoomResp
+	31, // 51: pb.LogicExt.GetChatRoom:output_type -> pb.GetChatRoomResp
+	33, // 52: pb.LogicExt.GetChatRooms:output_type -> pb.GetChatRoomsResp
+	43, // 53: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
+	43, // 54: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
+	38, // 55: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
+	41, // 56: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
+	2,  // 57: pb.LogicExt.GetUserChatRooms:output_type -> pb.GetUserChatRoomsResp
+	34, // [34:58] is the sub-list for method output_type
+	10, // [10:34] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_logic_ext_proto_init() }
@@ -3105,7 +3235,7 @@ func file_logic_ext_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_logic_ext_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*RegisterDeviceReq); i {
+			switch v := v.(*GetUserChatRoomsReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3117,7 +3247,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*RegisterDeviceResp); i {
+			switch v := v.(*GetUserChatRoomsResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3129,7 +3259,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*SendMessageReq); i {
+			switch v := v.(*RegisterDeviceReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3141,7 +3271,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*SendMessageResp); i {
+			switch v := v.(*RegisterDeviceResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3153,7 +3283,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*PushRoomReq); i {
+			switch v := v.(*SendMessageReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3165,7 +3295,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*AddFriendReq); i {
+			switch v := v.(*SendMessageResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3177,7 +3307,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*AgreeAddFriendReq); i {
+			switch v := v.(*PushRoomReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3189,7 +3319,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*SetFriendReq); i {
+			switch v := v.(*AddFriendReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3201,7 +3331,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[8].Exporter = func(v any, i int) any {
-			switch v := v.(*SetFriendResp); i {
+			switch v := v.(*AgreeAddFriendReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3213,7 +3343,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*Friend); i {
+			switch v := v.(*SetFriendReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3225,7 +3355,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[10].Exporter = func(v any, i int) any {
-			switch v := v.(*GetFriendsResp); i {
+			switch v := v.(*SetFriendResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3237,7 +3367,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[11].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateGroupReq); i {
+			switch v := v.(*Friend); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3249,7 +3379,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[12].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateGroupResp); i {
+			switch v := v.(*GetFriendsResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3261,7 +3391,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[13].Exporter = func(v any, i int) any {
-			switch v := v.(*UpdateGroupReq); i {
+			switch v := v.(*CreateGroupReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3273,7 +3403,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[14].Exporter = func(v any, i int) any {
-			switch v := v.(*GetGroupReq); i {
+			switch v := v.(*CreateGroupResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3285,7 +3415,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[15].Exporter = func(v any, i int) any {
-			switch v := v.(*GetGroupResp); i {
+			switch v := v.(*UpdateGroupReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3297,7 +3427,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[16].Exporter = func(v any, i int) any {
-			switch v := v.(*Group); i {
+			switch v := v.(*GetGroupReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3309,7 +3439,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[17].Exporter = func(v any, i int) any {
-			switch v := v.(*GetGroupsResp); i {
+			switch v := v.(*GetGroupResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3321,7 +3451,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[18].Exporter = func(v any, i int) any {
-			switch v := v.(*AddGroupMembersReq); i {
+			switch v := v.(*Group); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3333,7 +3463,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[19].Exporter = func(v any, i int) any {
-			switch v := v.(*AddGroupMembersResp); i {
+			switch v := v.(*GetGroupsResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3345,7 +3475,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[20].Exporter = func(v any, i int) any {
-			switch v := v.(*UpdateGroupMemberReq); i {
+			switch v := v.(*AddGroupMembersReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3357,7 +3487,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[21].Exporter = func(v any, i int) any {
-			switch v := v.(*DeleteGroupMemberReq); i {
+			switch v := v.(*AddGroupMembersResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3369,7 +3499,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[22].Exporter = func(v any, i int) any {
-			switch v := v.(*GetGroupMembersReq); i {
+			switch v := v.(*UpdateGroupMemberReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3381,7 +3511,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[23].Exporter = func(v any, i int) any {
-			switch v := v.(*GetGroupMembersResp); i {
+			switch v := v.(*DeleteGroupMemberReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3393,7 +3523,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[24].Exporter = func(v any, i int) any {
-			switch v := v.(*GroupMember); i {
+			switch v := v.(*GetGroupMembersReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3405,7 +3535,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[25].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateChatRoomReq); i {
+			switch v := v.(*GetGroupMembersResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3417,7 +3547,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[26].Exporter = func(v any, i int) any {
-			switch v := v.(*CreateChatRoomResp); i {
+			switch v := v.(*GroupMember); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3429,7 +3559,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[27].Exporter = func(v any, i int) any {
-			switch v := v.(*GetChatRoomReq); i {
+			switch v := v.(*CreateChatRoomReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3441,7 +3571,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[28].Exporter = func(v any, i int) any {
-			switch v := v.(*GetChatRoomResp); i {
+			switch v := v.(*CreateChatRoomResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3453,7 +3583,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[29].Exporter = func(v any, i int) any {
-			switch v := v.(*GetChatRoomsReq); i {
+			switch v := v.(*GetChatRoomReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3465,7 +3595,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[30].Exporter = func(v any, i int) any {
-			switch v := v.(*GetChatRoomsResp); i {
+			switch v := v.(*GetChatRoomResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3477,7 +3607,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[31].Exporter = func(v any, i int) any {
-			switch v := v.(*ChatRoom); i {
+			switch v := v.(*GetChatRoomsReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3489,7 +3619,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[32].Exporter = func(v any, i int) any {
-			switch v := v.(*JoinChatRoomReq); i {
+			switch v := v.(*GetChatRoomsResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3501,7 +3631,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[33].Exporter = func(v any, i int) any {
-			switch v := v.(*LeaveChatRoomReq); i {
+			switch v := v.(*ChatRoom); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3513,7 +3643,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[34].Exporter = func(v any, i int) any {
-			switch v := v.(*GetChatRoomMembersReq); i {
+			switch v := v.(*JoinChatRoomReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3525,7 +3655,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[35].Exporter = func(v any, i int) any {
-			switch v := v.(*GetChatRoomMembersResp); i {
+			switch v := v.(*LeaveChatRoomReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3537,7 +3667,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[36].Exporter = func(v any, i int) any {
-			switch v := v.(*ChatRoomMember); i {
+			switch v := v.(*GetChatRoomMembersReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3549,7 +3679,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[37].Exporter = func(v any, i int) any {
-			switch v := v.(*SendChatRoomMessageReq); i {
+			switch v := v.(*GetChatRoomMembersResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3561,7 +3691,7 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[38].Exporter = func(v any, i int) any {
-			switch v := v.(*SendChatRoomMessageResp); i {
+			switch v := v.(*ChatRoomMember); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3573,6 +3703,30 @@ func file_logic_ext_proto_init() {
 			}
 		}
 		file_logic_ext_proto_msgTypes[39].Exporter = func(v any, i int) any {
+			switch v := v.(*SendChatRoomMessageReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logic_ext_proto_msgTypes[40].Exporter = func(v any, i int) any {
+			switch v := v.(*SendChatRoomMessageResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_logic_ext_proto_msgTypes[41].Exporter = func(v any, i int) any {
 			switch v := v.(*ChatRoomMessageData); i {
 			case 0:
 				return &v.state
@@ -3591,7 +3745,7 @@ func file_logic_ext_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_logic_ext_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   40,
+			NumMessages:   42,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

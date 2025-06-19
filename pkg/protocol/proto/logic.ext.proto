@@ -55,6 +55,17 @@ service LogicExt {
   rpc GetChatRoomMembers (GetChatRoomMembersReq) returns (GetChatRoomMembersResp);
   // 发送聊天室消息
   rpc SendChatRoomMessage (SendChatRoomMessageReq) returns (SendChatRoomMessageResp);
+  // 获取用户加入的聊天室列表
+  rpc GetUserChatRooms (GetUserChatRoomsReq) returns (GetUserChatRoomsResp);
+}
+message GetUserChatRoomsReq {
+  int32 page_size = 1;  // 每页数量
+  int32 page_number = 2; // 偏移量
+}
+
+message GetUserChatRoomsResp {
+  repeated ChatRoom chat_rooms = 1; // 聊天室列表
+  int32 total = 2;                  // 总数
 }
 
 message RegisterDeviceReq {

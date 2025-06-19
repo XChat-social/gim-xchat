@@ -34,6 +34,11 @@ func (s *app) GetChatRooms(ctx context.Context, req *pb.GetChatRoomsReq) (*pb.Ge
 	return Service.GetChatRooms(ctx, req)
 }
 
+// GetUserChatRooms 获取用户加入的聊天室列表
+func (s *app) GetUserChatRooms(ctx context.Context, userId int64, req *pb.GetUserChatRoomsReq) (*pb.GetUserChatRoomsResp, error) {
+	return Service.GetUserChatRooms(ctx, userId, req)
+}
+
 // JoinChatRoom 加入聊天室
 func (s *app) JoinChatRoom(ctx context.Context, req *pb.JoinChatRoomReq) error {
 	return Service.JoinChatRoom(ctx, req)
