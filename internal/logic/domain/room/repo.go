@@ -6,6 +6,7 @@ import (
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"gim/pkg/protocol/pb"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -20,7 +21,20 @@ var ChatRoomMemberRepo = new(chatRoomMemberRepo)
 
 // Add 添加聊天室
 func (r *chatRoomRepo) Add(ctx context.Context, chatRoom *pb.ChatRoom) error {
-	return db.DB.Create(chatRoom).Error
+	// 转换为数据库模型
+	modelChatRoom := &models.ChatRoom{
+		RoomID:         chatRoom.RoomId,
+		Name:           chatRoom.Name,
+		AvatarURL:      chatRoom.AvatarUrl,
+		Introduction:   chatRoom.Introduction,
+		OnlineCount:    chatRoom.OnlineCount,
+		MemberCount:    chatRoom.MemberCount,
+		MaxMemberCount: chatRoom.MaxMemberCount,
+		Extra:          chatRoom.Extra,
+		CreateTime:     time.Unix(chatRoom.CreateTime, 0), // 从 Unix 时间戳转换为 time.Time
+		UpdateTime:     time.Unix(chatRoom.UpdateTime, 0), // 从 Unix 时间戳转换为 time.Time
+	}
+	return db.DB.Create(modelChatRoom).Error
 }
 
 // Get 获取聊天室信息
@@ -48,10 +62,27 @@ func (r *chatRoomRepo) Get(ctx context.Context, roomId int64) (*pb.ChatRoom, err
 
 // List 获取聊天室列表
 func (r *chatRoomRepo) List(ctx context.Context, offset, limit int32) ([]*pb.ChatRoom, error) {
-	var chatRooms []*pb.ChatRoom
-	err := db.DB.Offset(int(offset)).Limit(int(limit)).Find(&chatRooms).Error
+	var modelChatRooms []models.ChatRoom
+	err := db.DB.Offset(int(offset)).Limit(int(limit)).Find(&modelChatRooms).Error
 	if err != nil {
 		return nil, gerrors.WrapError(err)
+	}
+
+	// 转换为 proto 消息列表
+	chatRooms := make([]*pb.ChatRoom, 0, len(modelChatRooms))
+	for _, room := range modelChatRooms {
+		chatRooms = append(chatRooms, &pb.ChatRoom{
+			RoomId:         room.RoomID,
+			Name:           room.Name,
+			AvatarUrl:      room.AvatarURL,
+			Introduction:   room.Introduction,
+			OnlineCount:    room.OnlineCount,
+			MemberCount:    room.MemberCount,
+			MaxMemberCount: room.MaxMemberCount,
+			Extra:          room.Extra,
+			CreateTime:     room.CreateTime.Unix(),
+			UpdateTime:     room.UpdateTime.Unix(),
+		})
 	}
 	return chatRooms, nil
 }
@@ -59,7 +90,7 @@ func (r *chatRoomRepo) List(ctx context.Context, offset, limit int32) ([]*pb.Cha
 // Count 获取聊天室总数
 func (r *chatRoomRepo) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := db.DB.Model(&pb.ChatRoom{}).Count(&count).Error
+	err := db.DB.Model(&models.ChatRoom{}).Count(&count).Error
 	if err != nil {
 		return 0, gerrors.WrapError(err)
 	}
@@ -118,12 +149,39 @@ func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb
 	return &member, nil
 }
 
-// IncrOnlineCount 增加聊天室在线人数
+// IncrOnlineCount 增加在线人数
 func (r *chatRoomRepo) IncrOnlineCount(ctx context.Context, roomId int64) error {
-	return db.DB.Model(&pb.ChatRoom{}).Where("room_id = ?", roomId).UpdateColumn("online_count", gorm.Expr("online_count + ?", 1)).Error
+	return db.DB.Model(&models.ChatRoom{}).Where("room_id = ?", roomId).UpdateColumn("online_count", gorm.Expr("online_count + ?", 1)).Error
 }
 
-// DecrOnlineCount 减少聊天室在线人数
+// DecrOnlineCount 减少在线人数
 func (r *chatRoomRepo) DecrOnlineCount(ctx context.Context, roomId int64) error {
-	return db.DB.Model(&pb.ChatRoom{}).Where("room_id = ?", roomId).UpdateColumn("online_count", gorm.Expr("online_count - ?", 1)).Error
+	return db.DB.Model(&models.ChatRoom{}).Where("room_id = ?", roomId).UpdateColumn("online_count", gorm.Expr("online_count - ?", 1)).Error
+}
+
+// ListByCreatorId 获取用户创建的聊天室列表
+func (r *chatRoomRepo) ListByCreatorId(ctx context.Context, creatorId int64) ([]*pb.ChatRoom, error) {
+	var modelChatRooms []models.ChatRoom
+	err := db.DB.Where("creator_id = ?", creatorId).Find(&modelChatRooms).Error
+	if err != nil {
+		return nil, gerrors.WrapError(err)
+	}
+
+	// 转换为 proto 消息列表
+	chatRooms := make([]*pb.ChatRoom, 0, len(modelChatRooms))
+	for _, room := range modelChatRooms {
+		chatRooms = append(chatRooms, &pb.ChatRoom{
+			RoomId:         room.RoomID,
+			Name:           room.Name,
+			AvatarUrl:      room.AvatarURL,
+			Introduction:   room.Introduction,
+			OnlineCount:    room.OnlineCount,
+			MemberCount:    room.MemberCount,
+			MaxMemberCount: room.MaxMemberCount,
+			Extra:          room.Extra,
+			CreateTime:     room.CreateTime.Unix(),
+			UpdateTime:     room.UpdateTime.Unix(),
+		})
+	}
+	return chatRooms, nil
 }

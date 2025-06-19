@@ -13,7 +13,7 @@ type ChatRoom struct {
 	Name           string    `gorm:"size:50;not null" json:"name"`                          // 聊天室名称
 	AvatarURL      string    `gorm:"size:255;not null" json:"avatar_url"`                   // 聊天室头像
 	Introduction   string    `gorm:"size:255;not null" json:"introduction"`                 // 聊天室简介
-	CreatorID      int64     `gorm:"not null;index" json:"creator_id"`                      // 创建者ID
+	CreatorId      int64     `gorm:"column:creator_id;not null"`                            // 创建者ID
 	UserNum        int32     `gorm:"default:0;not null" json:"user_num"`                    // 当前人数
 	OnlineCount    int32     `gorm:"default:0;not null" json:"online_count"`                // 在线人数
 	MemberCount    int32     `gorm:"default:0;not null" json:"member_count"`                // 成员总数
