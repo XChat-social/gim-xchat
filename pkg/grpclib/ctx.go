@@ -107,3 +107,16 @@ func NewAndCopyRequestId(ctx context.Context) context.Context {
 	}
 	return metadata.NewOutgoingContext(newCtx, metadata.Pairs(CtxRequestId, requestIds[0]))
 }
+
+// NewContext 创建带认证信息的 context
+func NewContext(ctx context.Context) context.Context {
+	userID := Get(ctx, CtxUserId)
+	deviceID := Get(ctx, CtxDeviceId)
+	token := Get(ctx, CtxToken)
+
+	return metadata.NewOutgoingContext(ctx, metadata.Pairs(
+		CtxUserId, userID,
+		CtxDeviceId, deviceID,
+		CtxToken, token,
+	))
+}

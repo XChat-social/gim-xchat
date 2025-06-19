@@ -4,7 +4,6 @@ import (
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
-	"google.golang.org/grpc/metadata"
 	"net/http"
 	"strconv"
 	"time"
@@ -34,20 +33,8 @@ func (h *ChatRoomHandler) CreateChatRoom(c *gin.Context) {
 		return
 	}
 
-	// 从 gin.Context 中获取用户信息
-	userID := c.GetInt64("user_id")
-	deviceID := c.GetInt64("device_id")
-	token := c.GetString("token")
-
-	// 创建带认证信息的 context
-	ctx := metadata.NewOutgoingContext(c.Request.Context(), metadata.Pairs(
-		"user_id", strconv.FormatInt(userID, 10),
-		"device_id", strconv.FormatInt(deviceID, 10),
-		"token", token,
-	))
-
 	// 使用新的 context 调用 gRPC
-	resp, err := rpc.GetLogicExtClient().CreateChatRoom(ctx, &pb.CreateChatRoomReq{
+	resp, err := rpc.GetLogicExtClient().CreateChatRoom(grpclib.NewContext(c.Request.Context()), &pb.CreateChatRoomReq{
 		Name:           req.Name,
 		AvatarUrl:      req.AvatarURL,
 		Introduction:   req.Introduction,
@@ -74,7 +61,7 @@ func (h *ChatRoomHandler) GetChatRoom(c *gin.Context) {
 		return
 	}
 
-	resp, err := rpc.GetLogicExtClient().GetChatRoom(c.Request.Context(), &pb.GetChatRoomReq{
+	resp, err := rpc.GetLogicExtClient().GetChatRoom(grpclib.NewContext(c.Request.Context()), &pb.GetChatRoomReq{
 		RoomId: roomID,
 	})
 	if err != nil {
@@ -103,7 +90,7 @@ func (h *ChatRoomHandler) GetChatRooms(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	resp, err := rpc.GetLogicExtClient().GetChatRooms(c.Request.Context(), &pb.GetChatRoomsReq{
+	resp, err := rpc.GetLogicExtClient().GetChatRooms(grpclib.NewContext(c.Request.Context()), &pb.GetChatRoomsReq{
 		PageNumber: int32(page),     // 错误：应该是 page_number
 		PageSize:   int32(pageSize), // 正确
 	})
@@ -164,7 +151,7 @@ func (h *ChatRoomHandler) LeaveChatRoom(c *gin.Context) {
 		return
 	}
 
-	_, err = rpc.GetLogicExtClient().LeaveChatRoom(c.Request.Context(), &pb.LeaveChatRoomReq{
+	_, err = rpc.GetLogicExtClient().LeaveChatRoom(grpclib.NewContext(c.Request.Context()), &pb.LeaveChatRoomReq{
 		RoomId: roomID,
 	})
 	if err != nil {
@@ -186,7 +173,7 @@ func (h *ChatRoomHandler) GetChatRoomMembers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	resp, err := rpc.GetLogicExtClient().GetChatRoomMembers(c.Request.Context(), &pb.GetChatRoomMembersReq{
+	resp, err := rpc.GetLogicExtClient().GetChatRoomMembers(grpclib.NewContext(c.Request.Context()), &pb.GetChatRoomMembersReq{
 		RoomId:     roomID,
 		PageSize:   int32(pageSize),
 		PageNumber: int32(page),
@@ -244,7 +231,7 @@ func (h *ChatRoomHandler) SendMessage(c *gin.Context) {
 	}
 
 	// 调用gRPC服务发送消息
-	resp, err := rpc.GetLogicExtClient().SendChatRoomMessage(c.Request.Context(), &pb.SendChatRoomMessageReq{
+	resp, err := rpc.GetLogicExtClient().SendChatRoomMessage(grpclib.NewContext(c.Request.Context()), &pb.SendChatRoomMessageReq{
 		RoomId:   roomID,
 		UserId:   userID,
 		Content:  req.Content,
