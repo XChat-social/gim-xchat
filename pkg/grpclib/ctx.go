@@ -111,29 +111,13 @@ func NewAndCopyRequestId(ctx context.Context) context.Context {
 
 // NewContextFromGin 从 gin.Context 创建带认证信息的 gRPC context
 func NewContextFromGin(ginCtx *gin.Context) context.Context {
-	// 从 gin 上下文中获取认证信息
-	userID, _ := ginCtx.Get("user_id")
-	deviceID, _ := ginCtx.Get("device_id")
-	token, _ := ginCtx.Get("token")
-
-	// 转换为字符串
-	userIDStr := ""
-	deviceIDStr := ""
-	tokenStr := ""
-
-	if userID != nil {
-		userIDStr = strconv.FormatInt(userID.(int64), 10)
-	}
-	if deviceID != nil {
-		deviceIDStr = strconv.FormatInt(deviceID.(int64), 10)
-	}
-	if token != nil {
-		tokenStr = token.(string)
-	}
+	userID := ginCtx.GetInt64("user_id")
+	deviceID := ginCtx.GetInt64("device_id")
+	token := ginCtx.GetString("token")
 
 	return metadata.NewOutgoingContext(ginCtx.Request.Context(), metadata.Pairs(
-		CtxUserId, userIDStr,
-		CtxDeviceId, deviceIDStr,
-		CtxToken, tokenStr,
+		CtxUserId, strconv.FormatInt(userID, 10),
+		CtxDeviceId, strconv.FormatInt(deviceID, 10),
+		CtxToken, token,
 	))
 }
