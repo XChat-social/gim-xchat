@@ -126,7 +126,7 @@ func (h *ChatRoomHandler) GetUserChatRooms(c *gin.Context) {
 		req.PageNumber = 1
 	}
 
-	resp, err := rpc.GetLogicExtClient().GetUserChatRooms(c, &req)
+	resp, err := rpc.GetLogicExtClient().GetUserChatRooms(grpclib.NewContextFromGin(c), &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
