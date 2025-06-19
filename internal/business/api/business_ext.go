@@ -165,6 +165,13 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 		}, err
 	}
 
+	// 获取用户创建的聊天室ID
+	var roomId int64 = 0
+	rooms, err := app2.ChatRoomApp.GetUserCreatedChatRooms(ctx, userId)
+	if err == nil && len(rooms) > 0 {
+		roomId = rooms[0].RoomId // 取第一个创建的聊天室ID
+	}
+
 	return &pb.TwitterSignInResp{
 		Code:    0,
 		Message: "Twitter sign-in successful",
@@ -180,6 +187,7 @@ func (s *BusinessExtServer) TwitterSignIn(ctx context.Context, req *pb.TwitterSi
 			InviteCode:      getNew.InviteCode,
 		},
 		ErrMessage: errMessage,
+		RoomId:     roomId,
 	}, nil
 }
 

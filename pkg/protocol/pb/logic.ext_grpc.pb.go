@@ -20,30 +20,31 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LogicExt_RegisterDevice_FullMethodName      = "/pb.LogicExt/RegisterDevice"
-	LogicExt_PushRoom_FullMethodName            = "/pb.LogicExt/PushRoom"
-	LogicExt_SendMessageToFriend_FullMethodName = "/pb.LogicExt/SendMessageToFriend"
-	LogicExt_AddFriend_FullMethodName           = "/pb.LogicExt/AddFriend"
-	LogicExt_AgreeAddFriend_FullMethodName      = "/pb.LogicExt/AgreeAddFriend"
-	LogicExt_SetFriend_FullMethodName           = "/pb.LogicExt/SetFriend"
-	LogicExt_GetFriends_FullMethodName          = "/pb.LogicExt/GetFriends"
-	LogicExt_SendMessageToGroup_FullMethodName  = "/pb.LogicExt/SendMessageToGroup"
-	LogicExt_CreateGroup_FullMethodName         = "/pb.LogicExt/CreateGroup"
-	LogicExt_UpdateGroup_FullMethodName         = "/pb.LogicExt/UpdateGroup"
-	LogicExt_GetGroup_FullMethodName            = "/pb.LogicExt/GetGroup"
-	LogicExt_GetGroups_FullMethodName           = "/pb.LogicExt/GetGroups"
-	LogicExt_AddGroupMembers_FullMethodName     = "/pb.LogicExt/AddGroupMembers"
-	LogicExt_UpdateGroupMember_FullMethodName   = "/pb.LogicExt/UpdateGroupMember"
-	LogicExt_DeleteGroupMember_FullMethodName   = "/pb.LogicExt/DeleteGroupMember"
-	LogicExt_GetGroupMembers_FullMethodName     = "/pb.LogicExt/GetGroupMembers"
-	LogicExt_CreateChatRoom_FullMethodName      = "/pb.LogicExt/CreateChatRoom"
-	LogicExt_GetChatRoom_FullMethodName         = "/pb.LogicExt/GetChatRoom"
-	LogicExt_GetChatRooms_FullMethodName        = "/pb.LogicExt/GetChatRooms"
-	LogicExt_JoinChatRoom_FullMethodName        = "/pb.LogicExt/JoinChatRoom"
-	LogicExt_LeaveChatRoom_FullMethodName       = "/pb.LogicExt/LeaveChatRoom"
-	LogicExt_GetChatRoomMembers_FullMethodName  = "/pb.LogicExt/GetChatRoomMembers"
-	LogicExt_SendChatRoomMessage_FullMethodName = "/pb.LogicExt/SendChatRoomMessage"
-	LogicExt_GetUserChatRooms_FullMethodName    = "/pb.LogicExt/GetUserChatRooms"
+	LogicExt_RegisterDevice_FullMethodName          = "/pb.LogicExt/RegisterDevice"
+	LogicExt_PushRoom_FullMethodName                = "/pb.LogicExt/PushRoom"
+	LogicExt_SendMessageToFriend_FullMethodName     = "/pb.LogicExt/SendMessageToFriend"
+	LogicExt_AddFriend_FullMethodName               = "/pb.LogicExt/AddFriend"
+	LogicExt_AgreeAddFriend_FullMethodName          = "/pb.LogicExt/AgreeAddFriend"
+	LogicExt_SetFriend_FullMethodName               = "/pb.LogicExt/SetFriend"
+	LogicExt_GetFriends_FullMethodName              = "/pb.LogicExt/GetFriends"
+	LogicExt_SendMessageToGroup_FullMethodName      = "/pb.LogicExt/SendMessageToGroup"
+	LogicExt_CreateGroup_FullMethodName             = "/pb.LogicExt/CreateGroup"
+	LogicExt_UpdateGroup_FullMethodName             = "/pb.LogicExt/UpdateGroup"
+	LogicExt_GetGroup_FullMethodName                = "/pb.LogicExt/GetGroup"
+	LogicExt_GetGroups_FullMethodName               = "/pb.LogicExt/GetGroups"
+	LogicExt_AddGroupMembers_FullMethodName         = "/pb.LogicExt/AddGroupMembers"
+	LogicExt_UpdateGroupMember_FullMethodName       = "/pb.LogicExt/UpdateGroupMember"
+	LogicExt_DeleteGroupMember_FullMethodName       = "/pb.LogicExt/DeleteGroupMember"
+	LogicExt_GetGroupMembers_FullMethodName         = "/pb.LogicExt/GetGroupMembers"
+	LogicExt_CreateChatRoom_FullMethodName          = "/pb.LogicExt/CreateChatRoom"
+	LogicExt_GetChatRoom_FullMethodName             = "/pb.LogicExt/GetChatRoom"
+	LogicExt_GetChatRooms_FullMethodName            = "/pb.LogicExt/GetChatRooms"
+	LogicExt_JoinChatRoom_FullMethodName            = "/pb.LogicExt/JoinChatRoom"
+	LogicExt_LeaveChatRoom_FullMethodName           = "/pb.LogicExt/LeaveChatRoom"
+	LogicExt_GetChatRoomMembers_FullMethodName      = "/pb.LogicExt/GetChatRoomMembers"
+	LogicExt_SendChatRoomMessage_FullMethodName     = "/pb.LogicExt/SendChatRoomMessage"
+	LogicExt_GetUserChatRooms_FullMethodName        = "/pb.LogicExt/GetUserChatRooms"
+	LogicExt_GetUserCreatedChatRooms_FullMethodName = "/pb.LogicExt/GetUserCreatedChatRooms"
 )
 
 // LogicExtClient is the client API for LogicExt service.
@@ -98,6 +99,8 @@ type LogicExtClient interface {
 	SendChatRoomMessage(ctx context.Context, in *SendChatRoomMessageReq, opts ...grpc.CallOption) (*SendChatRoomMessageResp, error)
 	// 获取用户加入的聊天室列表
 	GetUserChatRooms(ctx context.Context, in *GetUserChatRoomsReq, opts ...grpc.CallOption) (*GetUserChatRoomsResp, error)
+	// 获取用户创建的聊天室列表
+	GetUserCreatedChatRooms(ctx context.Context, in *GetUserCreatedChatRoomsReq, opts ...grpc.CallOption) (*GetUserCreatedChatRoomsResp, error)
 }
 
 type logicExtClient struct {
@@ -348,6 +351,16 @@ func (c *logicExtClient) GetUserChatRooms(ctx context.Context, in *GetUserChatRo
 	return out, nil
 }
 
+func (c *logicExtClient) GetUserCreatedChatRooms(ctx context.Context, in *GetUserCreatedChatRoomsReq, opts ...grpc.CallOption) (*GetUserCreatedChatRoomsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserCreatedChatRoomsResp)
+	err := c.cc.Invoke(ctx, LogicExt_GetUserCreatedChatRooms_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LogicExtServer is the server API for LogicExt service.
 // All implementations must embed UnimplementedLogicExtServer
 // for forward compatibility.
@@ -400,6 +413,8 @@ type LogicExtServer interface {
 	SendChatRoomMessage(context.Context, *SendChatRoomMessageReq) (*SendChatRoomMessageResp, error)
 	// 获取用户加入的聊天室列表
 	GetUserChatRooms(context.Context, *GetUserChatRoomsReq) (*GetUserChatRoomsResp, error)
+	// 获取用户创建的聊天室列表
+	GetUserCreatedChatRooms(context.Context, *GetUserCreatedChatRoomsReq) (*GetUserCreatedChatRoomsResp, error)
 	mustEmbedUnimplementedLogicExtServer()
 }
 
@@ -481,6 +496,9 @@ func (UnimplementedLogicExtServer) SendChatRoomMessage(context.Context, *SendCha
 }
 func (UnimplementedLogicExtServer) GetUserChatRooms(context.Context, *GetUserChatRoomsReq) (*GetUserChatRoomsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserChatRooms not implemented")
+}
+func (UnimplementedLogicExtServer) GetUserCreatedChatRooms(context.Context, *GetUserCreatedChatRoomsReq) (*GetUserCreatedChatRoomsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserCreatedChatRooms not implemented")
 }
 func (UnimplementedLogicExtServer) mustEmbedUnimplementedLogicExtServer() {}
 func (UnimplementedLogicExtServer) testEmbeddedByValue()                  {}
@@ -935,6 +953,24 @@ func _LogicExt_GetUserChatRooms_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LogicExt_GetUserCreatedChatRooms_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserCreatedChatRoomsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogicExtServer).GetUserCreatedChatRooms(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LogicExt_GetUserCreatedChatRooms_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogicExtServer).GetUserCreatedChatRooms(ctx, req.(*GetUserCreatedChatRoomsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LogicExt_ServiceDesc is the grpc.ServiceDesc for LogicExt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1037,6 +1073,10 @@ var LogicExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserChatRooms",
 			Handler:    _LogicExt_GetUserChatRooms_Handler,
+		},
+		{
+			MethodName: "GetUserCreatedChatRooms",
+			Handler:    _LogicExt_GetUserCreatedChatRooms_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

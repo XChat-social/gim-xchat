@@ -331,13 +331,12 @@ func (s *service) GetChatRoomMembers(ctx context.Context, req *pb.GetChatRoomMem
 
 // SendChatRoomMessage 发送聊天室消息
 func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomMessageReq) (*pb.SendChatRoomMessageResp, error) {
-	// 获取用户ID
 	userId, _, err := grpclib.GetCtxData(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// 验证用户是否在聊天室中
+	// 检查用户是否在聊天室中
 	member, err := ChatRoomMemberRepo.Get(ctx, req.RoomId, userId)
 	if err != nil {
 		return nil, err
@@ -346,49 +345,23 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 		return nil, gerrors.ErrNotInChatRoom
 	}
 
-	// 设置发送时间
-	sendTime := req.SendTime
-	if sendTime == 0 {
-		sendTime = util.UnixMilliTime(time.Now())
-	}
-
-	// 构造消息内容
-	messageData := &pb.ChatRoomMessageData{
-		SenderId:   userId,
-		SenderName: member.Nickname,
-		Content:    req.Content,
-	}
-
-	contentBytes, err := proto.Marshal(messageData)
-	if err != nil {
-		return nil, gerrors.WrapError(err)
-	}
-
-	// 获取消息序列号
-	seq, err := SeqRepo.GetNextSeq(req.RoomId)
+	// 发送消息
+	err = s.Push(ctx, &pb.PushRoomReq{
+		RoomId: req.RoomId,
+		//Code:      pb.PushCode_PC_CHAT_ROOM_MESSAGE,
+		Content:   req.Content,
+		IsPersist: true,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// 构造推送请求
-	pushReq := &pb.PushRoomReq{
-		RoomId:     req.RoomId,
-		Code:       1, // 普通消息类型
-		Content:    contentBytes,
-		SendTime:   sendTime,
-		IsPersist:  true,  // 持久化消息
-		IsPriority: false, // 普通优先级
-	}
+	return &pb.SendChatRoomMessageResp{}, nil
+}
 
-	// 推送消息
-	err = s.Push(ctx, pushReq)
-	if err != nil {
-		return nil, err
-	}
-
-	return &pb.SendChatRoomMessageResp{
-		Seq: seq,
-	}, nil
+// GetUserCreatedChatRooms 获取用户创建的聊天室列表
+func (s *service) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]*pb.ChatRoom, error) {
+	return ChatRoomRepo.ListByCreatorId(ctx, userId)
 }
 
 //const (
