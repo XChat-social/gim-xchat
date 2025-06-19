@@ -209,7 +209,7 @@ func (h *TwitterHandler) TwitterSignIn(c *gin.Context) {
 	var chatRooms []struct {
 		RoomID int64 `gorm:"column:room_id"`
 	}
-	err = h.DB.Table("chat_rooms").Select("room_id").Where("creator_id = ?", user.ID).Limit(1).Find(&chatRooms).Error
+	err = h.DB.Table("chat_room").Select("room_id").Where("creator_id = ?", user.ID).Limit(1).Find(&chatRooms).Error
 	if err == nil && len(chatRooms) > 0 {
 		roomId = chatRooms[0].RoomID // 取第一个创建的聊天室ID
 	}
