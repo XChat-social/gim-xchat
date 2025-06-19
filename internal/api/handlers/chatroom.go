@@ -132,7 +132,7 @@ func (h *ChatRoomHandler) JoinChatRoom(c *gin.Context) {
 	}
 
 	// 只接收第二个返回值（error）
-	_, err = rpc.GetLogicExtClient().JoinChatRoom(c.Request.Context(), &pb.JoinChatRoomReq{
+	_, err = rpc.GetLogicExtClient().JoinChatRoom(grpclib.NewContext(c.Request.Context()), &pb.JoinChatRoomReq{
 		RoomId: roomID,
 	})
 	if err != nil {
