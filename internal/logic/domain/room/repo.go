@@ -102,9 +102,12 @@ func (r *chatRoomRepo) Count(ctx context.Context) (int64, error) {
 func (r *chatRoomMemberRepo) Add(ctx context.Context, member *pb.ChatRoomMember) error {
 	// 转换为数据库模型
 	dbMember := &models.ChatRoomMember{
-		RoomID:   member.RoomId,
-		UserID:   member.UserId,
-		JoinTime: time.Unix(member.JoinTime, 0),
+		RoomID:    uint64(member.RoomId),
+		UserID:    uint64(member.UserId),
+		Nickname:  member.Nickname,
+		AvatarURL: member.AvatarUrl,
+		JoinTime:  time.Unix(member.JoinTime, 0),
+		Status:    int8(member.Status),
 	}
 	return db.DB.Create(dbMember).Error
 }
@@ -132,14 +135,16 @@ func (r *chatRoomMemberRepo) List(ctx context.Context, roomId int64, offset, lim
 		return nil, gerrors.WrapError(err)
 	}
 
-	// 转换为protobuf格式
-	var members []*pb.ChatRoomMember
-	for _, dbMember := range dbMembers {
+	// 转换为 proto 消息列表
+	members := make([]*pb.ChatRoomMember, 0, len(dbMembers))
+	for _, member := range dbMembers {
 		members = append(members, &pb.ChatRoomMember{
-			RoomId:   dbMember.RoomID,
-			UserId:   dbMember.UserID,
-			JoinTime: dbMember.JoinTime.Unix(),
-			Status:   1, // 默认状态为正常
+			RoomId:    int64(member.RoomID),
+			UserId:    int64(member.UserID),
+			Nickname:  member.Nickname,
+			AvatarUrl: member.AvatarURL,
+			JoinTime:  member.JoinTime.Unix(),
+			Status:    int32(member.Status),
 		})
 	}
 	return members, nil
@@ -157,10 +162,12 @@ func (r *chatRoomMemberRepo) ListByUserId(ctx context.Context, userId int64) ([]
 	var members []*pb.ChatRoomMember
 	for _, dbMember := range dbMembers {
 		members = append(members, &pb.ChatRoomMember{
-			RoomId:   dbMember.RoomID,
-			UserId:   dbMember.UserID,
-			JoinTime: dbMember.JoinTime.Unix(),
-			Status:   1, // 默认状态为正常
+			RoomId:    int64(dbMember.RoomID),
+			UserId:    int64(dbMember.UserID),
+			Nickname:  dbMember.Nickname,
+			AvatarUrl: dbMember.AvatarURL,
+			JoinTime:  dbMember.JoinTime.Unix(),
+			Status:    int32(dbMember.Status),
 		})
 	}
 	return members, nil
@@ -188,10 +195,12 @@ func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb
 
 	// 转换为protobuf格式
 	member := &pb.ChatRoomMember{
-		RoomId:   dbMember.RoomID,
-		UserId:   dbMember.UserID,
-		JoinTime: dbMember.JoinTime.Unix(),
-		Status:   1, // 默认状态为正常
+		RoomId:    int64(dbMember.RoomID),
+		UserId:    int64(dbMember.UserID),
+		Nickname:  dbMember.Nickname,
+		AvatarUrl: dbMember.AvatarURL,
+		JoinTime:  dbMember.JoinTime.Unix(),
+		Status:    int32(dbMember.Status),
 	}
 	return member, nil
 }
