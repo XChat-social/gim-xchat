@@ -116,12 +116,14 @@ func (r *chatRoomMessageRepo) Add(ctx context.Context, message *pb.ChatRoomMessa
 
 // GetNextSeq 获取下一个消息序列号
 func (r *chatRoomMessageRepo) GetNextSeq(ctx context.Context, roomId int64) (uint64, error) {
-	var maxSeq uint64
-	err := db.DB.Model(&models.ChatRoomMessage{}).Where("room_id = ?", roomId).Select("COALESCE(MAX(seq), 0)").Scan(&maxSeq).Error
+	var result struct {
+		MaxSeq uint64 `gorm:"column:max_seq"`
+	}
+	err := db.DB.Model(&models.ChatRoomMessage{}).Where("room_id = ?", roomId).Select("COALESCE(MAX(seq), 0) as max_seq").Scan(&result).Error
 	if err != nil {
 		return 0, gerrors.WrapError(err)
 	}
-	return maxSeq + 1, nil
+	return result.MaxSeq + 1, nil
 }
 
 // List 获取聊天室消息列表
