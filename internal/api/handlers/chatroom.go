@@ -198,8 +198,11 @@ func (h *ChatRoomHandler) GetChatRoomMembers(c *gin.Context) {
 	var memberList []gin.H
 	for _, member := range resp.Members {
 		memberList = append(memberList, gin.H{
-			"user_id":   member.UserId,
-			"join_time": member.JoinTime,
+			"user_id":    member.UserId,
+			"nickname":   member.Nickname,
+			"avatar_url": member.AvatarUrl,
+			"join_time":  member.JoinTime,
+			"status":     member.Status,
 		})
 	}
 
