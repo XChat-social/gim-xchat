@@ -270,7 +270,7 @@ func (h *ChatRoomHandler) SendMessage(c *gin.Context) {
 	}
 
 	// 获取当前用户ID
-	userID, _, err := grpclib.GetCtxData(grpclib.NewContextFromGin(c))
+	userID, _, err := grpclib.GetCtxData(c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
 		return
