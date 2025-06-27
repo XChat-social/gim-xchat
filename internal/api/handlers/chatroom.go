@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"gim/internal/api/middleware"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
@@ -270,9 +271,9 @@ func (h *ChatRoomHandler) SendMessage(c *gin.Context) {
 	}
 
 	// 获取当前用户ID
-	userID, _, err := grpclib.GetCtxData(c)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "获取用户信息失败"})
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Unauthorized"})
 		return
 	}
 
