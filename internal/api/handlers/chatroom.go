@@ -278,7 +278,7 @@ func (h *ChatRoomHandler) SendMessage(c *gin.Context) {
 	}
 
 	var req struct {
-		Content  []byte `json:"content" binding:"required"`
+		Content  string `json:"content" binding:"required"`
 		SendTime int64  `json:"send_time,omitempty"`
 	}
 
@@ -296,7 +296,7 @@ func (h *ChatRoomHandler) SendMessage(c *gin.Context) {
 	resp, err := rpc.GetLogicExtClient().SendChatRoomMessage(grpclib.NewContextFromGin(c), &pb.SendChatRoomMessageReq{
 		RoomId:   roomID,
 		UserId:   userID,
-		Content:  req.Content,
+		Content:  []byte(req.Content),
 		SendTime: req.SendTime,
 	})
 
