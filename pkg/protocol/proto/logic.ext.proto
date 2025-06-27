@@ -55,6 +55,8 @@ service LogicExt {
   rpc GetChatRoomMembers (GetChatRoomMembersReq) returns (GetChatRoomMembersResp);
   // 发送聊天室消息
   rpc SendChatRoomMessage (SendChatRoomMessageReq) returns (SendChatRoomMessageResp);
+  // 获取聊天室消息历史
+  rpc GetChatRoomMessages (GetChatRoomMessagesReq) returns (GetChatRoomMessagesResp);
   // 获取用户加入的聊天室列表
   rpc GetUserChatRooms (GetUserChatRoomsReq) returns (GetUserChatRoomsResp);
   // 获取用户创建的聊天室列表
@@ -315,4 +317,27 @@ message ChatRoomMessageData {
     int64 sender_id = 1;    // 发送者ID
     string sender_name = 2; // 发送者昵称
     bytes content = 3;      // 消息内容
+}
+
+message ChatRoomMessage {
+    int64 id = 1;          // 消息ID
+    int64 room_id = 2;     // 聊天室ID
+    int64 user_id = 3;     // 发送者ID
+    int64 request_id = 4;  // 请求ID
+    int32 code = 5;        // 消息类型
+    bytes content = 6;     // 消息内容
+    int64 seq = 7;         // 消息序列号
+    int64 send_time = 8;   // 发送时间
+    int32 status = 9;      // 消息状态
+}
+
+message GetChatRoomMessagesReq {
+    int64 room_id = 1;     // 聊天室ID
+    int32 page_size = 2;   // 每页数量
+    int32 page_number = 3; // 页码
+}
+
+message GetChatRoomMessagesResp {
+    repeated ChatRoomMessage messages = 1; // 消息列表
+    int32 total = 2;                       // 总数
 }

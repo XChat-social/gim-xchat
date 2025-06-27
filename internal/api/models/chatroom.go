@@ -40,3 +40,23 @@ type ChatRoomMember struct {
 func (ChatRoomMember) TableName() string {
 	return "chat_room_member"
 }
+
+// ChatRoomMessage 聊天室消息模型
+type ChatRoomMessage struct {
+	ID         uint64    `gorm:"primarykey" json:"id"`                                                    // 自增主键
+	RoomID     uint64    `gorm:"not null;uniqueIndex:uk_room_id_seq" json:"room_id"`                      // 聊天室ID
+	UserID     uint64    `gorm:"not null;index:idx_user_id" json:"user_id"`                               // 发送者ID
+	RequestID  int64     `gorm:"not null" json:"request_id"`                                              // 请求ID
+	Code       int8      `gorm:"not null" json:"code"`                                                    // 消息类型
+	Content    []byte    `gorm:"not null" json:"content"`                                                 // 消息内容
+	Seq        uint64    `gorm:"not null;uniqueIndex:uk_room_id_seq" json:"seq"`                          // 消息序列号
+	SendTime   time.Time `gorm:"type:datetime(3);default:CURRENT_TIMESTAMP(3);not null" json:"send_time"` // 消息发送时间
+	Status     int8      `gorm:"default:0;not null" json:"status"`                                        // 消息状态 0:正常 1:已撤回
+	CreateTime time.Time `gorm:"default:CURRENT_TIMESTAMP;not null" json:"create_time"`                   // 创建时间
+	UpdateTime time.Time `gorm:"default:CURRENT_TIMESTAMP;not null" json:"update_time"`                   // 更新时间
+}
+
+// TableName 指定表名
+func (ChatRoomMessage) TableName() string {
+	return "chat_room_message"
+}

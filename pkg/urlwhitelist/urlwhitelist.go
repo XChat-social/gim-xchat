@@ -22,4 +22,5 @@ var Logic = map[string]int{
 	"/pb.LogicExt/SendChatRoomMessage":     7,
 	"/pb.LogicExt/GetUserChatRooms":        8,
 	"/pb.LogicExt/GetUserCreatedChatRooms": 9,
+	"/pb.LogicExt/GetChatRoomMessages":     10,
 }

@@ -88,6 +88,82 @@ func (r *chatRoomRepo) List(ctx context.Context, offset, limit int32) ([]*pb.Cha
 	return chatRooms, nil
 }
 
+// ChatRoomMessage 仓储接口
+type chatRoomMessageRepo struct{}
+
+var ChatRoomMessageRepo = new(chatRoomMessageRepo)
+
+// Add 添加聊天室消息
+func (r *chatRoomMessageRepo) Add(ctx context.Context, message *pb.ChatRoomMessage) error {
+	// 转换为数据库模型
+	modelMessage := &models.ChatRoomMessage{
+		RoomID:    uint64(message.RoomId),
+		UserID:    uint64(message.UserId),
+		RequestID: message.RequestId,
+		Code:      int8(message.Code),
+		Content:   message.Content,
+		Seq:       uint64(message.Seq),
+		SendTime:  time.Unix(message.SendTime, 0),
+		Status:    int8(message.Status),
+	}
+
+	err := db.DB.Create(modelMessage).Error
+	if err != nil {
+		return gerrors.WrapError(err)
+	}
+	return nil
+}
+
+// GetNextSeq 获取下一个消息序列号
+func (r *chatRoomMessageRepo) GetNextSeq(ctx context.Context, roomId int64) (uint64, error) {
+	var maxSeq uint64
+	err := db.DB.Model(&models.ChatRoomMessage{}).Where("room_id = ?", roomId).Select("COALESCE(MAX(seq), 0)").Scan(&maxSeq).Error
+	if err != nil {
+		return 0, gerrors.WrapError(err)
+	}
+	return maxSeq + 1, nil
+}
+
+// List 获取聊天室消息列表
+func (r *chatRoomMessageRepo) List(ctx context.Context, roomId int64, offset, limit int32) ([]*pb.ChatRoomMessage, error) {
+	var dbMessages []models.ChatRoomMessage
+	err := db.DB.Where("room_id = ? AND status = 0", roomId).
+		Order("seq DESC").
+		Offset(int(offset)).
+		Limit(int(limit)).
+		Find(&dbMessages).Error
+	if err != nil {
+		return nil, gerrors.WrapError(err)
+	}
+
+	// 转换为 proto 消息列表
+	messages := make([]*pb.ChatRoomMessage, 0, len(dbMessages))
+	for _, msg := range dbMessages {
+		messages = append(messages, &pb.ChatRoomMessage{
+			Id:        int64(msg.ID),
+			RoomId:    int64(msg.RoomID),
+			UserId:    int64(msg.UserID),
+			RequestId: msg.RequestID,
+			Code:      int32(msg.Code),
+			Content:   msg.Content,
+			Seq:       int64(msg.Seq),
+			SendTime:  msg.SendTime.Unix(),
+			Status:    int32(msg.Status),
+		})
+	}
+	return messages, nil
+}
+
+// Count 获取聊天室消息总数
+func (r *chatRoomMessageRepo) Count(ctx context.Context, roomId int64) (int64, error) {
+	var count int64
+	err := db.DB.Model(&models.ChatRoomMessage{}).Where("room_id = ? AND status = 0", roomId).Count(&count).Error
+	if err != nil {
+		return 0, gerrors.WrapError(err)
+	}
+	return count, nil
+}
+
 // Count 获取聊天室总数
 func (r *chatRoomRepo) Count(ctx context.Context) (int64, error) {
 	var count int64
