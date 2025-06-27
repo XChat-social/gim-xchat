@@ -100,18 +100,24 @@ func (r *chatRoomRepo) Count(ctx context.Context) (int64, error) {
 
 // Add 添加聊天室成员
 func (r *chatRoomMemberRepo) Add(ctx context.Context, member *pb.ChatRoomMember) error {
-	return db.DB.Create(member).Error
+	// 转换为数据库模型
+	dbMember := &models.ChatRoomMember{
+		RoomID:   member.RoomId,
+		UserID:   member.UserId,
+		JoinTime: time.Unix(member.JoinTime, 0),
+	}
+	return db.DB.Create(dbMember).Error
 }
 
 // Delete 删除聊天室成员
 func (r *chatRoomMemberRepo) Delete(ctx context.Context, roomId, userId int64) error {
-	return db.DB.Where("room_id = ? AND user_id = ?", roomId, userId).Delete(&pb.ChatRoomMember{}).Error
+	return db.DB.Where("room_id = ? AND user_id = ?", roomId, userId).Delete(&models.ChatRoomMember{}).Error
 }
 
 // Count 获取聊天室成员总数
 func (r *chatRoomMemberRepo) Count(ctx context.Context, roomId int64) (int64, error) {
 	var count int64
-	err := db.DB.Model(&pb.ChatRoomMember{}).Where("room_id = ?", roomId).Count(&count).Error
+	err := db.DB.Model(&models.ChatRoomMember{}).Where("room_id = ?", roomId).Count(&count).Error
 	if err != nil {
 		return 0, gerrors.WrapError(err)
 	}
@@ -120,20 +126,42 @@ func (r *chatRoomMemberRepo) Count(ctx context.Context, roomId int64) (int64, er
 
 // List 获取聊天室成员列表
 func (r *chatRoomMemberRepo) List(ctx context.Context, roomId int64, offset, limit int32) ([]*pb.ChatRoomMember, error) {
-	var members []*pb.ChatRoomMember
-	err := db.DB.Where("room_id = ?", roomId).Offset(int(offset)).Limit(int(limit)).Find(&members).Error
+	var dbMembers []models.ChatRoomMember
+	err := db.DB.Where("room_id = ?", roomId).Offset(int(offset)).Limit(int(limit)).Find(&dbMembers).Error
 	if err != nil {
 		return nil, gerrors.WrapError(err)
+	}
+
+	// 转换为protobuf格式
+	var members []*pb.ChatRoomMember
+	for _, dbMember := range dbMembers {
+		members = append(members, &pb.ChatRoomMember{
+			RoomId:   dbMember.RoomID,
+			UserId:   dbMember.UserID,
+			JoinTime: dbMember.JoinTime.Unix(),
+			Status:   1, // 默认状态为正常
+		})
 	}
 	return members, nil
 }
 
 // ListByUserId 获取用户加入的所有聊天室
 func (r *chatRoomMemberRepo) ListByUserId(ctx context.Context, userId int64) ([]*pb.ChatRoomMember, error) {
-	var members []*pb.ChatRoomMember
-	err := db.DB.Where("user_id = ?", userId).Find(&members).Error
+	var dbMembers []models.ChatRoomMember
+	err := db.DB.Where("user_id = ?", userId).Find(&dbMembers).Error
 	if err != nil {
 		return nil, gerrors.WrapError(err)
+	}
+
+	// 转换为protobuf格式
+	var members []*pb.ChatRoomMember
+	for _, dbMember := range dbMembers {
+		members = append(members, &pb.ChatRoomMember{
+			RoomId:   dbMember.RoomID,
+			UserId:   dbMember.UserID,
+			JoinTime: dbMember.JoinTime.Unix(),
+			Status:   1, // 默认状态为正常
+		})
 	}
 	return members, nil
 }
@@ -141,7 +169,7 @@ func (r *chatRoomMemberRepo) ListByUserId(ctx context.Context, userId int64) ([]
 // CountByUserId 获取用户加入的聊天室总数
 func (r *chatRoomMemberRepo) CountByUserId(ctx context.Context, userId int64) (int64, error) {
 	var count int64
-	err := db.DB.Model(&pb.ChatRoomMember{}).Where("user_id = ?", userId).Count(&count).Error
+	err := db.DB.Model(&models.ChatRoomMember{}).Where("user_id = ?", userId).Count(&count).Error
 	if err != nil {
 		return 0, gerrors.WrapError(err)
 	}
@@ -149,15 +177,23 @@ func (r *chatRoomMemberRepo) CountByUserId(ctx context.Context, userId int64) (i
 }
 
 func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb.ChatRoomMember, error) {
-	var member pb.ChatRoomMember
-	err := db.DB.Where("room_id = ? AND user_id = ?", roomId, userId).First(&member).Error
+	var dbMember models.ChatRoomMember
+	err := db.DB.Where("room_id = ? AND user_id = ?", roomId, userId).First(&dbMember).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
 		return nil, err
 	}
-	return &member, nil
+
+	// 转换为protobuf格式
+	member := &pb.ChatRoomMember{
+		RoomId:   dbMember.RoomID,
+		UserId:   dbMember.UserID,
+		JoinTime: dbMember.JoinTime.Unix(),
+		Status:   1, // 默认状态为正常
+	}
+	return member, nil
 }
 
 // IncrOnlineCount 增加在线人数
