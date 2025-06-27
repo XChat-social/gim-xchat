@@ -53,6 +53,52 @@ func (h *ChatRoomHandler) CreateChatRoom(c *gin.Context) {
 	})
 }
 
+// GetChatRoomMessages 获取聊天室消息历史
+func (h *ChatRoomHandler) GetChatRoomMessages(c *gin.Context) {
+	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
+		return
+	}
+
+	// 获取分页参数
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+
+	// 调用 gRPC 服务
+	resp, err := rpc.GetLogicExtClient().GetChatRoomMessages(grpclib.NewContextFromGin(c), &pb.GetChatRoomMessagesReq{
+		RoomId:     roomID,
+		PageNumber: int32(page),
+		PageSize:   int32(pageSize),
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	// 格式化消息数据
+	messages := make([]gin.H, 0, len(resp.Messages))
+	for _, msg := range resp.Messages {
+		messages = append(messages, gin.H{
+			"id":        msg.Id,
+			"room_id":   msg.RoomId,
+			"user_id":   msg.UserId,
+			"content":   string(msg.Content),
+			"seq":       msg.Seq,
+			"send_time": msg.SendTime,
+			"status":    msg.Status,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"data": gin.H{
+			"messages": messages,
+			"total":    resp.Total,
+		},
+	})
+}
+
 // GetChatRoom 获取聊天室信息
 func (h *ChatRoomHandler) GetChatRoom(c *gin.Context) {
 	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)

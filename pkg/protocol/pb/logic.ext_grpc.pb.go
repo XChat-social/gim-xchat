@@ -43,6 +43,7 @@ const (
 	LogicExt_LeaveChatRoom_FullMethodName           = "/pb.LogicExt/LeaveChatRoom"
 	LogicExt_GetChatRoomMembers_FullMethodName      = "/pb.LogicExt/GetChatRoomMembers"
 	LogicExt_SendChatRoomMessage_FullMethodName     = "/pb.LogicExt/SendChatRoomMessage"
+	LogicExt_GetChatRoomMessages_FullMethodName     = "/pb.LogicExt/GetChatRoomMessages"
 	LogicExt_GetUserChatRooms_FullMethodName        = "/pb.LogicExt/GetUserChatRooms"
 	LogicExt_GetUserCreatedChatRooms_FullMethodName = "/pb.LogicExt/GetUserCreatedChatRooms"
 )
@@ -97,6 +98,8 @@ type LogicExtClient interface {
 	GetChatRoomMembers(ctx context.Context, in *GetChatRoomMembersReq, opts ...grpc.CallOption) (*GetChatRoomMembersResp, error)
 	// 发送聊天室消息
 	SendChatRoomMessage(ctx context.Context, in *SendChatRoomMessageReq, opts ...grpc.CallOption) (*SendChatRoomMessageResp, error)
+	// 获取聊天室消息历史
+	GetChatRoomMessages(ctx context.Context, in *GetChatRoomMessagesReq, opts ...grpc.CallOption) (*GetChatRoomMessagesResp, error)
 	// 获取用户加入的聊天室列表
 	GetUserChatRooms(ctx context.Context, in *GetUserChatRoomsReq, opts ...grpc.CallOption) (*GetUserChatRoomsResp, error)
 	// 获取用户创建的聊天室列表
@@ -341,6 +344,16 @@ func (c *logicExtClient) SendChatRoomMessage(ctx context.Context, in *SendChatRo
 	return out, nil
 }
 
+func (c *logicExtClient) GetChatRoomMessages(ctx context.Context, in *GetChatRoomMessagesReq, opts ...grpc.CallOption) (*GetChatRoomMessagesResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetChatRoomMessagesResp)
+	err := c.cc.Invoke(ctx, LogicExt_GetChatRoomMessages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *logicExtClient) GetUserChatRooms(ctx context.Context, in *GetUserChatRoomsReq, opts ...grpc.CallOption) (*GetUserChatRoomsResp, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetUserChatRoomsResp)
@@ -411,6 +424,8 @@ type LogicExtServer interface {
 	GetChatRoomMembers(context.Context, *GetChatRoomMembersReq) (*GetChatRoomMembersResp, error)
 	// 发送聊天室消息
 	SendChatRoomMessage(context.Context, *SendChatRoomMessageReq) (*SendChatRoomMessageResp, error)
+	// 获取聊天室消息历史
+	GetChatRoomMessages(context.Context, *GetChatRoomMessagesReq) (*GetChatRoomMessagesResp, error)
 	// 获取用户加入的聊天室列表
 	GetUserChatRooms(context.Context, *GetUserChatRoomsReq) (*GetUserChatRoomsResp, error)
 	// 获取用户创建的聊天室列表
@@ -493,6 +508,9 @@ func (UnimplementedLogicExtServer) GetChatRoomMembers(context.Context, *GetChatR
 }
 func (UnimplementedLogicExtServer) SendChatRoomMessage(context.Context, *SendChatRoomMessageReq) (*SendChatRoomMessageResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendChatRoomMessage not implemented")
+}
+func (UnimplementedLogicExtServer) GetChatRoomMessages(context.Context, *GetChatRoomMessagesReq) (*GetChatRoomMessagesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChatRoomMessages not implemented")
 }
 func (UnimplementedLogicExtServer) GetUserChatRooms(context.Context, *GetUserChatRoomsReq) (*GetUserChatRoomsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserChatRooms not implemented")
@@ -935,6 +953,24 @@ func _LogicExt_SendChatRoomMessage_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LogicExt_GetChatRoomMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetChatRoomMessagesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogicExtServer).GetChatRoomMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LogicExt_GetChatRoomMessages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogicExtServer).GetChatRoomMessages(ctx, req.(*GetChatRoomMessagesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _LogicExt_GetUserChatRooms_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserChatRoomsReq)
 	if err := dec(in); err != nil {
@@ -1069,6 +1105,10 @@ var LogicExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendChatRoomMessage",
 			Handler:    _LogicExt_SendChatRoomMessage_Handler,
+		},
+		{
+			MethodName: "GetChatRoomMessages",
+			Handler:    _LogicExt_GetChatRoomMessages_Handler,
 		},
 		{
 			MethodName: "GetUserChatRooms",

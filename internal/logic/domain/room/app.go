@@ -59,6 +59,11 @@ func (s *app) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomMessa
 	return Service.SendChatRoomMessage(ctx, req)
 }
 
+// GetChatRoomMessages 获取聊天室消息历史
+func (a *app) GetChatRoomMessages(ctx context.Context, req *pb.GetChatRoomMessagesReq) (*pb.GetChatRoomMessagesResp, error) {
+	return Service.GetChatRoomMessages(ctx, req)
+}
+
 // GetUserCreatedChatRooms 获取用户创建的聊天室列表
 func (s *app) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]*pb.ChatRoom, error) {
 	return Service.GetUserCreatedChatRooms(ctx, userId)

@@ -345,7 +345,31 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 		return nil, gerrors.ErrNotInChatRoom
 	}
 
-	// 发送消息
+	// 获取下一个消息序列号
+	seq, err := ChatRoomMessageRepo.GetNextSeq(ctx, req.RoomId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建消息对象
+	message := &pb.ChatRoomMessage{
+		RoomId:    req.RoomId,
+		UserId:    req.UserId,
+		RequestId: 0, // 可以根据需要设置
+		Code:      1, // 普通文本消息
+		Content:   req.Content,
+		Seq:       int64(seq),
+		SendTime:  req.SendTime,
+		Status:    0, // 正常状态
+	}
+
+	// 持久化消息到数据库
+	err = ChatRoomMessageRepo.Add(ctx, message)
+	if err != nil {
+		return nil, err
+	}
+
+	// 推送消息到聊天室成员
 	err = s.Push(ctx, &pb.PushRoomReq{
 		RoomId: req.RoomId,
 		//Code:      pb.PushCode_PC_CHAT_ROOM_MESSAGE,
@@ -356,7 +380,32 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 		return nil, err
 	}
 
-	return &pb.SendChatRoomMessageResp{}, nil
+	return &pb.SendChatRoomMessageResp{
+		Seq: int64(seq),
+	}, nil
+}
+
+// GetChatRoomMessages 获取聊天室消息历史
+func (s *service) GetChatRoomMessages(ctx context.Context, req *pb.GetChatRoomMessagesReq) (*pb.GetChatRoomMessagesResp, error) {
+	// 获取消息总数
+	total, err := ChatRoomMessageRepo.Count(ctx, req.RoomId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 计算偏移量
+	offset := (req.PageNumber - 1) * req.PageSize
+
+	// 获取消息列表
+	messages, err := ChatRoomMessageRepo.List(ctx, req.RoomId, offset, req.PageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetChatRoomMessagesResp{
+		Messages: messages,
+		Total:    int32(total),
+	}, nil
 }
 
 // GetUserCreatedChatRooms 获取用户创建的聊天室列表
