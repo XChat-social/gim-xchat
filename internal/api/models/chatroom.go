@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 // ChatRoom 聊天室模型
@@ -26,9 +24,19 @@ type ChatRoom struct {
 
 // ChatRoomMember 聊天室成员模型
 type ChatRoomMember struct {
-	gorm.Model
-	RoomID   int64     `gorm:"not null;index:idx_room_user" json:"room_id"` // 聊天室ID
-	UserID   int64     `gorm:"not null;index:idx_room_user" json:"user_id"` // 用户ID
-	JoinTime time.Time `gorm:"not null" json:"join_time"`                   // 加入时间
-	Extra    string    `gorm:"size:1024" json:"extra"`                      // 附加字段
+	ID         uint      `gorm:"primarykey" json:"id"`                                                // 自增主键
+	RoomID     uint64    `gorm:"not null;uniqueIndex:idx_room_user" json:"room_id"`                   // 聊天室ID
+	UserID     uint64    `gorm:"not null;uniqueIndex:idx_room_user;index:idx_user_id" json:"user_id"` // 用户ID
+	Nickname   string    `gorm:"size:50;not null" json:"nickname"`                                    // 昵称
+	AvatarURL  string    `gorm:"size:255;not null" json:"avatar_url"`                                 // 头像
+	JoinTime   time.Time `gorm:"default:CURRENT_TIMESTAMP;not null" json:"join_time"`                 // 加入时间
+	Extra      string    `gorm:"size:1024;default:'';not null" json:"extra"`                          // 附加属性
+	Status     int8      `gorm:"default:1;not null" json:"status"`                                    // 状态 1:正常 2:已退出
+	CreateTime time.Time `gorm:"default:CURRENT_TIMESTAMP;not null" json:"create_time"`               // 创建时间
+	UpdateTime time.Time `gorm:"default:CURRENT_TIMESTAMP;not null" json:"update_time"`               // 更新时间
+}
+
+// TableName 指定表名
+func (ChatRoomMember) TableName() string {
+	return "chat_room_member"
 }
