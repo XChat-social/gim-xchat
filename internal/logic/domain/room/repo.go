@@ -32,8 +32,8 @@ func (r *chatRoomRepo) Add(ctx context.Context, chatRoom *pb.ChatRoom) error {
 		MemberCount:    chatRoom.MemberCount,
 		MaxMemberCount: chatRoom.MaxMemberCount,
 		Extra:          chatRoom.Extra,
-		CreateTime:     time.Unix(chatRoom.CreateTime/1000, (chatRoom.CreateTime%1000)*1000000), // 从毫秒级时间戳转换为 time.Time
-		UpdateTime:     time.Unix(chatRoom.UpdateTime/1000, (chatRoom.UpdateTime%1000)*1000000), // 从毫秒级时间戳转换为 time.Time
+		CreateTime:     time.UnixMilli(chatRoom.CreateTime), // 从毫秒级时间戳转换为 time.Time
+		UpdateTime:     time.UnixMilli(chatRoom.UpdateTime), // 从毫秒级时间戳转换为 time.Time
 	}
 	return db.DB.Create(modelChatRoom).Error
 }
