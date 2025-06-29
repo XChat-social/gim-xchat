@@ -184,7 +184,7 @@ func (r *chatRoomMemberRepo) Add(ctx context.Context, member *pb.ChatRoomMember)
 		UserID:    uint64(member.UserId),
 		Nickname:  member.Nickname,
 		AvatarURL: member.AvatarUrl,
-		JoinTime:  time.Unix(member.JoinTime, 0),
+		JoinTime:  time.UnixMilli(member.JoinTime),
 		Status:    int8(member.Status),
 	}
 	return db.DB.Create(dbMember).Error
