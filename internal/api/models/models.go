@@ -63,3 +63,38 @@ type XPointLog struct {
 func (XPointLog) TableName() string {
 	return "xpoint_log"
 }
+
+// TokenHolding Token持有记录
+type TokenHolding struct {
+	ID           int64     `json:"id" gorm:"primaryKey;column:id"`            // 主键ID
+	UserID       int64     `json:"user_id" gorm:"column:user_id"`             // 用户ID
+	TokenAddress string    `json:"token_address" gorm:"column:token_address"` // Token地址
+	Amount       float64   `json:"amount" gorm:"column:amount"`               // 持有数量
+	CreatedAt    time.Time `json:"created_at" gorm:"column:created_at"`       // 创建时间
+	UpdatedAt    time.Time `json:"updated_at" gorm:"column:updated_at"`       // 更新时间
+}
+
+// TableName 设置表名
+func (TokenHolding) TableName() string {
+	return "token_holdings"
+}
+
+// TokenTransaction Token交易记录
+type TokenTransaction struct {
+	ID              int64     `json:"id" gorm:"primaryKey;column:id"`                  // 主键ID
+	UserID          int64     `json:"user_id" gorm:"column:user_id"`                   // 用户ID
+	TokenAddress    string    `json:"token_address" gorm:"column:token_address"`       // Token地址
+	TransactionType string    `json:"transaction_type" gorm:"column:transaction_type"` // 交易类型：buy, sell
+	Amount          float64   `json:"amount" gorm:"column:amount"`                     // 交易数量
+	Price           float64   `json:"price" gorm:"column:price"`                       // 单价
+	TotalValue      float64   `json:"total_value" gorm:"column:total_value"`           // 总价值
+	TransactionHash string    `json:"transaction_hash" gorm:"column:transaction_hash"` // 交易哈希
+	Status          string    `json:"status" gorm:"column:status"`                     // 交易状态：pending, completed, failed
+	CreatedAt       time.Time `json:"created_at" gorm:"column:created_at"`             // 创建时间
+	UpdatedAt       time.Time `json:"updated_at" gorm:"column:updated_at"`             // 更新时间
+}
+
+// TableName 设置表名
+func (TokenTransaction) TableName() string {
+	return "token_transactions"
+}
