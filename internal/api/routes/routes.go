@@ -59,6 +59,11 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		api.GET("/tokens/getTokenByUserId", middleware.Auth(rdb), tokenHandler.GetTokenByUserID)
 		api.GET("/tokens/:tokenAddress", tokenHandler.GetToken)
 		api.POST("/tokens/upload-icon", middleware.Auth(rdb), tokenHandler.UploadTokenIcon)
+
+		// Token交易相关接口
+		api.POST("/tokens/buy", middleware.Auth(rdb), tokenHandler.BuyToken)
+		api.POST("/tokens/sell", middleware.Auth(rdb), tokenHandler.SellToken)
+		api.GET("/tokens/holdings", middleware.Auth(rdb), tokenHandler.GetUserTokenHoldings)
 	}
 
 	// 处理Twitter回调
