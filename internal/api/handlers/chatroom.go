@@ -56,21 +56,22 @@ func (h *ChatRoomHandler) CreateChatRoom(c *gin.Context) {
 
 // GetChatRoomMessages 获取聊天室消息历史
 func (h *ChatRoomHandler) GetChatRoomMessages(c *gin.Context) {
-	roomID, err := strconv.ParseInt(c.Param("roomId"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的聊天室ID"})
+	var req struct {
+		RoomID   int64 `json:"roomId" binding:"required"`
+		PageNo   int32 `json:"pageNo" binding:"required"`
+		PageSize int32 `json:"pageSize" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "参数无效"})
 		return
 	}
 
-	// 获取分页参数
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
-
 	// 调用 gRPC 服务
 	resp, err := rpc.GetLogicExtClient().GetChatRoomMessages(grpclib.NewContextFromGin(c), &pb.GetChatRoomMessagesReq{
-		RoomId:     roomID,
-		PageNumber: int32(page),
-		PageSize:   int32(pageSize),
+		RoomId:     req.RoomID,
+		PageNumber: req.PageNo,
+		PageSize:   req.PageSize,
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
@@ -96,6 +97,8 @@ func (h *ChatRoomHandler) GetChatRoomMessages(c *gin.Context) {
 		"data": gin.H{
 			"messages": messages,
 			"total":    resp.Total,
+			"page_no":  resp.PageNo,
+			"pages":    resp.Pages,
 		},
 	})
 }

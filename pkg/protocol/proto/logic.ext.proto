@@ -339,5 +339,7 @@ message GetChatRoomMessagesReq {
 
 message GetChatRoomMessagesResp {
     repeated ChatRoomMessage messages = 1; // 消息列表
-    int32 total = 2;                       // 总数
+    int32 total = 2;  // 总数
+    int32 page_no = 3;
+    int32 pages = 4;
 }

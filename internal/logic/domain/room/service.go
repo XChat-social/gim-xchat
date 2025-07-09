@@ -396,6 +396,12 @@ func (s *service) GetChatRoomMessages(ctx context.Context, req *pb.GetChatRoomMe
 	// 计算偏移量
 	offset := (req.PageNumber - 1) * req.PageSize
 
+	// 计算总页数
+	tp := total / req.PageSize
+	if total%req.PageSize > 0 {
+		tp = total/req.PageSize + 1
+	}
+
 	// 获取消息列表
 	messages, err := ChatRoomMessageRepo.List(ctx, req.RoomId, offset, req.PageSize)
 	if err != nil {
@@ -405,6 +411,8 @@ func (s *service) GetChatRoomMessages(ctx context.Context, req *pb.GetChatRoomMe
 	return &pb.GetChatRoomMessagesResp{
 		Messages: messages,
 		Total:    int32(total),
+		PageNo:   req.PageNumber,
+		Pages:    tp,
 	}, nil
 }
 

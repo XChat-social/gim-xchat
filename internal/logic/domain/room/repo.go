@@ -140,7 +140,8 @@ func (r *chatRoomMessageRepo) List(ctx context.Context, roomId int64, offset, li
 
 	// 转换为 proto 消息列表
 	messages := make([]*pb.ChatRoomMessage, 0, len(dbMessages))
-	for _, msg := range dbMessages {
+	for i := len(dbMessages) - 1; i >= 0; i-- {
+		msg := dbMessages[i]
 		messages = append(messages, &pb.ChatRoomMessage{
 			Id:        int64(msg.ID),
 			RoomId:    int64(msg.RoomID),
@@ -157,8 +158,8 @@ func (r *chatRoomMessageRepo) List(ctx context.Context, roomId int64, offset, li
 }
 
 // Count 获取聊天室消息总数
-func (r *chatRoomMessageRepo) Count(ctx context.Context, roomId int64) (int64, error) {
-	var count int64
+func (r *chatRoomMessageRepo) Count(ctx context.Context, roomId int64) (int32, error) {
+	var count int32
 	err := db.DB.Model(&models.ChatRoomMessage{}).Where("room_id = ? AND status = 0", roomId).Count(&count).Error
 	if err != nil {
 		return 0, gerrors.WrapError(err)
