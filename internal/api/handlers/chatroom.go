@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"gim/internal/api/middleware"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
@@ -329,12 +330,13 @@ func (h *ChatRoomHandler) CheckPermissionsByUserId(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("进入prc111")
 	// 调用gRPC服务发送消息
 	resp, err := rpc.GetLogicExtClient().CheckPermissionsByUserId(grpclib.NewContextFromGin(c), &pb.CheckPermissionsByUserIdReq{
 		UserId: userID,
 		RoomId: roomID,
 	})
-
+	fmt.Printf("出prc111")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
