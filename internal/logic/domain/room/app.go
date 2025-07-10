@@ -2,7 +2,6 @@ package room
 
 import (
 	"context"
-	"fmt"
 	"gim/pkg/protocol/pb"
 )
 
@@ -72,6 +71,5 @@ func (s *app) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]*pb.
 
 // CheckPermissionsByUserId 根据用户ID检查权限
 func (s *app) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
-	fmt.Printf("进入prc1")
 	return Service.CheckPermissionsByUserId(ctx, req)
 }
