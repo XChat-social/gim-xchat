@@ -68,3 +68,8 @@ func (a *app) GetChatRoomMessages(ctx context.Context, req *pb.GetChatRoomMessag
 func (s *app) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]*pb.ChatRoom, error) {
 	return Service.GetUserCreatedChatRooms(ctx, userId)
 }
+
+// CheckPermissionsByUserId 根据用户ID检查权限
+func (s *app) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
+	return Service.CheckPermissionsByUserId(ctx, req)
+}

@@ -106,8 +106,8 @@ func (h *TwitterHandler) HandleTwitterCallback(c *gin.Context) {
 	}
 
 	redirectURL := fmt.Sprintf(
-		//"https://test-xweb-benzis-projects-57c475ed.vercel.app?redirect=redirectx&temp_token=%s",
-		"http://localhost:3000?redirect=redirectx&temp_token=%s",
+		"https://test-xweb-benzis-projects-57c475ed.vercel.app?redirect=redirectx&temp_token=%s",
+		//"http://localhost:3000?redirect=redirectx&temp_token=%s",
 		url.QueryEscape(tempToken),
 	)
 

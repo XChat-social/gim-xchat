@@ -84,6 +84,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 			chatroom.GET("/:roomId/members", chatRoomHandler.GetChatRoomMembers) // 获取成员列表
 			chatroom.POST("/:roomId/message", chatRoomHandler.SendMessage)       // 发送聊天室消息
 			chatroom.POST("/history", chatRoomHandler.GetChatRoomMessages)       // 获取聊天室消息历史
+			chatroom.GET("/:roomId/checkPermissions", chatRoomHandler.CheckPermissionsByUserId)
 		}
 	}
 }

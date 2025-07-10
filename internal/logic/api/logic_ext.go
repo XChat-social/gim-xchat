@@ -239,3 +239,8 @@ func (s *LogicExtServer) GetUserCreatedChatRooms(ctx context.Context, in *pb.Get
 		ChatRooms: chatRooms,
 	}, nil
 }
+
+// CheckPermissionsByUserId 根据用户ID检查权限
+func (s *LogicExtServer) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
+	return room.App.CheckPermissionsByUserId(ctx, req)
+}

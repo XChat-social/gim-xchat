@@ -2923,6 +2923,102 @@ func (x *GetChatRoomMessagesResp) GetPages() int32 {
 	return 0
 }
 
+type CheckPermissionsByUserIdReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	RoomId        int64                  `protobuf:"varint,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckPermissionsByUserIdReq) Reset() {
+	*x = CheckPermissionsByUserIdReq{}
+	mi := &file_logic_ext_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckPermissionsByUserIdReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckPermissionsByUserIdReq) ProtoMessage() {}
+
+func (x *CheckPermissionsByUserIdReq) ProtoReflect() protoreflect.Message {
+	mi := &file_logic_ext_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckPermissionsByUserIdReq.ProtoReflect.Descriptor instead.
+func (*CheckPermissionsByUserIdReq) Descriptor() ([]byte, []int) {
+	return file_logic_ext_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *CheckPermissionsByUserIdReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *CheckPermissionsByUserIdReq) GetRoomId() int64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+type CheckPermissionsByUserIdResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HasPermission bool                   `protobuf:"varint,1,opt,name=has_permission,json=hasPermission,proto3" json:"has_permission,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckPermissionsByUserIdResp) Reset() {
+	*x = CheckPermissionsByUserIdResp{}
+	mi := &file_logic_ext_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckPermissionsByUserIdResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckPermissionsByUserIdResp) ProtoMessage() {}
+
+func (x *CheckPermissionsByUserIdResp) ProtoReflect() protoreflect.Message {
+	mi := &file_logic_ext_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckPermissionsByUserIdResp.ProtoReflect.Descriptor instead.
+func (*CheckPermissionsByUserIdResp) Descriptor() ([]byte, []int) {
+	return file_logic_ext_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *CheckPermissionsByUserIdResp) GetHasPermission() bool {
+	if x != nil {
+		return x.HasPermission
+	}
+	return false
+}
+
 var File_logic_ext_proto protoreflect.FileDescriptor
 
 const file_logic_ext_proto_rawDesc = "" +
@@ -3151,13 +3247,18 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\bmessages\x18\x01 \x03(\v2\x13.pb.ChatRoomMessageR\bmessages\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\x12\x17\n" +
 	"\apage_no\x18\x03 \x01(\x05R\x06pageNo\x12\x14\n" +
-	"\x05pages\x18\x04 \x01(\x05R\x05pages*<\n" +
+	"\x05pages\x18\x04 \x01(\x05R\x05pages\"O\n" +
+	"\x1bCheckPermissionsByUserIdReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x17\n" +
+	"\aroom_id\x18\x02 \x01(\x03R\x06roomId\"E\n" +
+	"\x1cCheckPermissionsByUserIdResp\x12%\n" +
+	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermission*<\n" +
 	"\n" +
 	"MemberType\x12\x0f\n" +
 	"\vGMT_UNKNOWN\x10\x00\x12\r\n" +
 	"\tGMT_ADMIN\x10\x01\x12\x0e\n" +
 	"\n" +
-	"GMT_MEMBER\x10\x022\x93\r\n" +
+	"GMT_MEMBER\x10\x022\xf2\r\n" +
 	"\bLogicExt\x12?\n" +
 	"\x0eRegisterDevice\x12\x15.pb.RegisterDeviceReq\x1a\x16.pb.RegisterDeviceResp\x123\n" +
 	"\bPushRoom\x12\x0f.pb.PushRoomReq\x1a\x16.google.protobuf.Empty\x12>\n" +
@@ -3185,7 +3286,8 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\x13SendChatRoomMessage\x12\x1a.pb.SendChatRoomMessageReq\x1a\x1b.pb.SendChatRoomMessageResp\x12N\n" +
 	"\x13GetChatRoomMessages\x12\x1a.pb.GetChatRoomMessagesReq\x1a\x1b.pb.GetChatRoomMessagesResp\x12E\n" +
 	"\x10GetUserChatRooms\x12\x17.pb.GetUserChatRoomsReq\x1a\x18.pb.GetUserChatRoomsResp\x12Z\n" +
-	"\x17GetUserCreatedChatRooms\x12\x1e.pb.GetUserCreatedChatRoomsReq\x1a\x1f.pb.GetUserCreatedChatRoomsRespB\x1bZ\x19gim-xchat/pkg/protocol/pbb\x06proto3"
+	"\x17GetUserCreatedChatRooms\x12\x1e.pb.GetUserCreatedChatRoomsReq\x1a\x1f.pb.GetUserCreatedChatRoomsResp\x12]\n" +
+	"\x18CheckPermissionsByUserId\x12\x1f.pb.CheckPermissionsByUserIdReq\x1a .pb.CheckPermissionsByUserIdRespB\x1bZ\x19gim-xchat/pkg/protocol/pbb\x06proto3"
 
 var (
 	file_logic_ext_proto_rawDescOnce sync.Once
@@ -3200,57 +3302,59 @@ func file_logic_ext_proto_rawDescGZIP() []byte {
 }
 
 var file_logic_ext_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
+var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
 var file_logic_ext_proto_goTypes = []any{
-	(MemberType)(0),                     // 0: pb.MemberType
-	(*GetUserChatRoomsReq)(nil),         // 1: pb.GetUserChatRoomsReq
-	(*GetUserChatRoomsResp)(nil),        // 2: pb.GetUserChatRoomsResp
-	(*GetUserCreatedChatRoomsReq)(nil),  // 3: pb.GetUserCreatedChatRoomsReq
-	(*GetUserCreatedChatRoomsResp)(nil), // 4: pb.GetUserCreatedChatRoomsResp
-	(*RegisterDeviceReq)(nil),           // 5: pb.RegisterDeviceReq
-	(*RegisterDeviceResp)(nil),          // 6: pb.RegisterDeviceResp
-	(*SendMessageReq)(nil),              // 7: pb.SendMessageReq
-	(*SendMessageResp)(nil),             // 8: pb.SendMessageResp
-	(*PushRoomReq)(nil),                 // 9: pb.PushRoomReq
-	(*AddFriendReq)(nil),                // 10: pb.AddFriendReq
-	(*AgreeAddFriendReq)(nil),           // 11: pb.AgreeAddFriendReq
-	(*SetFriendReq)(nil),                // 12: pb.SetFriendReq
-	(*SetFriendResp)(nil),               // 13: pb.SetFriendResp
-	(*Friend)(nil),                      // 14: pb.Friend
-	(*GetFriendsResp)(nil),              // 15: pb.GetFriendsResp
-	(*CreateGroupReq)(nil),              // 16: pb.CreateGroupReq
-	(*CreateGroupResp)(nil),             // 17: pb.CreateGroupResp
-	(*UpdateGroupReq)(nil),              // 18: pb.UpdateGroupReq
-	(*GetGroupReq)(nil),                 // 19: pb.GetGroupReq
-	(*GetGroupResp)(nil),                // 20: pb.GetGroupResp
-	(*Group)(nil),                       // 21: pb.Group
-	(*GetGroupsResp)(nil),               // 22: pb.GetGroupsResp
-	(*AddGroupMembersReq)(nil),          // 23: pb.AddGroupMembersReq
-	(*AddGroupMembersResp)(nil),         // 24: pb.AddGroupMembersResp
-	(*UpdateGroupMemberReq)(nil),        // 25: pb.UpdateGroupMemberReq
-	(*DeleteGroupMemberReq)(nil),        // 26: pb.DeleteGroupMemberReq
-	(*GetGroupMembersReq)(nil),          // 27: pb.GetGroupMembersReq
-	(*GetGroupMembersResp)(nil),         // 28: pb.GetGroupMembersResp
-	(*GroupMember)(nil),                 // 29: pb.GroupMember
-	(*CreateChatRoomReq)(nil),           // 30: pb.CreateChatRoomReq
-	(*CreateChatRoomResp)(nil),          // 31: pb.CreateChatRoomResp
-	(*GetChatRoomReq)(nil),              // 32: pb.GetChatRoomReq
-	(*GetChatRoomResp)(nil),             // 33: pb.GetChatRoomResp
-	(*GetChatRoomsReq)(nil),             // 34: pb.GetChatRoomsReq
-	(*GetChatRoomsResp)(nil),            // 35: pb.GetChatRoomsResp
-	(*ChatRoom)(nil),                    // 36: pb.ChatRoom
-	(*JoinChatRoomReq)(nil),             // 37: pb.JoinChatRoomReq
-	(*LeaveChatRoomReq)(nil),            // 38: pb.LeaveChatRoomReq
-	(*GetChatRoomMembersReq)(nil),       // 39: pb.GetChatRoomMembersReq
-	(*GetChatRoomMembersResp)(nil),      // 40: pb.GetChatRoomMembersResp
-	(*ChatRoomMember)(nil),              // 41: pb.ChatRoomMember
-	(*SendChatRoomMessageReq)(nil),      // 42: pb.SendChatRoomMessageReq
-	(*SendChatRoomMessageResp)(nil),     // 43: pb.SendChatRoomMessageResp
-	(*ChatRoomMessageData)(nil),         // 44: pb.ChatRoomMessageData
-	(*ChatRoomMessage)(nil),             // 45: pb.ChatRoomMessage
-	(*GetChatRoomMessagesReq)(nil),      // 46: pb.GetChatRoomMessagesReq
-	(*GetChatRoomMessagesResp)(nil),     // 47: pb.GetChatRoomMessagesResp
-	(*emptypb.Empty)(nil),               // 48: google.protobuf.Empty
+	(MemberType)(0),                      // 0: pb.MemberType
+	(*GetUserChatRoomsReq)(nil),          // 1: pb.GetUserChatRoomsReq
+	(*GetUserChatRoomsResp)(nil),         // 2: pb.GetUserChatRoomsResp
+	(*GetUserCreatedChatRoomsReq)(nil),   // 3: pb.GetUserCreatedChatRoomsReq
+	(*GetUserCreatedChatRoomsResp)(nil),  // 4: pb.GetUserCreatedChatRoomsResp
+	(*RegisterDeviceReq)(nil),            // 5: pb.RegisterDeviceReq
+	(*RegisterDeviceResp)(nil),           // 6: pb.RegisterDeviceResp
+	(*SendMessageReq)(nil),               // 7: pb.SendMessageReq
+	(*SendMessageResp)(nil),              // 8: pb.SendMessageResp
+	(*PushRoomReq)(nil),                  // 9: pb.PushRoomReq
+	(*AddFriendReq)(nil),                 // 10: pb.AddFriendReq
+	(*AgreeAddFriendReq)(nil),            // 11: pb.AgreeAddFriendReq
+	(*SetFriendReq)(nil),                 // 12: pb.SetFriendReq
+	(*SetFriendResp)(nil),                // 13: pb.SetFriendResp
+	(*Friend)(nil),                       // 14: pb.Friend
+	(*GetFriendsResp)(nil),               // 15: pb.GetFriendsResp
+	(*CreateGroupReq)(nil),               // 16: pb.CreateGroupReq
+	(*CreateGroupResp)(nil),              // 17: pb.CreateGroupResp
+	(*UpdateGroupReq)(nil),               // 18: pb.UpdateGroupReq
+	(*GetGroupReq)(nil),                  // 19: pb.GetGroupReq
+	(*GetGroupResp)(nil),                 // 20: pb.GetGroupResp
+	(*Group)(nil),                        // 21: pb.Group
+	(*GetGroupsResp)(nil),                // 22: pb.GetGroupsResp
+	(*AddGroupMembersReq)(nil),           // 23: pb.AddGroupMembersReq
+	(*AddGroupMembersResp)(nil),          // 24: pb.AddGroupMembersResp
+	(*UpdateGroupMemberReq)(nil),         // 25: pb.UpdateGroupMemberReq
+	(*DeleteGroupMemberReq)(nil),         // 26: pb.DeleteGroupMemberReq
+	(*GetGroupMembersReq)(nil),           // 27: pb.GetGroupMembersReq
+	(*GetGroupMembersResp)(nil),          // 28: pb.GetGroupMembersResp
+	(*GroupMember)(nil),                  // 29: pb.GroupMember
+	(*CreateChatRoomReq)(nil),            // 30: pb.CreateChatRoomReq
+	(*CreateChatRoomResp)(nil),           // 31: pb.CreateChatRoomResp
+	(*GetChatRoomReq)(nil),               // 32: pb.GetChatRoomReq
+	(*GetChatRoomResp)(nil),              // 33: pb.GetChatRoomResp
+	(*GetChatRoomsReq)(nil),              // 34: pb.GetChatRoomsReq
+	(*GetChatRoomsResp)(nil),             // 35: pb.GetChatRoomsResp
+	(*ChatRoom)(nil),                     // 36: pb.ChatRoom
+	(*JoinChatRoomReq)(nil),              // 37: pb.JoinChatRoomReq
+	(*LeaveChatRoomReq)(nil),             // 38: pb.LeaveChatRoomReq
+	(*GetChatRoomMembersReq)(nil),        // 39: pb.GetChatRoomMembersReq
+	(*GetChatRoomMembersResp)(nil),       // 40: pb.GetChatRoomMembersResp
+	(*ChatRoomMember)(nil),               // 41: pb.ChatRoomMember
+	(*SendChatRoomMessageReq)(nil),       // 42: pb.SendChatRoomMessageReq
+	(*SendChatRoomMessageResp)(nil),      // 43: pb.SendChatRoomMessageResp
+	(*ChatRoomMessageData)(nil),          // 44: pb.ChatRoomMessageData
+	(*ChatRoomMessage)(nil),              // 45: pb.ChatRoomMessage
+	(*GetChatRoomMessagesReq)(nil),       // 46: pb.GetChatRoomMessagesReq
+	(*GetChatRoomMessagesResp)(nil),      // 47: pb.GetChatRoomMessagesResp
+	(*CheckPermissionsByUserIdReq)(nil),  // 48: pb.CheckPermissionsByUserIdReq
+	(*CheckPermissionsByUserIdResp)(nil), // 49: pb.CheckPermissionsByUserIdResp
+	(*emptypb.Empty)(nil),                // 50: google.protobuf.Empty
 }
 var file_logic_ext_proto_depIdxs = []int32{
 	36, // 0: pb.GetUserChatRoomsResp.chat_rooms:type_name -> pb.ChatRoom
@@ -3271,12 +3375,12 @@ var file_logic_ext_proto_depIdxs = []int32{
 	10, // 15: pb.LogicExt.AddFriend:input_type -> pb.AddFriendReq
 	11, // 16: pb.LogicExt.AgreeAddFriend:input_type -> pb.AgreeAddFriendReq
 	12, // 17: pb.LogicExt.SetFriend:input_type -> pb.SetFriendReq
-	48, // 18: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
+	50, // 18: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
 	7,  // 19: pb.LogicExt.SendMessageToGroup:input_type -> pb.SendMessageReq
 	16, // 20: pb.LogicExt.CreateGroup:input_type -> pb.CreateGroupReq
 	18, // 21: pb.LogicExt.UpdateGroup:input_type -> pb.UpdateGroupReq
 	19, // 22: pb.LogicExt.GetGroup:input_type -> pb.GetGroupReq
-	48, // 23: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
+	50, // 23: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
 	23, // 24: pb.LogicExt.AddGroupMembers:input_type -> pb.AddGroupMembersReq
 	25, // 25: pb.LogicExt.UpdateGroupMember:input_type -> pb.UpdateGroupMemberReq
 	26, // 26: pb.LogicExt.DeleteGroupMember:input_type -> pb.DeleteGroupMemberReq
@@ -3291,34 +3395,36 @@ var file_logic_ext_proto_depIdxs = []int32{
 	46, // 35: pb.LogicExt.GetChatRoomMessages:input_type -> pb.GetChatRoomMessagesReq
 	1,  // 36: pb.LogicExt.GetUserChatRooms:input_type -> pb.GetUserChatRoomsReq
 	3,  // 37: pb.LogicExt.GetUserCreatedChatRooms:input_type -> pb.GetUserCreatedChatRoomsReq
-	6,  // 38: pb.LogicExt.RegisterDevice:output_type -> pb.RegisterDeviceResp
-	48, // 39: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
-	8,  // 40: pb.LogicExt.SendMessageToFriend:output_type -> pb.SendMessageResp
-	48, // 41: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
-	48, // 42: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
-	13, // 43: pb.LogicExt.SetFriend:output_type -> pb.SetFriendResp
-	15, // 44: pb.LogicExt.GetFriends:output_type -> pb.GetFriendsResp
-	8,  // 45: pb.LogicExt.SendMessageToGroup:output_type -> pb.SendMessageResp
-	17, // 46: pb.LogicExt.CreateGroup:output_type -> pb.CreateGroupResp
-	48, // 47: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
-	20, // 48: pb.LogicExt.GetGroup:output_type -> pb.GetGroupResp
-	22, // 49: pb.LogicExt.GetGroups:output_type -> pb.GetGroupsResp
-	24, // 50: pb.LogicExt.AddGroupMembers:output_type -> pb.AddGroupMembersResp
-	48, // 51: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
-	48, // 52: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
-	28, // 53: pb.LogicExt.GetGroupMembers:output_type -> pb.GetGroupMembersResp
-	31, // 54: pb.LogicExt.CreateChatRoom:output_type -> pb.CreateChatRoomResp
-	33, // 55: pb.LogicExt.GetChatRoom:output_type -> pb.GetChatRoomResp
-	35, // 56: pb.LogicExt.GetChatRooms:output_type -> pb.GetChatRoomsResp
-	48, // 57: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
-	48, // 58: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
-	40, // 59: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
-	43, // 60: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
-	47, // 61: pb.LogicExt.GetChatRoomMessages:output_type -> pb.GetChatRoomMessagesResp
-	2,  // 62: pb.LogicExt.GetUserChatRooms:output_type -> pb.GetUserChatRoomsResp
-	4,  // 63: pb.LogicExt.GetUserCreatedChatRooms:output_type -> pb.GetUserCreatedChatRoomsResp
-	38, // [38:64] is the sub-list for method output_type
-	12, // [12:38] is the sub-list for method input_type
+	48, // 38: pb.LogicExt.CheckPermissionsByUserId:input_type -> pb.CheckPermissionsByUserIdReq
+	6,  // 39: pb.LogicExt.RegisterDevice:output_type -> pb.RegisterDeviceResp
+	50, // 40: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
+	8,  // 41: pb.LogicExt.SendMessageToFriend:output_type -> pb.SendMessageResp
+	50, // 42: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
+	50, // 43: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
+	13, // 44: pb.LogicExt.SetFriend:output_type -> pb.SetFriendResp
+	15, // 45: pb.LogicExt.GetFriends:output_type -> pb.GetFriendsResp
+	8,  // 46: pb.LogicExt.SendMessageToGroup:output_type -> pb.SendMessageResp
+	17, // 47: pb.LogicExt.CreateGroup:output_type -> pb.CreateGroupResp
+	50, // 48: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
+	20, // 49: pb.LogicExt.GetGroup:output_type -> pb.GetGroupResp
+	22, // 50: pb.LogicExt.GetGroups:output_type -> pb.GetGroupsResp
+	24, // 51: pb.LogicExt.AddGroupMembers:output_type -> pb.AddGroupMembersResp
+	50, // 52: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
+	50, // 53: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
+	28, // 54: pb.LogicExt.GetGroupMembers:output_type -> pb.GetGroupMembersResp
+	31, // 55: pb.LogicExt.CreateChatRoom:output_type -> pb.CreateChatRoomResp
+	33, // 56: pb.LogicExt.GetChatRoom:output_type -> pb.GetChatRoomResp
+	35, // 57: pb.LogicExt.GetChatRooms:output_type -> pb.GetChatRoomsResp
+	50, // 58: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
+	50, // 59: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
+	40, // 60: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
+	43, // 61: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
+	47, // 62: pb.LogicExt.GetChatRoomMessages:output_type -> pb.GetChatRoomMessagesResp
+	2,  // 63: pb.LogicExt.GetUserChatRooms:output_type -> pb.GetUserChatRoomsResp
+	4,  // 64: pb.LogicExt.GetUserCreatedChatRooms:output_type -> pb.GetUserCreatedChatRoomsResp
+	49, // 65: pb.LogicExt.CheckPermissionsByUserId:output_type -> pb.CheckPermissionsByUserIdResp
+	39, // [39:66] is the sub-list for method output_type
+	12, // [12:39] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
 	12, // [12:12] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
@@ -3335,7 +3441,7 @@ func file_logic_ext_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_logic_ext_proto_rawDesc), len(file_logic_ext_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   47,
+			NumMessages:   49,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

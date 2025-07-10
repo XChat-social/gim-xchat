@@ -448,6 +448,11 @@ func (s *service) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]
 	return ChatRoomRepo.ListByCreatorId(ctx, userId)
 }
 
+// CheckPermissionsByUserId 根据用户ID检查权限
+func (s *service) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
+	return ChatRoomRepo.CheckPermissionsByUserId(ctx, req)
+}
+
 //const (
 //	// Redis key格式
 //	ChatRoomOnlineMembersKey = "chat_room:%d:online_members" // chat_room:1:online_members
