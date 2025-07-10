@@ -12,15 +12,16 @@ var Business = map[string]int{
 }
 
 var Logic = map[string]int{
-	"/pb.LogicExt/RegisterDevice":          0,
-	"/pb.LogicExt/CreateChatRoom":          1,
-	"/pb.LogicExt/GetChatRoom":             2,
-	"/pb.LogicExt/GetChatRooms":            3,
-	"/pb.LogicExt/JoinChatRoom":            4,
-	"/pb.LogicExt/LeaveChatRoom":           5,
-	"/pb.LogicExt/GetChatRoomMembers":      6,
-	"/pb.LogicExt/SendChatRoomMessage":     7,
-	"/pb.LogicExt/GetUserChatRooms":        8,
-	"/pb.LogicExt/GetUserCreatedChatRooms": 9,
-	"/pb.LogicExt/GetChatRoomMessages":     10,
+	"/pb.LogicExt/RegisterDevice":           0,
+	"/pb.LogicExt/CreateChatRoom":           1,
+	"/pb.LogicExt/GetChatRoom":              2,
+	"/pb.LogicExt/GetChatRooms":             3,
+	"/pb.LogicExt/JoinChatRoom":             4,
+	"/pb.LogicExt/LeaveChatRoom":            5,
+	"/pb.LogicExt/GetChatRoomMembers":       6,
+	"/pb.LogicExt/SendChatRoomMessage":      7,
+	"/pb.LogicExt/GetUserChatRooms":         8,
+	"/pb.LogicExt/GetUserCreatedChatRooms":  9,
+	"/pb.LogicExt/GetChatRoomMessages":      10,
+	"/pb.LogicExt/CheckPermissionsByUserId": 11,
 }
