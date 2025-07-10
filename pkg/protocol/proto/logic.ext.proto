@@ -62,7 +62,7 @@ service LogicExt {
   // 获取用户创建的聊天室列表
   rpc GetUserCreatedChatRooms (GetUserCreatedChatRoomsReq) returns (GetUserCreatedChatRoomsResp);
   // CheckPermissionsByUserId 根据用户ID检查权限
-  rpc CheckPermissionsByUserId(CheckPermissionsByUserIdReq) returns (CheckPermissionsByUserIdResp);
+  rpc CheckPermissionsByUserId (CheckPermissionsByUserIdReq) returns (CheckPermissionsByUserIdResp);
 }
 message GetUserChatRoomsReq {
   int32 page_size = 1;  // 每页数量

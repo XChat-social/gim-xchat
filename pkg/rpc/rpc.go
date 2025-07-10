@@ -2,7 +2,6 @@ package rpc
 
 import (
 	"context"
-	"fmt"
 	"gim/config"
 	"gim/pkg/protocol/pb"
 	"google.golang.org/grpc"
@@ -58,7 +57,6 @@ func GetLogicExtClient() pb.LogicExtClient {
 		}
 		logicExtClient = pb.NewLogicExtClient(conn)
 	}
-	fmt.Printf("获取client")
 	return logicExtClient
 }
 

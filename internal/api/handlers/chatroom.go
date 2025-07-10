@@ -324,18 +324,21 @@ func (h *ChatRoomHandler) CheckPermissionsByUserId(c *gin.Context) {
 	}
 
 	// 获取当前用户ID
-	userID, exists := middleware.GetUserID(c)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Unauthorized"})
-		return
-	}
+	//userID, exists := middleware.GetUserID(c)
+	//if !exists {
+	//	c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Unauthorized"})
+	//	return
+	//}
 
 	fmt.Printf("进入prc111")
 	// 调用gRPC服务发送消息
-	resp, err := rpc.GetLogicExtClient().CheckPermissionsByUserId(grpclib.NewContextFromGin(c), &pb.CheckPermissionsByUserIdReq{
-		UserId: userID,
+	resp, err := rpc.GetLogicExtClient().GetChatRoom(grpclib.NewContextFromGin(c), &pb.GetChatRoomReq{
 		RoomId: roomID,
 	})
+	//resp, err := rpc.GetLogicExtClient().CheckPermissionsByUserId(grpclib.NewContextFromGin(c), &pb.CheckPermissionsByUserIdReq{
+	//	UserId: userID,
+	//	RoomId: roomID,
+	//})
 	fmt.Printf("出prc111")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
@@ -344,6 +347,6 @@ func (h *ChatRoomHandler) CheckPermissionsByUserId(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
-		"data": gin.H{"permissions": resp.HasPermission},
+		"data": gin.H{"permissions": resp.Room.Level},
 	})
 }
