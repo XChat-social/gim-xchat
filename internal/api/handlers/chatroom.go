@@ -331,8 +331,8 @@ func (h *ChatRoomHandler) CheckPermissionsByUserId(c *gin.Context) {
 
 	// 调用gRPC服务发送消息
 	resp, err := rpc.GetLogicExtClient().CheckPermissionsByUserId(grpclib.NewContextFromGin(c), &pb.CheckPermissionsByUserIdReq{
-		RoomId: roomID,
 		UserId: userID,
+		RoomId: roomID,
 	})
 
 	if err != nil {
