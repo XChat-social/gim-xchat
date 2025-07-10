@@ -83,6 +83,7 @@ func (r *chatRoomRepo) List(ctx context.Context, offset, limit int32) ([]*pb.Cha
 			Extra:          room.Extra,
 			CreateTime:     room.CreateTime.Unix(),
 			UpdateTime:     room.UpdateTime.Unix(),
+			Level:          calculateRoomLevel(room.MemberCount),
 		})
 	}
 	return chatRooms, nil
