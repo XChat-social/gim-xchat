@@ -272,6 +272,7 @@ message ChatRoom {
    int64 create_time = 9; // 创建时间 
    int64 update_time = 10; // 更新时间 
    int64 creator_id = 11; // 创建者ID
+   int32 level = 12;  // 等级
  } 
 
 message JoinChatRoomReq {

@@ -279,6 +279,33 @@ func (s *service) JoinChatRoom(ctx context.Context, req *pb.JoinChatRoomReq) err
 	return nil
 }
 
+func calculateRoomLevel(memberCount int32) int32 {
+	switch {
+	case memberCount == 0:
+		return 0 // 空房间
+	case memberCount <= 50:
+		return 1 // 1-50人
+	case memberCount <= 100:
+		return 2 // 51-100人
+	case memberCount <= 200:
+		return 3 // 101-200人
+	case memberCount <= 400:
+		return 4 // 51-400人
+	case memberCount <= 800:
+		return 5 // 101-800人
+	case memberCount <= 1600:
+		return 6 // 201-1600人
+	case memberCount <= 3200:
+		return 7 // 501-3200人
+	case memberCount <= 6400:
+		return 8 // 1001-6400人
+	case memberCount <= 12800:
+		return 9 // 2001-12800人
+	default:
+		return 10 // 12800+人
+	}
+}
+
 // LeaveChatRoom 离开聊天室
 func (s *service) LeaveChatRoom(ctx context.Context, req *pb.LeaveChatRoomReq) error {
 	// 获取用户信息

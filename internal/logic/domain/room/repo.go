@@ -348,6 +348,7 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 			Extra:          room.Extra,
 			CreateTime:     room.CreateTime.Unix(),
 			UpdateTime:     room.UpdateTime.Unix(),
+			Level:          calculateRoomLevel(room.MemberCount),
 		})
 	}
 	return chatRooms, nil
