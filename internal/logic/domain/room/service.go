@@ -2,6 +2,7 @@ package room
 
 import (
 	"context"
+	"fmt"
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
 	"gim/pkg/grpclib/picker"
@@ -450,6 +451,7 @@ func (s *service) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]
 
 // CheckPermissionsByUserId 根据用户ID检查权限
 func (s *service) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
+	fmt.Printf("进入prc2")
 	return ChatRoomRepo.CheckPermissionsByUserId(ctx, req)
 }
 
