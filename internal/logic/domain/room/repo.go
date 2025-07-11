@@ -382,9 +382,9 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 
 	if exists {
 		// 校验当前用户是否在聊天室
-		isMember := checkMember(req.RoomId, req.UserId)
+		chatMember, _ := checkMember(req.RoomId, req.UserId)
 
-		if !isMember {
+		if chatMember == (models.ChatRoomMember{}) {
 			// 获取用户信息
 			user, _ := getUser(req.UserId)
 			if user != (models.User{}) {
@@ -404,6 +404,12 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 				if err != nil {
 					return nil, err
 				}
+			}
+		} else {
+			logger.Sugar.Info("更新用户状态：%v", chatMember)
+			err := updateChatMemberStatus(chatMember.ID)
+			if err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -429,10 +435,24 @@ func getUser(userId int64) (models.User, error) {
 	return user, nil
 }
 
-func checkMember(roomId int64, userId int64) bool {
-	var count int64
-	db.DB.Table("chat_room_member").
-		Where("room_id = ? AND user_id = ? AND status = 1", roomId, userId).
-		Count(&count)
-	return count > 0
+func checkMember(roomId int64, userId int64) (models.ChatRoomMember, error) {
+	var chatRoomMember models.ChatRoomMember
+	result := db.DB.Table("chat_room_member").
+		Where("room_id = ? AND user_id = ?", roomId, userId).
+		First(&chatRoomMember)
+	if result.Error != nil {
+		// 处理记录不存在的情况
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			// 返回空用户结构体和自定义错误
+			return models.ChatRoomMember{}, nil
+		}
+		// 其他数据库错误
+		return models.ChatRoomMember{}, gerrors.WrapError(result.Error)
+	}
+	return chatRoomMember, nil
+}
+
+// 更新聊天室状态
+func updateChatMemberStatus(memberId uint) error {
+	return db.DB.Model(&models.ChatRoomMember{}).Where("id = ?", memberId).UpdateColumn("status", 1).Error
 }
