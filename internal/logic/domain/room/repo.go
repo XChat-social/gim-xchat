@@ -365,15 +365,14 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 		First(&tokenHoldings) // 只查询常量值1
 
 	exists := result.RowsAffected > 0
-	log.Printf("----------- %t", exists)
+	permission := &pb.CheckPermissionsByUserIdResp{
+		HasPermission: exists,
+	}
+	log.Printf("----------- %v", permission)
 	if result.Error != nil {
 		// 处理数据库错误
-		return &pb.CheckPermissionsByUserIdResp{
-			HasPermission: exists,
-		}, gerrors.WrapError(result.Error)
+		return permission, gerrors.WrapError(result.Error)
 	}
-
-	return &pb.CheckPermissionsByUserIdResp{
-		HasPermission: exists,
-	}, nil
+	log.Printf("----------- %v", permission)
+	return permission, nil
 }
