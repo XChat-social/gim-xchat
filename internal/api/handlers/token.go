@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -49,6 +50,13 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
 		return
 	}
+	// 开始数据库事务
+	tx := h.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
 	// 创建Token
 	token := models.Token{
@@ -69,6 +77,20 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 	result := h.DB.Create(&token)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to create token: " + result.Error.Error()})
+		return
+	}
+	var holding models.TokenHolding
+	parseFloat, _ := strconv.ParseFloat(req.TotalSupply, 64)
+	holding = models.TokenHolding{
+		UserID:       userID,
+		TokenAddress: req.TokenAddress,
+		Amount:       parseFloat,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+	if err := tx.Create(&holding).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to create holding record"})
 		return
 	}
 

@@ -6,8 +6,9 @@ import (
 	"gim/internal/api/models"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
+	"gim/pkg/logger"
 	"gim/pkg/protocol/pb"
-	"log"
+	"gim/pkg/util"
 	"time"
 
 	"gorm.io/gorm"
@@ -362,7 +363,7 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 	query := db.DB.Table("chat_room").
 		Joins("INNER JOIN token ON chat_room.creator_id = token.user_id").
 		Joins("INNER JOIN token_holdings ON token.token_address = token_holdings.token_address").
-		Where("token_holdings.user_id = ? AND chat_room.room_id = ?", req.UserId, req.RoomId)
+		Where("token_holdings.user_id = ? AND chat_room.room_id = ? AND amount > 0", req.UserId, req.RoomId)
 
 	result := query.Count(&count)
 
@@ -372,14 +373,66 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 			return &pb.CheckPermissionsByUserIdResp{HasPermission: false}, nil
 		}
 		// 其他数据库错误
-		log.Printf("数据库查询错误: %v", result.Error)
+		logger.Sugar.Info("数据库查询错误: %v", result.Error)
 		return nil, gerrors.WrapError(result.Error)
 	}
 
 	exists := count > 0
-	log.Printf("权限检查结果 - 用户ID: %d, 房间ID: %d, 权限: %v", req.UserId, req.RoomId, exists)
+	logger.Sugar.Info("权限检查结果 - 用户ID: %d, 房间ID: %d, 权限: %v", req.UserId, req.RoomId, exists)
+
+	if exists {
+		// 校验当前用户是否在聊天室
+		isMember := checkMember(req.RoomId, req.UserId)
+
+		if !isMember {
+			// 获取用户信息
+			user, _ := getUser(req.UserId)
+			if user != (models.User{}) {
+				logger.Sugar.Info("用户加入聊天室 - 用户ID: %d, 昵称: %s, 头像: %s, 房间ID: %d", user.ID, user.Nickname, user.AvatarURL, req.RoomId)
+				// 创建成员信息
+				member := &pb.ChatRoomMember{
+					UserId:    int64(user.ID),
+					Nickname:  user.Nickname,
+					AvatarUrl: user.AvatarURL,
+					RoomId:    req.RoomId,
+					Status:    1,
+					JoinTime:  util.UnixMilliTime(time.Now()),
+				}
+
+				// 添加成员
+				err := ChatRoomMemberRepo.Add(ctx, member)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
 
 	return &pb.CheckPermissionsByUserIdResp{
 		HasPermission: exists,
 	}, nil
+}
+
+func getUser(userId int64) (models.User, error) {
+	var user models.User
+	result := db.DB.First(&user, userId)
+
+	if result.Error != nil {
+		// 处理记录不存在的情况
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			// 返回空用户结构体和自定义错误
+			return models.User{}, nil
+		}
+		// 其他数据库错误
+		return models.User{}, gerrors.WrapError(result.Error)
+	}
+	return user, nil
+}
+
+func checkMember(roomId int64, userId int64) bool {
+	var count int64
+	db.DB.Table("chat_room_member").
+		Where("room_id = ? AND user_id = ? AND status = 1", roomId, userId).
+		Count(&count)
+	return count > 0
 }
