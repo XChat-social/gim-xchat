@@ -6,6 +6,7 @@ import (
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
 	"gim/pkg/protocol/pb"
+	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -356,16 +357,15 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 }
 
 func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
-	var dummy int
+	var tokenHoldings models.TokenHolding
 	result := db.DB.Table("chat_room").
 		Joins("INNER JOIN token ON chat_room.creator_id = token.user_id").
 		Joins("INNER JOIN token_holdings ON token.token_address = token_holdings.token_address").
 		Where("token_holdings.user_id = ? AND chat_room.room_id = ?", req.UserId, req.RoomId).
-		Select("1"). // 只查询常量值1
-		Limit(1).    // 只查一条记录
-		Find(&dummy) // 存储到dummy（实际值不重要）
+		First(&tokenHoldings) // 只查询常量值1
 
 	exists := result.RowsAffected > 0
+	log.Printf("----------- %t", exists)
 	if result.Error != nil {
 		// 处理数据库错误
 		return &pb.CheckPermissionsByUserIdResp{
