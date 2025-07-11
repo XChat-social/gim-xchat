@@ -2,6 +2,7 @@ package room
 
 import (
 	"context"
+	"errors"
 	"gim/internal/api/models"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -357,23 +358,28 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 }
 
 func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
-	var tokenHoldings models.TokenHolding
-	result := db.DB.Table("chat_room").
+	var count int64
+	query := db.DB.Table("chat_room").
 		Joins("INNER JOIN token ON chat_room.creator_id = token.user_id").
 		Joins("INNER JOIN token_holdings ON token.token_address = token_holdings.token_address").
-		Where("token_holdings.user_id = ? AND chat_room.room_id = ?", req.UserId, req.RoomId).
-		Limit(1).
-		Find(&tokenHoldings) // 只查询常量值1
+		Where("token_holdings.user_id = ? AND chat_room.room_id = ?", req.UserId, req.RoomId)
 
-	exists := result.RowsAffected > 0
-	permission := &pb.CheckPermissionsByUserIdResp{
-		HasPermission: exists,
-	}
-	log.Printf("----------- %v", permission)
+	result := query.Count(&count)
+
 	if result.Error != nil {
-		// 处理数据库错误
-		return permission, gerrors.WrapError(result.Error)
+		// 明确处理记录不存在的情况
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return &pb.CheckPermissionsByUserIdResp{HasPermission: false}, nil
+		}
+		// 其他数据库错误
+		log.Printf("数据库查询错误: %v", result.Error)
+		return nil, gerrors.WrapError(result.Error)
 	}
-	log.Printf("----------- %v", permission)
-	return permission, nil
+
+	exists := count > 0
+	log.Printf("权限检查结果 - 用户ID: %d, 房间ID: %d, 权限: %v", req.UserId, req.RoomId, exists)
+
+	return &pb.CheckPermissionsByUserIdResp{
+		HasPermission: exists,
+	}, nil
 }
