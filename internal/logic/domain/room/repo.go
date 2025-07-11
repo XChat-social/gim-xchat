@@ -368,7 +368,9 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 	exists := result.RowsAffected > 0
 	if result.Error != nil {
 		// 处理数据库错误
-		return nil, gerrors.WrapError(result.Error)
+		return &pb.CheckPermissionsByUserIdResp{
+			HasPermission: exists,
+		}, gerrors.WrapError(result.Error)
 	}
 
 	return &pb.CheckPermissionsByUserIdResp{
