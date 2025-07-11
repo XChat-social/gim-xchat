@@ -362,7 +362,8 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 		Joins("INNER JOIN token ON chat_room.creator_id = token.user_id").
 		Joins("INNER JOIN token_holdings ON token.token_address = token_holdings.token_address").
 		Where("token_holdings.user_id = ? AND chat_room.room_id = ?", req.UserId, req.RoomId).
-		First(&tokenHoldings) // 只查询常量值1
+		Limit(1).
+		Find(&tokenHoldings) // 只查询常量值1
 
 	exists := result.RowsAffected > 0
 	permission := &pb.CheckPermissionsByUserIdResp{
