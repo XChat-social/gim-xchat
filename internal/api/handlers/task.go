@@ -394,7 +394,11 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 	}
 
 	// 更新任务状态为已领取
-	err = db.RedisCli.Set(key, TaskStatusExpired, 0).Err()
+	if taskID == TaskDailySignIn || taskID == TaskSevenDaySignIn {
+		err = setWithMidnightExpire(key, TaskStatusExpired)
+	} else {
+		err = db.RedisCli.Set(key, TaskStatusExpired, 0).Err()
+	}
 	if err != nil {
 		// 这里不回滚事务，因为奖励已经发放，只是状态更新失败
 		c.JSON(http.StatusOK, gin.H{
