@@ -7,6 +7,7 @@ import (
 	"gim/internal/api/middleware"
 	"gim/internal/api/models"
 	"gim/pkg/db"
+	"gim/pkg/logger"
 	"log"
 	"math/rand"
 	"net/http"
@@ -91,7 +92,8 @@ func (h *TaskHandler) DailySignIn(c *gin.Context) {
 	taskKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySignIn)
 
 	// 将每日签到任务状态设置为待领取 (3)
-	err = db.RedisCli.Set(taskKey, TaskStatusClaimed, 24*time.Hour).Err() // 设置过期时间为 1 天
+	err = setWithMidnightExpire(taskKey, TaskStatusClaimed)
+	//err = db.RedisCli.Set(taskKey, TaskStatusClaimed, 24*time.Hour).Err() // 设置过期时间为 1 天
 	if err != nil {
 		// 如果任务状态更新失败，手动回滚 Redis
 		rollbackErr := db.RedisCli.SetBit(key, offset, 0).Err()
@@ -164,6 +166,7 @@ func (h *TaskHandler) FollowTwitter(c *gin.Context) {
 
 	// 保存状态到 Redis，设置为待领取状态
 	key := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskFollowTwitter)
+	//err = setWithMidnightExpire(key, TaskStatusClaimed)
 	err = db.RedisCli.Set(key, TaskStatusClaimed, 24*time.Hour).Err() // 设置过期时间为 24 小时
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to save task status to Redis"})
@@ -210,6 +213,7 @@ func (h *TaskHandler) GetTaskStatus(c *gin.Context) {
 
 	// 从 Redis 获取任务状态
 	statusStr, err := db.RedisCli.Get(key).Result()
+	logger.Sugar.Infof("Get %s status: %s", key, statusStr)
 	if err == redis.Nil {
 		// Key 不存在，返回未完成状态
 		status := TaskStatusInProgress
@@ -616,4 +620,29 @@ func (h *TaskHandler) checkSevenDaySignIn(userId int64) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+// setWithMidnightExpire 设置24点过期的键值对
+func setWithMidnightExpire(key string, value uint64) error {
+	now := time.Now()
+	loc := now.Location()
+
+	// 计算次日00:00
+	tomorrow := now.AddDate(0, 0, 1)
+	endOfDay := time.Date(
+		tomorrow.Year(),
+		tomorrow.Month(),
+		tomorrow.Day(),
+		0, 0, 0, 0, loc,
+	)
+
+	// 计算时间差
+	expireIn := endOfDay.Sub(now)
+
+	// 处理时间穿越情况
+	if expireIn < 0 {
+		expireIn = 0 // 立即过期
+	}
+
+	return db.RedisCli.Set(key, value, expireIn).Err()
 }
