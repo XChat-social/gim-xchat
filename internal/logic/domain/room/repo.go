@@ -360,12 +360,12 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 
 func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
 	// 校验当前人为创建的聊天室则返回true
-	creator, _ := checkCreator(req.RoomId, req.UserId)
-	if creator != (models.ChatRoom{}) {
-		return &pb.CheckPermissionsByUserIdResp{
-			HasPermission: true,
-		}, nil
-	}
+	//creator, _ := checkCreator(req.RoomId, req.UserId)
+	//if creator != (models.ChatRoom{}) {
+	//	return &pb.CheckPermissionsByUserIdResp{
+	//		HasPermission: true,
+	//	}, nil
+	//}
 
 	var count int64
 	query := db.DB.Table("chat_room").

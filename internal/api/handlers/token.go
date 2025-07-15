@@ -51,6 +51,13 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 		return
 	}
 
+	// 开始数据库事务
+	tx := h.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 	// 创建Token
 	token := models.Token{
 		UserID:         userID,
@@ -70,6 +77,20 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 	result := h.DB.Create(&token)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to create token: " + result.Error.Error()})
+		return
+	}
+
+	var holding models.TokenHolding
+	holding = models.TokenHolding{
+		UserID:       userID,
+		TokenAddress: req.TokenAddress,
+		Amount:       1,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+	if err := tx.Create(&holding).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to create holding record"})
 		return
 	}
 
@@ -170,9 +191,10 @@ func (h *TokenHandler) UploadTokenIcon(c *gin.Context) {
 // BuyToken 购买Token
 func (h *TokenHandler) BuyToken(c *gin.Context) {
 	var req struct {
-		TokenAddress string  `json:"token_address" binding:"required"`
-		Amount       float64 `json:"amount" binding:"required,gt=0"`
-		Price        float64 `json:"price" binding:"required,gt=0"`
+		TokenAddress    string  `json:"token_address" binding:"required"`
+		Amount          float64 `json:"amount" binding:"required,gt=0"`
+		Price           float64 `json:"price" binding:"required,gt=0"`
+		TransactionHash string  `json:"transaction_hash" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -209,6 +231,7 @@ func (h *TokenHandler) BuyToken(c *gin.Context) {
 		Amount:          req.Amount,
 		Price:           req.Price,
 		TotalValue:      req.Amount * req.Price,
+		TransactionHash: req.TransactionHash,
 		Status:          "completed",
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
@@ -410,15 +433,10 @@ func (h *TokenHandler) GetTokenHolders(c *gin.Context) {
 		return
 	}
 
-	var sumFollows float64
-	for i := range holders {
-		sumFollows += holders[i].Amount
-	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"code":       200,
 		"message":    "Success",
 		"data":       holders,
-		"sumFollows": sumFollows,
+		"sumFollows": len(holders),
 	})
 }
