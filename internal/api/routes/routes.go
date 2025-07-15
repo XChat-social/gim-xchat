@@ -59,6 +59,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		api.GET("/tokens/getTokenByUserId", middleware.Auth(rdb), tokenHandler.GetTokenByUserID)
 		api.GET("/tokens/:tokenAddress", tokenHandler.GetToken)
 		api.POST("/tokens/upload-icon", middleware.Auth(rdb), tokenHandler.UploadTokenIcon)
+		api.GET("/tokens/getTokenHolders", middleware.Auth(rdb), tokenHandler.GetTokenHolders)
 
 		// Token交易相关接口
 		api.POST("/tokens/buy", middleware.Auth(rdb), tokenHandler.BuyToken)

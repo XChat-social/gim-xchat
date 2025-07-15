@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"gim/internal/api/middleware"
 	"gim/internal/api/models"
+	"gim/pkg/db"
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -50,13 +50,6 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
 		return
 	}
-	// 开始数据库事务
-	tx := h.DB.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	// 创建Token
 	token := models.Token{
@@ -77,20 +70,6 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 	result := h.DB.Create(&token)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to create token: " + result.Error.Error()})
-		return
-	}
-	var holding models.TokenHolding
-	parseFloat, _ := strconv.ParseFloat(req.TotalSupply, 64)
-	holding = models.TokenHolding{
-		UserID:       userID,
-		TokenAddress: req.TokenAddress,
-		Amount:       parseFloat,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-	}
-	if err := tx.Create(&holding).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to create holding record"})
 		return
 	}
 
@@ -401,5 +380,45 @@ func (h *TokenHandler) GetUserTokenHoldings(c *gin.Context) {
 		"code":    200,
 		"message": "Query successful",
 		"data":    holdings,
+	})
+}
+
+// GetTokenHolders 获取持有记录用户Token
+func (h *TokenHandler) GetTokenHolders(c *gin.Context) {
+	tokenAddress := c.Query("token_address")
+	if tokenAddress == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "tokenAddress cannot be empty"})
+		return
+	}
+	// 定义返回结构体
+	type HolderInfo struct {
+		UserID    uint    `json:"user_id"`
+		Username  string  `json:"username"`
+		Amount    float64 `json:"amount"`
+		AvatarUrl string  `json:"avatar_url"`
+	}
+
+	var holders []HolderInfo
+	query := db.DB.Table("token_holdings").
+		Joins("INNER JOIN user ON token_holdings.user_id = user.id").
+		Where("token_holdings.token_address = ? AND amount > 0", tokenAddress).
+		Select("user.id AS user_id, user.username AS username, token_holdings.amount AS amount, user.avatar_url AS avatarUrl").
+		Order("token_holdings.amount DESC")
+
+	if err := query.Find(&holders).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to query holders: " + err.Error()})
+		return
+	}
+
+	var sumFollows float64
+	for i := range holders {
+		sumFollows += holders[i].Amount
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":       200,
+		"message":    "Success",
+		"data":       holders,
+		"sumFollows": sumFollows,
 	})
 }
