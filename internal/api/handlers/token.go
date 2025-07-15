@@ -402,7 +402,7 @@ func (h *TokenHandler) GetTokenHolders(c *gin.Context) {
 	query := db.DB.Table("token_holdings").
 		Joins("INNER JOIN user ON token_holdings.user_id = user.id").
 		Where("token_holdings.token_address = ? AND amount > 0", tokenAddress).
-		Select("user.id AS user_id, user.username AS username, token_holdings.amount AS amount, user.avatar_url AS avatarUrl").
+		Select("user.id AS user_id, user.nickname AS username, token_holdings.amount AS amount, user.avatar_url AS avatarUrl").
 		Order("token_holdings.amount DESC")
 
 	if err := query.Find(&holders).Error; err != nil {
