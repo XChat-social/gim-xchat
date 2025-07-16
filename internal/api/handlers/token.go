@@ -296,9 +296,10 @@ func (h *TokenHandler) BuyToken(c *gin.Context) {
 // SellToken 出售Token
 func (h *TokenHandler) SellToken(c *gin.Context) {
 	var req struct {
-		TokenAddress string  `json:"token_address" binding:"required"`
-		Amount       float64 `json:"amount" binding:"required,gt=0"`
-		Price        float64 `json:"price" binding:"required,gt=0"`
+		TokenAddress    string  `json:"token_address" binding:"required"`
+		Amount          float64 `json:"amount" binding:"required,gt=0"`
+		Price           float64 `json:"price" binding:"required,gt=0"`
+		TransactionHash string  `json:"transaction_hash" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -347,6 +348,7 @@ func (h *TokenHandler) SellToken(c *gin.Context) {
 		Amount:          req.Amount,
 		Price:           req.Price,
 		TotalValue:      req.Amount * req.Price,
+		TransactionHash: req.TransactionHash,
 		Status:          "completed",
 		CreatedAt:       time.Now(),
 		UpdatedAt:       time.Now(),
