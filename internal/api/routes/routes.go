@@ -76,16 +76,17 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		// 聊天室相关接口
 		chatroom := api.Group("/chatrooms", middleware.Auth(rdb))
 		{
-			chatroom.POST("", chatRoomHandler.CreateChatRoom)                    // 创建聊天室
-			chatroom.GET("", chatRoomHandler.GetChatRooms)                       // 获取聊天室列表
-			chatroom.GET("/user", chatRoomHandler.GetUserChatRooms)              // 获取用户加入的聊天室列表
-			chatroom.GET("/:roomId", chatRoomHandler.GetChatRoom)                // 获取聊天室信息
-			chatroom.POST("/:roomId/join", chatRoomHandler.JoinChatRoom)         // 加入聊天室
-			chatroom.POST("/:roomId/leave", chatRoomHandler.LeaveChatRoom)       // 离开聊天室
-			chatroom.GET("/:roomId/members", chatRoomHandler.GetChatRoomMembers) // 获取成员列表
-			chatroom.POST("/:roomId/message", chatRoomHandler.SendMessage)       // 发送聊天室消息
-			chatroom.POST("/history", chatRoomHandler.GetChatRoomMessages)       // 获取聊天室消息历史
-			chatroom.GET("/:roomId/checkPermissions", chatRoomHandler.CheckPermissionsByUserId)
+			chatroom.POST("", chatRoomHandler.CreateChatRoom)                                   // 创建聊天室
+			chatroom.GET("", chatRoomHandler.GetChatRooms)                                      // 获取聊天室列表
+			chatroom.GET("/user", chatRoomHandler.GetUserChatRooms)                             // 获取用户加入的聊天室列表
+			chatroom.GET("/:roomId", chatRoomHandler.GetChatRoom)                               // 获取聊天室信息
+			chatroom.POST("/:roomId/join", chatRoomHandler.JoinChatRoom)                        // 加入聊天室
+			chatroom.POST("/:roomId/leave", chatRoomHandler.LeaveChatRoom)                      // 离开聊天室
+			chatroom.GET("/:roomId/members", chatRoomHandler.GetChatRoomMembers)                // 获取成员列表
+			chatroom.POST("/:roomId/message", chatRoomHandler.SendMessage)                      // 发送聊天室消息
+			chatroom.POST("/history", chatRoomHandler.GetChatRoomMessages)                      // 获取聊天室消息历史
+			chatroom.GET("/:roomId/checkPermissions", chatRoomHandler.CheckPermissionsByUserId) // 检查用户是否是聊天室成员
+			chatroom.POST("/upload-icon", chatRoomHandler.UploadChatRoomIcon)                   // 上传聊天室图标
 		}
 	}
 }

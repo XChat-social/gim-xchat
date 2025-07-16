@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"gim/internal/api/middleware"
 	"gim/pkg/grpclib"
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
+	"github.com/google/uuid"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -51,6 +54,44 @@ func (h *ChatRoomHandler) CreateChatRoom(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": gin.H{"room_id": resp.RoomId},
+	})
+}
+
+// UploadChatRoomIcon 上传房间图标
+func (h *ChatRoomHandler) UploadChatRoomIcon(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Failed to get file"})
+		return
+	}
+
+	// 获取后缀，如 ".png"
+	ext := filepath.Ext(file.Filename)
+	if ext == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Invalid file type"})
+		return
+	}
+
+	// 生成唯一文件名
+	filename := uuid.New().String() + ext
+
+	// 保存路径（绝对或相对）
+	savePath := filepath.Join("static/chatRoom-icons", filename)
+
+	if err := c.SaveUploadedFile(file, savePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to save file"})
+		return
+	}
+
+	// 构造访问 URL（假设你绑定了 /static 路由）
+	fileURL := fmt.Sprintf("https://api.xchat.social/api/static/chatRoom-icons/%s", filename)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Upload success",
+		"data": gin.H{
+			"icon_url": fileURL,
+		},
 	})
 }
 
