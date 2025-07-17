@@ -289,7 +289,7 @@ func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb
 }
 
 func (r *chatRoomMemberRepo) AddUnreadCount(roomId int64, userId int64) error {
-	return db.DB.Model(&models.ChatRoomMember{}).Where("room_id = ? AND status = 1 AND user_id != ?", roomId, userId).UpdateColumn("unread_count", gorm.Expr("unread_count + ?", 1)).Error
+	return db.DB.Model(&models.ChatRoomMember{}).Where("room_id = ? AND status = 1 AND user_id != ?", roomId, userId).UpdateColumn("unread_count", gorm.Expr("unread_count + 1")).Error
 }
 
 func (r *chatRoomMemberRepo) RefreshUnreadCount(roomId int64, userId int64) error {
