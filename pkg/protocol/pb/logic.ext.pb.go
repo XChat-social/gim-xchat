@@ -124,9 +124,9 @@ func (x *GetUserChatRoomsReq) GetPageNumber() int32 {
 }
 
 type GetUserChatRoomsResp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChatRooms     []*ChatRoom            `protobuf:"bytes,1,rep,name=chat_rooms,json=chatRooms,proto3" json:"chat_rooms,omitempty"` // 聊天室列表
-	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                         // 总数
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	ChatRooms     []*ChatRoomAndUnreadCount `protobuf:"bytes,1,rep,name=chat_rooms,json=chatRooms,proto3" json:"chat_rooms,omitempty"` // 聊天室列表
+	Total         int32                     `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                         // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -161,7 +161,7 @@ func (*GetUserChatRoomsResp) Descriptor() ([]byte, []int) {
 	return file_logic_ext_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *GetUserChatRoomsResp) GetChatRooms() []*ChatRoom {
+func (x *GetUserChatRoomsResp) GetChatRooms() []*ChatRoomAndUnreadCount {
 	if x != nil {
 		return x.ChatRooms
 	}
@@ -2231,6 +2231,146 @@ func (x *ChatRoom) GetLevel() int32 {
 	return 0
 }
 
+type ChatRoomAndUnreadCount struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	RoomId         int64                  `protobuf:"varint,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`                           // 聊天室ID
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                              // 名称
+	AvatarUrl      string                 `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`                   // 头像
+	Introduction   string                 `protobuf:"bytes,4,opt,name=introduction,proto3" json:"introduction,omitempty"`                              // 简介
+	OnlineCount    int32                  `protobuf:"varint,5,opt,name=online_count,json=onlineCount,proto3" json:"online_count,omitempty"`            // 在线人数
+	MemberCount    int32                  `protobuf:"varint,6,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`            // 成员总数
+	MaxMemberCount int32                  `protobuf:"varint,7,opt,name=max_member_count,json=maxMemberCount,proto3" json:"max_member_count,omitempty"` // 最大成员数量
+	Extra          string                 `protobuf:"bytes,8,opt,name=extra,proto3" json:"extra,omitempty"`                                            // 附加字段
+	CreateTime     int64                  `protobuf:"varint,9,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`               // 创建时间
+	UpdateTime     int64                  `protobuf:"varint,10,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`              // 更新时间
+	CreatorId      int64                  `protobuf:"varint,11,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`                 // 创建者ID
+	Level          int32                  `protobuf:"varint,12,opt,name=level,proto3" json:"level,omitempty"`                                          // 等级
+	UnreadCount    int64                  `protobuf:"varint,13,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ChatRoomAndUnreadCount) Reset() {
+	*x = ChatRoomAndUnreadCount{}
+	mi := &file_logic_ext_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChatRoomAndUnreadCount) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChatRoomAndUnreadCount) ProtoMessage() {}
+
+func (x *ChatRoomAndUnreadCount) ProtoReflect() protoreflect.Message {
+	mi := &file_logic_ext_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChatRoomAndUnreadCount.ProtoReflect.Descriptor instead.
+func (*ChatRoomAndUnreadCount) Descriptor() ([]byte, []int) {
+	return file_logic_ext_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *ChatRoomAndUnreadCount) GetRoomId() int64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ChatRoomAndUnreadCount) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
+}
+
+func (x *ChatRoomAndUnreadCount) GetIntroduction() string {
+	if x != nil {
+		return x.Introduction
+	}
+	return ""
+}
+
+func (x *ChatRoomAndUnreadCount) GetOnlineCount() int32 {
+	if x != nil {
+		return x.OnlineCount
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetMemberCount() int32 {
+	if x != nil {
+		return x.MemberCount
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetMaxMemberCount() int32 {
+	if x != nil {
+		return x.MaxMemberCount
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetExtra() string {
+	if x != nil {
+		return x.Extra
+	}
+	return ""
+}
+
+func (x *ChatRoomAndUnreadCount) GetCreateTime() int64 {
+	if x != nil {
+		return x.CreateTime
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetUpdateTime() int64 {
+	if x != nil {
+		return x.UpdateTime
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetCreatorId() int64 {
+	if x != nil {
+		return x.CreatorId
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetLevel() int32 {
+	if x != nil {
+		return x.Level
+	}
+	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetUnreadCount() int64 {
+	if x != nil {
+		return x.UnreadCount
+	}
+	return 0
+}
+
 type JoinChatRoomReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoomId        int64                  `protobuf:"varint,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"` // 聊天室ID
@@ -2240,7 +2380,7 @@ type JoinChatRoomReq struct {
 
 func (x *JoinChatRoomReq) Reset() {
 	*x = JoinChatRoomReq{}
-	mi := &file_logic_ext_proto_msgTypes[36]
+	mi := &file_logic_ext_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2252,7 +2392,7 @@ func (x *JoinChatRoomReq) String() string {
 func (*JoinChatRoomReq) ProtoMessage() {}
 
 func (x *JoinChatRoomReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[36]
+	mi := &file_logic_ext_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2265,7 +2405,7 @@ func (x *JoinChatRoomReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JoinChatRoomReq.ProtoReflect.Descriptor instead.
 func (*JoinChatRoomReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{36}
+	return file_logic_ext_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *JoinChatRoomReq) GetRoomId() int64 {
@@ -2284,7 +2424,7 @@ type LeaveChatRoomReq struct {
 
 func (x *LeaveChatRoomReq) Reset() {
 	*x = LeaveChatRoomReq{}
-	mi := &file_logic_ext_proto_msgTypes[37]
+	mi := &file_logic_ext_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2296,7 +2436,7 @@ func (x *LeaveChatRoomReq) String() string {
 func (*LeaveChatRoomReq) ProtoMessage() {}
 
 func (x *LeaveChatRoomReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[37]
+	mi := &file_logic_ext_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2309,7 +2449,7 @@ func (x *LeaveChatRoomReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LeaveChatRoomReq.ProtoReflect.Descriptor instead.
 func (*LeaveChatRoomReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{37}
+	return file_logic_ext_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *LeaveChatRoomReq) GetRoomId() int64 {
@@ -2330,7 +2470,7 @@ type GetChatRoomMembersReq struct {
 
 func (x *GetChatRoomMembersReq) Reset() {
 	*x = GetChatRoomMembersReq{}
-	mi := &file_logic_ext_proto_msgTypes[38]
+	mi := &file_logic_ext_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2342,7 +2482,7 @@ func (x *GetChatRoomMembersReq) String() string {
 func (*GetChatRoomMembersReq) ProtoMessage() {}
 
 func (x *GetChatRoomMembersReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[38]
+	mi := &file_logic_ext_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2355,7 +2495,7 @@ func (x *GetChatRoomMembersReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomMembersReq.ProtoReflect.Descriptor instead.
 func (*GetChatRoomMembersReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{38}
+	return file_logic_ext_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *GetChatRoomMembersReq) GetRoomId() int64 {
@@ -2389,7 +2529,7 @@ type GetChatRoomMembersResp struct {
 
 func (x *GetChatRoomMembersResp) Reset() {
 	*x = GetChatRoomMembersResp{}
-	mi := &file_logic_ext_proto_msgTypes[39]
+	mi := &file_logic_ext_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2401,7 +2541,7 @@ func (x *GetChatRoomMembersResp) String() string {
 func (*GetChatRoomMembersResp) ProtoMessage() {}
 
 func (x *GetChatRoomMembersResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[39]
+	mi := &file_logic_ext_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2414,7 +2554,7 @@ func (x *GetChatRoomMembersResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomMembersResp.ProtoReflect.Descriptor instead.
 func (*GetChatRoomMembersResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{39}
+	return file_logic_ext_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *GetChatRoomMembersResp) GetMembers() []*ChatRoomMember {
@@ -2445,7 +2585,7 @@ type ChatRoomMember struct {
 
 func (x *ChatRoomMember) Reset() {
 	*x = ChatRoomMember{}
-	mi := &file_logic_ext_proto_msgTypes[40]
+	mi := &file_logic_ext_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2457,7 +2597,7 @@ func (x *ChatRoomMember) String() string {
 func (*ChatRoomMember) ProtoMessage() {}
 
 func (x *ChatRoomMember) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[40]
+	mi := &file_logic_ext_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2470,7 +2610,7 @@ func (x *ChatRoomMember) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatRoomMember.ProtoReflect.Descriptor instead.
 func (*ChatRoomMember) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{40}
+	return file_logic_ext_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ChatRoomMember) GetRoomId() int64 {
@@ -2527,7 +2667,7 @@ type SendChatRoomMessageReq struct {
 
 func (x *SendChatRoomMessageReq) Reset() {
 	*x = SendChatRoomMessageReq{}
-	mi := &file_logic_ext_proto_msgTypes[41]
+	mi := &file_logic_ext_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2539,7 +2679,7 @@ func (x *SendChatRoomMessageReq) String() string {
 func (*SendChatRoomMessageReq) ProtoMessage() {}
 
 func (x *SendChatRoomMessageReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[41]
+	mi := &file_logic_ext_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2552,7 +2692,7 @@ func (x *SendChatRoomMessageReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatRoomMessageReq.ProtoReflect.Descriptor instead.
 func (*SendChatRoomMessageReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{41}
+	return file_logic_ext_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *SendChatRoomMessageReq) GetRoomId() int64 {
@@ -2592,7 +2732,7 @@ type SendChatRoomMessageResp struct {
 
 func (x *SendChatRoomMessageResp) Reset() {
 	*x = SendChatRoomMessageResp{}
-	mi := &file_logic_ext_proto_msgTypes[42]
+	mi := &file_logic_ext_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2604,7 +2744,7 @@ func (x *SendChatRoomMessageResp) String() string {
 func (*SendChatRoomMessageResp) ProtoMessage() {}
 
 func (x *SendChatRoomMessageResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[42]
+	mi := &file_logic_ext_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2617,7 +2757,7 @@ func (x *SendChatRoomMessageResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatRoomMessageResp.ProtoReflect.Descriptor instead.
 func (*SendChatRoomMessageResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{42}
+	return file_logic_ext_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *SendChatRoomMessageResp) GetSeq() int64 {
@@ -2638,7 +2778,7 @@ type ChatRoomMessageData struct {
 
 func (x *ChatRoomMessageData) Reset() {
 	*x = ChatRoomMessageData{}
-	mi := &file_logic_ext_proto_msgTypes[43]
+	mi := &file_logic_ext_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2650,7 +2790,7 @@ func (x *ChatRoomMessageData) String() string {
 func (*ChatRoomMessageData) ProtoMessage() {}
 
 func (x *ChatRoomMessageData) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[43]
+	mi := &file_logic_ext_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2663,7 +2803,7 @@ func (x *ChatRoomMessageData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatRoomMessageData.ProtoReflect.Descriptor instead.
 func (*ChatRoomMessageData) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{43}
+	return file_logic_ext_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ChatRoomMessageData) GetSenderId() int64 {
@@ -2704,7 +2844,7 @@ type ChatRoomMessage struct {
 
 func (x *ChatRoomMessage) Reset() {
 	*x = ChatRoomMessage{}
-	mi := &file_logic_ext_proto_msgTypes[44]
+	mi := &file_logic_ext_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2716,7 +2856,7 @@ func (x *ChatRoomMessage) String() string {
 func (*ChatRoomMessage) ProtoMessage() {}
 
 func (x *ChatRoomMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[44]
+	mi := &file_logic_ext_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2729,7 +2869,7 @@ func (x *ChatRoomMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatRoomMessage.ProtoReflect.Descriptor instead.
 func (*ChatRoomMessage) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{44}
+	return file_logic_ext_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *ChatRoomMessage) GetId() int64 {
@@ -2806,7 +2946,7 @@ type GetChatRoomMessagesReq struct {
 
 func (x *GetChatRoomMessagesReq) Reset() {
 	*x = GetChatRoomMessagesReq{}
-	mi := &file_logic_ext_proto_msgTypes[45]
+	mi := &file_logic_ext_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2818,7 +2958,7 @@ func (x *GetChatRoomMessagesReq) String() string {
 func (*GetChatRoomMessagesReq) ProtoMessage() {}
 
 func (x *GetChatRoomMessagesReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[45]
+	mi := &file_logic_ext_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2831,7 +2971,7 @@ func (x *GetChatRoomMessagesReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomMessagesReq.ProtoReflect.Descriptor instead.
 func (*GetChatRoomMessagesReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{45}
+	return file_logic_ext_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetChatRoomMessagesReq) GetRoomId() int64 {
@@ -2867,7 +3007,7 @@ type GetChatRoomMessagesResp struct {
 
 func (x *GetChatRoomMessagesResp) Reset() {
 	*x = GetChatRoomMessagesResp{}
-	mi := &file_logic_ext_proto_msgTypes[46]
+	mi := &file_logic_ext_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2879,7 +3019,7 @@ func (x *GetChatRoomMessagesResp) String() string {
 func (*GetChatRoomMessagesResp) ProtoMessage() {}
 
 func (x *GetChatRoomMessagesResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[46]
+	mi := &file_logic_ext_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2892,7 +3032,7 @@ func (x *GetChatRoomMessagesResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatRoomMessagesResp.ProtoReflect.Descriptor instead.
 func (*GetChatRoomMessagesResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{46}
+	return file_logic_ext_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *GetChatRoomMessagesResp) GetMessages() []*ChatRoomMessage {
@@ -2933,7 +3073,7 @@ type CheckPermissionsByUserIdReq struct {
 
 func (x *CheckPermissionsByUserIdReq) Reset() {
 	*x = CheckPermissionsByUserIdReq{}
-	mi := &file_logic_ext_proto_msgTypes[47]
+	mi := &file_logic_ext_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2945,7 +3085,7 @@ func (x *CheckPermissionsByUserIdReq) String() string {
 func (*CheckPermissionsByUserIdReq) ProtoMessage() {}
 
 func (x *CheckPermissionsByUserIdReq) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[47]
+	mi := &file_logic_ext_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2958,7 +3098,7 @@ func (x *CheckPermissionsByUserIdReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPermissionsByUserIdReq.ProtoReflect.Descriptor instead.
 func (*CheckPermissionsByUserIdReq) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{47}
+	return file_logic_ext_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *CheckPermissionsByUserIdReq) GetUserId() int64 {
@@ -2984,7 +3124,7 @@ type CheckPermissionsByUserIdResp struct {
 
 func (x *CheckPermissionsByUserIdResp) Reset() {
 	*x = CheckPermissionsByUserIdResp{}
-	mi := &file_logic_ext_proto_msgTypes[48]
+	mi := &file_logic_ext_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2996,7 +3136,7 @@ func (x *CheckPermissionsByUserIdResp) String() string {
 func (*CheckPermissionsByUserIdResp) ProtoMessage() {}
 
 func (x *CheckPermissionsByUserIdResp) ProtoReflect() protoreflect.Message {
-	mi := &file_logic_ext_proto_msgTypes[48]
+	mi := &file_logic_ext_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3009,7 +3149,7 @@ func (x *CheckPermissionsByUserIdResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckPermissionsByUserIdResp.ProtoReflect.Descriptor instead.
 func (*CheckPermissionsByUserIdResp) Descriptor() ([]byte, []int) {
-	return file_logic_ext_proto_rawDescGZIP(), []int{48}
+	return file_logic_ext_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *CheckPermissionsByUserIdResp) GetHasPermission() bool {
@@ -3027,10 +3167,10 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\x13GetUserChatRoomsReq\x12\x1b\n" +
 	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1f\n" +
 	"\vpage_number\x18\x02 \x01(\x05R\n" +
-	"pageNumber\"Y\n" +
-	"\x14GetUserChatRoomsResp\x12+\n" +
+	"pageNumber\"g\n" +
+	"\x14GetUserChatRoomsResp\x129\n" +
 	"\n" +
-	"chat_rooms\x18\x01 \x03(\v2\f.pb.ChatRoomR\tchatRooms\x12\x14\n" +
+	"chat_rooms\x18\x01 \x03(\v2\x1a.pb.ChatRoomAndUnreadCountR\tchatRooms\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\"5\n" +
 	"\x1aGetUserCreatedChatRoomsReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\"J\n" +
@@ -3194,7 +3334,26 @@ const file_logic_ext_proto_rawDesc = "" +
 	"updateTime\x12\x1d\n" +
 	"\n" +
 	"creator_id\x18\v \x01(\x03R\tcreatorId\x12\x14\n" +
-	"\x05level\x18\f \x01(\x05R\x05level\"*\n" +
+	"\x05level\x18\f \x01(\x05R\x05level\"\xa8\x03\n" +
+	"\x16ChatRoomAndUnreadCount\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\x03 \x01(\tR\tavatarUrl\x12\"\n" +
+	"\fintroduction\x18\x04 \x01(\tR\fintroduction\x12!\n" +
+	"\fonline_count\x18\x05 \x01(\x05R\vonlineCount\x12!\n" +
+	"\fmember_count\x18\x06 \x01(\x05R\vmemberCount\x12(\n" +
+	"\x10max_member_count\x18\a \x01(\x05R\x0emaxMemberCount\x12\x14\n" +
+	"\x05extra\x18\b \x01(\tR\x05extra\x12\x1f\n" +
+	"\vcreate_time\x18\t \x01(\x03R\n" +
+	"createTime\x12\x1f\n" +
+	"\vupdate_time\x18\n" +
+	" \x01(\x03R\n" +
+	"updateTime\x12\x1d\n" +
+	"\n" +
+	"creator_id\x18\v \x01(\x03R\tcreatorId\x12\x14\n" +
+	"\x05level\x18\f \x01(\x05R\x05level\x12!\n" +
+	"\funread_count\x18\r \x01(\x03R\vunreadCount\"*\n" +
 	"\x0fJoinChatRoomReq\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\"+\n" +
 	"\x10LeaveChatRoomReq\x12\x17\n" +
@@ -3302,7 +3461,7 @@ func file_logic_ext_proto_rawDescGZIP() []byte {
 }
 
 var file_logic_ext_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
 var file_logic_ext_proto_goTypes = []any{
 	(MemberType)(0),                      // 0: pb.MemberType
 	(*GetUserChatRoomsReq)(nil),          // 1: pb.GetUserChatRoomsReq
@@ -3341,23 +3500,24 @@ var file_logic_ext_proto_goTypes = []any{
 	(*GetChatRoomsReq)(nil),              // 34: pb.GetChatRoomsReq
 	(*GetChatRoomsResp)(nil),             // 35: pb.GetChatRoomsResp
 	(*ChatRoom)(nil),                     // 36: pb.ChatRoom
-	(*JoinChatRoomReq)(nil),              // 37: pb.JoinChatRoomReq
-	(*LeaveChatRoomReq)(nil),             // 38: pb.LeaveChatRoomReq
-	(*GetChatRoomMembersReq)(nil),        // 39: pb.GetChatRoomMembersReq
-	(*GetChatRoomMembersResp)(nil),       // 40: pb.GetChatRoomMembersResp
-	(*ChatRoomMember)(nil),               // 41: pb.ChatRoomMember
-	(*SendChatRoomMessageReq)(nil),       // 42: pb.SendChatRoomMessageReq
-	(*SendChatRoomMessageResp)(nil),      // 43: pb.SendChatRoomMessageResp
-	(*ChatRoomMessageData)(nil),          // 44: pb.ChatRoomMessageData
-	(*ChatRoomMessage)(nil),              // 45: pb.ChatRoomMessage
-	(*GetChatRoomMessagesReq)(nil),       // 46: pb.GetChatRoomMessagesReq
-	(*GetChatRoomMessagesResp)(nil),      // 47: pb.GetChatRoomMessagesResp
-	(*CheckPermissionsByUserIdReq)(nil),  // 48: pb.CheckPermissionsByUserIdReq
-	(*CheckPermissionsByUserIdResp)(nil), // 49: pb.CheckPermissionsByUserIdResp
-	(*emptypb.Empty)(nil),                // 50: google.protobuf.Empty
+	(*ChatRoomAndUnreadCount)(nil),       // 37: pb.ChatRoomAndUnreadCount
+	(*JoinChatRoomReq)(nil),              // 38: pb.JoinChatRoomReq
+	(*LeaveChatRoomReq)(nil),             // 39: pb.LeaveChatRoomReq
+	(*GetChatRoomMembersReq)(nil),        // 40: pb.GetChatRoomMembersReq
+	(*GetChatRoomMembersResp)(nil),       // 41: pb.GetChatRoomMembersResp
+	(*ChatRoomMember)(nil),               // 42: pb.ChatRoomMember
+	(*SendChatRoomMessageReq)(nil),       // 43: pb.SendChatRoomMessageReq
+	(*SendChatRoomMessageResp)(nil),      // 44: pb.SendChatRoomMessageResp
+	(*ChatRoomMessageData)(nil),          // 45: pb.ChatRoomMessageData
+	(*ChatRoomMessage)(nil),              // 46: pb.ChatRoomMessage
+	(*GetChatRoomMessagesReq)(nil),       // 47: pb.GetChatRoomMessagesReq
+	(*GetChatRoomMessagesResp)(nil),      // 48: pb.GetChatRoomMessagesResp
+	(*CheckPermissionsByUserIdReq)(nil),  // 49: pb.CheckPermissionsByUserIdReq
+	(*CheckPermissionsByUserIdResp)(nil), // 50: pb.CheckPermissionsByUserIdResp
+	(*emptypb.Empty)(nil),                // 51: google.protobuf.Empty
 }
 var file_logic_ext_proto_depIdxs = []int32{
-	36, // 0: pb.GetUserChatRoomsResp.chat_rooms:type_name -> pb.ChatRoom
+	37, // 0: pb.GetUserChatRoomsResp.chat_rooms:type_name -> pb.ChatRoomAndUnreadCount
 	36, // 1: pb.GetUserCreatedChatRoomsResp.chat_rooms:type_name -> pb.ChatRoom
 	14, // 2: pb.GetFriendsResp.friends:type_name -> pb.Friend
 	21, // 3: pb.GetGroupResp.group:type_name -> pb.Group
@@ -3367,20 +3527,20 @@ var file_logic_ext_proto_depIdxs = []int32{
 	0,  // 7: pb.GroupMember.member_type:type_name -> pb.MemberType
 	36, // 8: pb.GetChatRoomResp.room:type_name -> pb.ChatRoom
 	36, // 9: pb.GetChatRoomsResp.rooms:type_name -> pb.ChatRoom
-	41, // 10: pb.GetChatRoomMembersResp.members:type_name -> pb.ChatRoomMember
-	45, // 11: pb.GetChatRoomMessagesResp.messages:type_name -> pb.ChatRoomMessage
+	42, // 10: pb.GetChatRoomMembersResp.members:type_name -> pb.ChatRoomMember
+	46, // 11: pb.GetChatRoomMessagesResp.messages:type_name -> pb.ChatRoomMessage
 	5,  // 12: pb.LogicExt.RegisterDevice:input_type -> pb.RegisterDeviceReq
 	9,  // 13: pb.LogicExt.PushRoom:input_type -> pb.PushRoomReq
 	7,  // 14: pb.LogicExt.SendMessageToFriend:input_type -> pb.SendMessageReq
 	10, // 15: pb.LogicExt.AddFriend:input_type -> pb.AddFriendReq
 	11, // 16: pb.LogicExt.AgreeAddFriend:input_type -> pb.AgreeAddFriendReq
 	12, // 17: pb.LogicExt.SetFriend:input_type -> pb.SetFriendReq
-	50, // 18: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
+	51, // 18: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
 	7,  // 19: pb.LogicExt.SendMessageToGroup:input_type -> pb.SendMessageReq
 	16, // 20: pb.LogicExt.CreateGroup:input_type -> pb.CreateGroupReq
 	18, // 21: pb.LogicExt.UpdateGroup:input_type -> pb.UpdateGroupReq
 	19, // 22: pb.LogicExt.GetGroup:input_type -> pb.GetGroupReq
-	50, // 23: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
+	51, // 23: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
 	23, // 24: pb.LogicExt.AddGroupMembers:input_type -> pb.AddGroupMembersReq
 	25, // 25: pb.LogicExt.UpdateGroupMember:input_type -> pb.UpdateGroupMemberReq
 	26, // 26: pb.LogicExt.DeleteGroupMember:input_type -> pb.DeleteGroupMemberReq
@@ -3388,41 +3548,41 @@ var file_logic_ext_proto_depIdxs = []int32{
 	30, // 28: pb.LogicExt.CreateChatRoom:input_type -> pb.CreateChatRoomReq
 	32, // 29: pb.LogicExt.GetChatRoom:input_type -> pb.GetChatRoomReq
 	34, // 30: pb.LogicExt.GetChatRooms:input_type -> pb.GetChatRoomsReq
-	37, // 31: pb.LogicExt.JoinChatRoom:input_type -> pb.JoinChatRoomReq
-	38, // 32: pb.LogicExt.LeaveChatRoom:input_type -> pb.LeaveChatRoomReq
-	39, // 33: pb.LogicExt.GetChatRoomMembers:input_type -> pb.GetChatRoomMembersReq
-	42, // 34: pb.LogicExt.SendChatRoomMessage:input_type -> pb.SendChatRoomMessageReq
-	46, // 35: pb.LogicExt.GetChatRoomMessages:input_type -> pb.GetChatRoomMessagesReq
+	38, // 31: pb.LogicExt.JoinChatRoom:input_type -> pb.JoinChatRoomReq
+	39, // 32: pb.LogicExt.LeaveChatRoom:input_type -> pb.LeaveChatRoomReq
+	40, // 33: pb.LogicExt.GetChatRoomMembers:input_type -> pb.GetChatRoomMembersReq
+	43, // 34: pb.LogicExt.SendChatRoomMessage:input_type -> pb.SendChatRoomMessageReq
+	47, // 35: pb.LogicExt.GetChatRoomMessages:input_type -> pb.GetChatRoomMessagesReq
 	1,  // 36: pb.LogicExt.GetUserChatRooms:input_type -> pb.GetUserChatRoomsReq
 	3,  // 37: pb.LogicExt.GetUserCreatedChatRooms:input_type -> pb.GetUserCreatedChatRoomsReq
-	48, // 38: pb.LogicExt.CheckPermissionsByUserId:input_type -> pb.CheckPermissionsByUserIdReq
+	49, // 38: pb.LogicExt.CheckPermissionsByUserId:input_type -> pb.CheckPermissionsByUserIdReq
 	6,  // 39: pb.LogicExt.RegisterDevice:output_type -> pb.RegisterDeviceResp
-	50, // 40: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
+	51, // 40: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
 	8,  // 41: pb.LogicExt.SendMessageToFriend:output_type -> pb.SendMessageResp
-	50, // 42: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
-	50, // 43: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
+	51, // 42: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
+	51, // 43: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
 	13, // 44: pb.LogicExt.SetFriend:output_type -> pb.SetFriendResp
 	15, // 45: pb.LogicExt.GetFriends:output_type -> pb.GetFriendsResp
 	8,  // 46: pb.LogicExt.SendMessageToGroup:output_type -> pb.SendMessageResp
 	17, // 47: pb.LogicExt.CreateGroup:output_type -> pb.CreateGroupResp
-	50, // 48: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
+	51, // 48: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
 	20, // 49: pb.LogicExt.GetGroup:output_type -> pb.GetGroupResp
 	22, // 50: pb.LogicExt.GetGroups:output_type -> pb.GetGroupsResp
 	24, // 51: pb.LogicExt.AddGroupMembers:output_type -> pb.AddGroupMembersResp
-	50, // 52: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
-	50, // 53: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
+	51, // 52: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
+	51, // 53: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
 	28, // 54: pb.LogicExt.GetGroupMembers:output_type -> pb.GetGroupMembersResp
 	31, // 55: pb.LogicExt.CreateChatRoom:output_type -> pb.CreateChatRoomResp
 	33, // 56: pb.LogicExt.GetChatRoom:output_type -> pb.GetChatRoomResp
 	35, // 57: pb.LogicExt.GetChatRooms:output_type -> pb.GetChatRoomsResp
-	50, // 58: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
-	50, // 59: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
-	40, // 60: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
-	43, // 61: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
-	47, // 62: pb.LogicExt.GetChatRoomMessages:output_type -> pb.GetChatRoomMessagesResp
+	51, // 58: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
+	51, // 59: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
+	41, // 60: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
+	44, // 61: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
+	48, // 62: pb.LogicExt.GetChatRoomMessages:output_type -> pb.GetChatRoomMessagesResp
 	2,  // 63: pb.LogicExt.GetUserChatRooms:output_type -> pb.GetUserChatRoomsResp
 	4,  // 64: pb.LogicExt.GetUserCreatedChatRooms:output_type -> pb.GetUserCreatedChatRoomsResp
-	49, // 65: pb.LogicExt.CheckPermissionsByUserId:output_type -> pb.CheckPermissionsByUserIdResp
+	50, // 65: pb.LogicExt.CheckPermissionsByUserId:output_type -> pb.CheckPermissionsByUserIdResp
 	39, // [39:66] is the sub-list for method output_type
 	12, // [12:39] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
@@ -3441,7 +3601,7 @@ func file_logic_ext_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_logic_ext_proto_rawDesc), len(file_logic_ext_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   49,
+			NumMessages:   50,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

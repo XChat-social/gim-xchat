@@ -119,7 +119,7 @@ func (r *chatRoomMessageRepo) Add(ctx context.Context, message *pb.ChatRoomMessa
 }
 
 // GetNextSeq 获取下一个消息序列号
-func (r *chatRoomMessageRepo) GetNextSeq(ctx context.Context, roomId int64) (uint64, error) {
+func (r *chatRoomMessageRepo) GetNextSeq(roomId int64) (uint64, error) {
 	var result struct {
 		MaxSeq uint64 `gorm:"column:max_seq"`
 	}
@@ -288,6 +288,14 @@ func (r *chatRoomMemberRepo) Get(ctx context.Context, roomId, userId int64) (*pb
 	return member, nil
 }
 
+func (r *chatRoomMemberRepo) AddUnreadCount(roomId int64, userId int64) error {
+	return db.DB.Model(&models.ChatRoomMember{}).Where("room_id = ? AND status = 1 AND user_id != ?", roomId, userId).UpdateColumn("unread_count", gorm.Expr("unread_count + ?", 1)).Error
+}
+
+func (r *chatRoomMemberRepo) RefreshUnreadCount(roomId int64, userId int64) error {
+	return db.DB.Model(&models.ChatRoomMember{}).Where("room_id = ? AND user_id = ?", roomId, userId).UpdateColumn("unread_count", 0).Error
+}
+
 // IncrOnlineCount 增加在线人数
 func (r *chatRoomRepo) IncrOnlineCount(ctx context.Context, roomId int64) error {
 	return db.DB.Model(&models.ChatRoom{}).Where("room_id = ?", roomId).UpdateColumn("online_count", gorm.Expr("online_count + ?", 1)).Error
@@ -326,8 +334,8 @@ func (r *chatRoomRepo) ListByCreatorId(ctx context.Context, creatorId int64) ([]
 }
 
 // ListByUserId 获取用户加入的聊天室列表
-func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, limit int32) ([]*pb.ChatRoom, error) {
-	var modelChatRooms []models.ChatRoom
+func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, limit int32) ([]*pb.ChatRoomAndUnreadCount, error) {
+	var modelChatRooms []models.ChatRoomAndUnreadCount
 	err := db.DB.Table("chat_room").
 		Joins("JOIN chat_room_member ON chat_room.room_id = chat_room_member.room_id").
 		Where("chat_room_member.user_id = ?", userId).
@@ -338,9 +346,9 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 	}
 
 	// 转换为 proto 消息列表
-	chatRooms := make([]*pb.ChatRoom, 0, len(modelChatRooms))
+	chatRooms := make([]*pb.ChatRoomAndUnreadCount, 0, len(modelChatRooms))
 	for _, room := range modelChatRooms {
-		chatRooms = append(chatRooms, &pb.ChatRoom{
+		chatRooms = append(chatRooms, &pb.ChatRoomAndUnreadCount{
 			RoomId:         room.RoomID,
 			Name:           room.Name,
 			AvatarUrl:      room.AvatarURL,
@@ -353,6 +361,7 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 			CreateTime:     room.CreateTime.Unix(),
 			UpdateTime:     room.UpdateTime.Unix(),
 			Level:          calculateRoomLevel(room.MemberCount),
+			UnreadCount:    room.UnreadCount,
 		})
 	}
 	return chatRooms, nil

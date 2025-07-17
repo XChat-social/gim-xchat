@@ -373,7 +373,7 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 	}
 
 	// 获取下一个消息序列号
-	seq, err := ChatRoomMessageRepo.GetNextSeq(ctx, req.RoomId)
+	seq, err := ChatRoomMessageRepo.GetNextSeq(req.RoomId)
 	if err != nil {
 		return nil, err
 	}
@@ -388,6 +388,12 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 		Seq:       int64(seq),
 		SendTime:  req.SendTime,
 		Status:    0, // 正常状态
+	}
+
+	// 获取中所有的成员并将未读数量自增一
+	err = ChatRoomMemberRepo.AddUnreadCount(req.RoomId, userId)
+	if err != nil {
+		return nil, err
 	}
 
 	// 持久化消息到数据库
@@ -414,6 +420,11 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 
 // GetChatRoomMessages 获取聊天室消息历史
 func (s *service) GetChatRoomMessages(ctx context.Context, req *pb.GetChatRoomMessagesReq) (*pb.GetChatRoomMessagesResp, error) {
+	userId, _, err := grpclib.GetCtxData(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// 获取消息总数
 	total, err := ChatRoomMessageRepo.Count(ctx, req.RoomId)
 	if err != nil {
@@ -435,9 +446,12 @@ func (s *service) GetChatRoomMessages(ctx context.Context, req *pb.GetChatRoomMe
 		return nil, err
 	}
 
+	// 刷新未读数量
+	err = ChatRoomMemberRepo.RefreshUnreadCount(req.RoomId, userId)
+
 	return &pb.GetChatRoomMessagesResp{
 		Messages: messages,
-		Total:    int32(total),
+		Total:    total,
 		PageNo:   req.PageNumber,
 		Pages:    tp,
 	}, nil
