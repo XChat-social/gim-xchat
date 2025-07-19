@@ -393,7 +393,7 @@ func (h *ChatRoomHandler) ThumbMessage(c *gin.Context) {
 		MessageId     int64 `json:"message_id" binding:"required"`
 		UserId        int64 `json:"user_id" binding:"required"`
 		RoomId        int64 `json:"room_id" binding:"required"`
-		IsLike        bool  `json:"is_like" binding:"required"`
+		IsLike        int8  `json:"is_like" binding:"required"`
 		MessageUserId int64 `json:"message_user_id" binding:"required"`
 	}
 
@@ -401,13 +401,17 @@ func (h *ChatRoomHandler) ThumbMessage(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "参数无效"})
 		return
 	}
+	flag := true
+	if req.IsLike == 1 {
+		flag = false
+	}
 
 	// 调用gRPC服务发送消息
 	_, err := rpc.GetLogicExtClient().ThumbMessage(grpclib.NewContextFromGin(c), &pb.ThumbMessageReq{
 		UserId:        req.UserId,
 		MessageId:     req.MessageId,
 		RoomId:        req.RoomId,
-		IsLike:        req.IsLike,
+		IsLike:        flag,
 		MessageUserId: req.MessageUserId,
 	})
 

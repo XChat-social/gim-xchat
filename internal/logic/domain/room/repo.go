@@ -466,7 +466,11 @@ func (r *chatRoomRepo) CheckThumbed(userId int64, messageId int64) (bool, error)
 	}
 
 	exists := count > 0
-	logger.Sugar.Info("权限检查结果 - 用户ID: %d, 消息ID: %d, 权限: %v", userId, messageId, exists)
+	logger.Sugar.Infow("权限检查结果",
+		"userId", userId,
+		"messageId", messageId,
+		"hasPermission", exists,
+	)
 	return exists, nil
 }
 
