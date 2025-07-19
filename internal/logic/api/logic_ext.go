@@ -246,6 +246,11 @@ func (s *LogicExtServer) CheckPermissionsByUserId(ctx context.Context, req *pb.C
 }
 
 // ThumbMessage 根据用户ID检查权限
-func (s *LogicExtServer) ThumbMessage(ctx context.Context, req *pb.ThumbMessageReq) error {
-	return room.App.ThumbMessage(ctx, req)
+func (s *LogicExtServer) ThumbMessage(ctx context.Context, req *pb.ThumbMessageReq) (*emptypb.Empty, error) {
+	err := room.App.ThumbMessage(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
