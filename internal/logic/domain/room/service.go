@@ -404,7 +404,7 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 	}
 
 	// 推送消息到聊天室成员
-	err = s.Push(&pb.PushRoomReq{
+	err = s.Push(ctx, &pb.PushRoomReq{
 		RoomId: req.RoomId,
 		//Code:      pb.PushCode_PC_CHAT_ROOM_MESSAGE,
 		Content:   req.Content,
