@@ -244,3 +244,8 @@ func (s *LogicExtServer) GetUserCreatedChatRooms(ctx context.Context, in *pb.Get
 func (s *LogicExtServer) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
 	return room.App.CheckPermissionsByUserId(ctx, req)
 }
+
+// ThumbMessage 根据用户ID检查权限
+func (s *LogicExtServer) ThumbMessage(ctx context.Context, req *pb.ThumbMessageReq) error {
+	return room.App.ThumbMessage(ctx, req)
+}
