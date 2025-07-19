@@ -21,7 +21,7 @@ type service struct{}
 
 var Service = new(service)
 
-func (s *service) Push(req *pb.PushRoomReq) error {
+func (s *service) Push(ctx context.Context, req *pb.PushRoomReq) error {
 	seq, err := SeqRepo.GetNextSeq(req.RoomId)
 	if err != nil {
 		return err
