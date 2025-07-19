@@ -415,4 +415,8 @@ func (h *ChatRoomHandler) ThumbMessage(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Success",
+	})
 }
