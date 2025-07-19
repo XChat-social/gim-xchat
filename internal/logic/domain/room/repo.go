@@ -518,7 +518,7 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 
 	// 查询当前人的积分
 	xPointInfo := &models.User{}
-	if err := tx.Where("id = ?", messageUserId).Select("x_point").First(&xPointInfo).Error; err != nil {
+	if err := tx.Where("id = ?", messageUserId).Select("xpoint").First(&xPointInfo).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
