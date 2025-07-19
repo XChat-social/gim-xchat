@@ -123,13 +123,15 @@ func (h *ChatRoomHandler) GetChatRoomMessages(c *gin.Context) {
 	messages := make([]gin.H, 0, len(resp.Messages))
 	for _, msg := range resp.Messages {
 		messages = append(messages, gin.H{
-			"id":        msg.Id,
-			"room_id":   msg.RoomId,
-			"user_id":   msg.UserId,
-			"content":   string(msg.Content),
-			"seq":       msg.Seq,
-			"send_time": msg.SendTime,
-			"status":    msg.Status,
+			"id":            msg.Id,
+			"room_id":       msg.RoomId,
+			"user_id":       msg.UserId,
+			"content":       string(msg.Content),
+			"seq":           msg.Seq,
+			"send_time":     msg.SendTime,
+			"status":        msg.Status,
+			"like_count":    msg.LikeCount,
+			"dislike_count": msg.DislikeCount,
 		})
 	}
 
@@ -384,4 +386,33 @@ func (h *ChatRoomHandler) CheckPermissionsByUserId(c *gin.Context) {
 		"code": 200,
 		"data": gin.H{"permissions": resp.HasPermission},
 	})
+}
+
+func (h *ChatRoomHandler) ThumbMessage(c *gin.Context) {
+	var req struct {
+		MessageId     int64 `json:"message_id" binding:"required"`
+		UserId        int64 `json:"user_id" binding:"required"`
+		RoomId        int64 `json:"room_id" binding:"required"`
+		IsLike        bool  `json:"is_like" binding:"required"`
+		MessageUserId int64 `json:"message_user_id" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "参数无效"})
+		return
+	}
+
+	// 调用gRPC服务发送消息
+	_, err := rpc.GetLogicExtClient().ThumbMessage(grpclib.NewContextFromGin(c), &pb.ThumbMessageReq{
+		UserId:        req.UserId,
+		MessageId:     req.MessageId,
+		RoomId:        req.RoomId,
+		IsLike:        req.IsLike,
+		MessageUserId: req.MessageUserId,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
 }

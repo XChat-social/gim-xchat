@@ -2113,6 +2113,7 @@ type ChatRoom struct {
 	UpdateTime     int64                  `protobuf:"varint,10,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`              // 更新时间
 	CreatorId      int64                  `protobuf:"varint,11,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`                 // 创建者ID
 	Level          int32                  `protobuf:"varint,12,opt,name=level,proto3" json:"level,omitempty"`                                          // 等级
+	RandomCount    float32                `protobuf:"fixed32,13,opt,name=random_count,json=randomCount,proto3" json:"random_count,omitempty"`          // 随机数
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2227,6 +2228,13 @@ func (x *ChatRoom) GetCreatorId() int64 {
 func (x *ChatRoom) GetLevel() int32 {
 	if x != nil {
 		return x.Level
+	}
+	return 0
+}
+
+func (x *ChatRoom) GetRandomCount() float32 {
+	if x != nil {
+		return x.RandomCount
 	}
 	return 0
 }
@@ -2829,15 +2837,17 @@ func (x *ChatRoomMessageData) GetContent() []byte {
 
 type ChatRoomMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 消息ID
-	RoomId        int64                  `protobuf:"varint,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`          // 聊天室ID
-	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`          // 发送者ID
-	RequestId     int64                  `protobuf:"varint,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"` // 请求ID
-	Code          int32                  `protobuf:"varint,5,opt,name=code,proto3" json:"code,omitempty"`                            // 消息类型
-	Content       []byte                 `protobuf:"bytes,6,opt,name=content,proto3" json:"content,omitempty"`                       // 消息内容
-	Seq           int64                  `protobuf:"varint,7,opt,name=seq,proto3" json:"seq,omitempty"`                              // 消息序列号
-	SendTime      int64                  `protobuf:"varint,8,opt,name=send_time,json=sendTime,proto3" json:"send_time,omitempty"`    // 发送时间
-	Status        int32                  `protobuf:"varint,9,opt,name=status,proto3" json:"status,omitempty"`                        // 消息状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 消息ID
+	RoomId        int64                  `protobuf:"varint,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`                   // 聊天室ID
+	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                   // 发送者ID
+	RequestId     int64                  `protobuf:"varint,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`          // 请求ID
+	LikeCount     int64                  `protobuf:"varint,5,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`          // 请求ID
+	DislikeCount  int64                  `protobuf:"varint,6,opt,name=dislike_count,json=dislikeCount,proto3" json:"dislike_count,omitempty"` // 请求ID
+	Code          int32                  `protobuf:"varint,7,opt,name=code,proto3" json:"code,omitempty"`                                     // 消息类型
+	Content       []byte                 `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`                                // 消息内容
+	Seq           int64                  `protobuf:"varint,9,opt,name=seq,proto3" json:"seq,omitempty"`                                       // 消息序列号
+	SendTime      int64                  `protobuf:"varint,10,opt,name=send_time,json=sendTime,proto3" json:"send_time,omitempty"`            // 发送时间
+	Status        int32                  `protobuf:"varint,11,opt,name=status,proto3" json:"status,omitempty"`                                // 消息状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2896,6 +2906,20 @@ func (x *ChatRoomMessage) GetUserId() int64 {
 func (x *ChatRoomMessage) GetRequestId() int64 {
 	if x != nil {
 		return x.RequestId
+	}
+	return 0
+}
+
+func (x *ChatRoomMessage) GetLikeCount() int64 {
+	if x != nil {
+		return x.LikeCount
+	}
+	return 0
+}
+
+func (x *ChatRoomMessage) GetDislikeCount() int64 {
+	if x != nil {
+		return x.DislikeCount
 	}
 	return 0
 }
@@ -3159,6 +3183,82 @@ func (x *CheckPermissionsByUserIdResp) GetHasPermission() bool {
 	return false
 }
 
+type ThumbMessageReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	MessageId     int64                  `protobuf:"varint,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	RoomId        int64                  `protobuf:"varint,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
+	IsLike        bool                   `protobuf:"varint,4,opt,name=is_like,json=isLike,proto3" json:"is_like,omitempty"`
+	MessageUserId int64                  `protobuf:"varint,5,opt,name=message_user_id,json=messageUserId,proto3" json:"message_user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ThumbMessageReq) Reset() {
+	*x = ThumbMessageReq{}
+	mi := &file_logic_ext_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ThumbMessageReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ThumbMessageReq) ProtoMessage() {}
+
+func (x *ThumbMessageReq) ProtoReflect() protoreflect.Message {
+	mi := &file_logic_ext_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ThumbMessageReq.ProtoReflect.Descriptor instead.
+func (*ThumbMessageReq) Descriptor() ([]byte, []int) {
+	return file_logic_ext_proto_rawDescGZIP(), []int{50}
+}
+
+func (x *ThumbMessageReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *ThumbMessageReq) GetMessageId() int64 {
+	if x != nil {
+		return x.MessageId
+	}
+	return 0
+}
+
+func (x *ThumbMessageReq) GetRoomId() int64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+func (x *ThumbMessageReq) GetIsLike() bool {
+	if x != nil {
+		return x.IsLike
+	}
+	return false
+}
+
+func (x *ThumbMessageReq) GetMessageUserId() int64 {
+	if x != nil {
+		return x.MessageUserId
+	}
+	return 0
+}
+
 var File_logic_ext_proto protoreflect.FileDescriptor
 
 const file_logic_ext_proto_rawDesc = "" +
@@ -3316,7 +3416,7 @@ const file_logic_ext_proto_rawDesc = "" +
 	"pageNumber\"L\n" +
 	"\x10GetChatRoomsResp\x12\"\n" +
 	"\x05rooms\x18\x01 \x03(\v2\f.pb.ChatRoomR\x05rooms\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xf7\x02\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\x9a\x03\n" +
 	"\bChatRoom\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -3334,7 +3434,8 @@ const file_logic_ext_proto_rawDesc = "" +
 	"updateTime\x12\x1d\n" +
 	"\n" +
 	"creator_id\x18\v \x01(\x03R\tcreatorId\x12\x14\n" +
-	"\x05level\x18\f \x01(\x05R\x05level\"\xa8\x03\n" +
+	"\x05level\x18\f \x01(\x05R\x05level\x12!\n" +
+	"\frandom_count\x18\r \x01(\x02R\vrandomCount\"\xa8\x03\n" +
 	"\x16ChatRoomAndUnreadCount\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -3385,18 +3486,22 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\tsender_id\x18\x01 \x01(\x03R\bsenderId\x12\x1f\n" +
 	"\vsender_name\x18\x02 \x01(\tR\n" +
 	"senderName\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\fR\acontent\"\xe7\x01\n" +
+	"\acontent\x18\x03 \x01(\fR\acontent\"\xab\x02\n" +
 	"\x0fChatRoomMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\x03R\x06roomId\x12\x17\n" +
 	"\auser_id\x18\x03 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
-	"request_id\x18\x04 \x01(\x03R\trequestId\x12\x12\n" +
-	"\x04code\x18\x05 \x01(\x05R\x04code\x12\x18\n" +
-	"\acontent\x18\x06 \x01(\fR\acontent\x12\x10\n" +
-	"\x03seq\x18\a \x01(\x03R\x03seq\x12\x1b\n" +
-	"\tsend_time\x18\b \x01(\x03R\bsendTime\x12\x16\n" +
-	"\x06status\x18\t \x01(\x05R\x06status\"o\n" +
+	"request_id\x18\x04 \x01(\x03R\trequestId\x12\x1d\n" +
+	"\n" +
+	"like_count\x18\x05 \x01(\x03R\tlikeCount\x12#\n" +
+	"\rdislike_count\x18\x06 \x01(\x03R\fdislikeCount\x12\x12\n" +
+	"\x04code\x18\a \x01(\x05R\x04code\x12\x18\n" +
+	"\acontent\x18\b \x01(\fR\acontent\x12\x10\n" +
+	"\x03seq\x18\t \x01(\x03R\x03seq\x12\x1b\n" +
+	"\tsend_time\x18\n" +
+	" \x01(\x03R\bsendTime\x12\x16\n" +
+	"\x06status\x18\v \x01(\x05R\x06status\"o\n" +
 	"\x16GetChatRoomMessagesReq\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1f\n" +
@@ -3411,13 +3516,20 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\x03R\x06roomId\"E\n" +
 	"\x1cCheckPermissionsByUserIdResp\x12%\n" +
-	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermission*<\n" +
+	"\x0ehas_permission\x18\x01 \x01(\bR\rhasPermission\"\xa3\x01\n" +
+	"\x0fThumbMessageReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x02 \x01(\x03R\tmessageId\x12\x17\n" +
+	"\aroom_id\x18\x03 \x01(\x03R\x06roomId\x12\x17\n" +
+	"\ais_like\x18\x04 \x01(\bR\x06isLike\x12&\n" +
+	"\x0fmessage_user_id\x18\x05 \x01(\x03R\rmessageUserId*<\n" +
 	"\n" +
 	"MemberType\x12\x0f\n" +
 	"\vGMT_UNKNOWN\x10\x00\x12\r\n" +
 	"\tGMT_ADMIN\x10\x01\x12\x0e\n" +
 	"\n" +
-	"GMT_MEMBER\x10\x022\xf2\r\n" +
+	"GMT_MEMBER\x10\x022\xaf\x0e\n" +
 	"\bLogicExt\x12?\n" +
 	"\x0eRegisterDevice\x12\x15.pb.RegisterDeviceReq\x1a\x16.pb.RegisterDeviceResp\x123\n" +
 	"\bPushRoom\x12\x0f.pb.PushRoomReq\x1a\x16.google.protobuf.Empty\x12>\n" +
@@ -3446,7 +3558,8 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\x13GetChatRoomMessages\x12\x1a.pb.GetChatRoomMessagesReq\x1a\x1b.pb.GetChatRoomMessagesResp\x12E\n" +
 	"\x10GetUserChatRooms\x12\x17.pb.GetUserChatRoomsReq\x1a\x18.pb.GetUserChatRoomsResp\x12Z\n" +
 	"\x17GetUserCreatedChatRooms\x12\x1e.pb.GetUserCreatedChatRoomsReq\x1a\x1f.pb.GetUserCreatedChatRoomsResp\x12]\n" +
-	"\x18CheckPermissionsByUserId\x12\x1f.pb.CheckPermissionsByUserIdReq\x1a .pb.CheckPermissionsByUserIdRespB\x1bZ\x19gim-xchat/pkg/protocol/pbb\x06proto3"
+	"\x18CheckPermissionsByUserId\x12\x1f.pb.CheckPermissionsByUserIdReq\x1a .pb.CheckPermissionsByUserIdResp\x12;\n" +
+	"\fThumbMessage\x12\x13.pb.ThumbMessageReq\x1a\x16.google.protobuf.EmptyB\x1bZ\x19gim-xchat/pkg/protocol/pbb\x06proto3"
 
 var (
 	file_logic_ext_proto_rawDescOnce sync.Once
@@ -3461,7 +3574,7 @@ func file_logic_ext_proto_rawDescGZIP() []byte {
 }
 
 var file_logic_ext_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
+var file_logic_ext_proto_msgTypes = make([]protoimpl.MessageInfo, 51)
 var file_logic_ext_proto_goTypes = []any{
 	(MemberType)(0),                      // 0: pb.MemberType
 	(*GetUserChatRoomsReq)(nil),          // 1: pb.GetUserChatRoomsReq
@@ -3514,7 +3627,8 @@ var file_logic_ext_proto_goTypes = []any{
 	(*GetChatRoomMessagesResp)(nil),      // 48: pb.GetChatRoomMessagesResp
 	(*CheckPermissionsByUserIdReq)(nil),  // 49: pb.CheckPermissionsByUserIdReq
 	(*CheckPermissionsByUserIdResp)(nil), // 50: pb.CheckPermissionsByUserIdResp
-	(*emptypb.Empty)(nil),                // 51: google.protobuf.Empty
+	(*ThumbMessageReq)(nil),              // 51: pb.ThumbMessageReq
+	(*emptypb.Empty)(nil),                // 52: google.protobuf.Empty
 }
 var file_logic_ext_proto_depIdxs = []int32{
 	37, // 0: pb.GetUserChatRoomsResp.chat_rooms:type_name -> pb.ChatRoomAndUnreadCount
@@ -3535,12 +3649,12 @@ var file_logic_ext_proto_depIdxs = []int32{
 	10, // 15: pb.LogicExt.AddFriend:input_type -> pb.AddFriendReq
 	11, // 16: pb.LogicExt.AgreeAddFriend:input_type -> pb.AgreeAddFriendReq
 	12, // 17: pb.LogicExt.SetFriend:input_type -> pb.SetFriendReq
-	51, // 18: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
+	52, // 18: pb.LogicExt.GetFriends:input_type -> google.protobuf.Empty
 	7,  // 19: pb.LogicExt.SendMessageToGroup:input_type -> pb.SendMessageReq
 	16, // 20: pb.LogicExt.CreateGroup:input_type -> pb.CreateGroupReq
 	18, // 21: pb.LogicExt.UpdateGroup:input_type -> pb.UpdateGroupReq
 	19, // 22: pb.LogicExt.GetGroup:input_type -> pb.GetGroupReq
-	51, // 23: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
+	52, // 23: pb.LogicExt.GetGroups:input_type -> google.protobuf.Empty
 	23, // 24: pb.LogicExt.AddGroupMembers:input_type -> pb.AddGroupMembersReq
 	25, // 25: pb.LogicExt.UpdateGroupMember:input_type -> pb.UpdateGroupMemberReq
 	26, // 26: pb.LogicExt.DeleteGroupMember:input_type -> pb.DeleteGroupMemberReq
@@ -3556,35 +3670,37 @@ var file_logic_ext_proto_depIdxs = []int32{
 	1,  // 36: pb.LogicExt.GetUserChatRooms:input_type -> pb.GetUserChatRoomsReq
 	3,  // 37: pb.LogicExt.GetUserCreatedChatRooms:input_type -> pb.GetUserCreatedChatRoomsReq
 	49, // 38: pb.LogicExt.CheckPermissionsByUserId:input_type -> pb.CheckPermissionsByUserIdReq
-	6,  // 39: pb.LogicExt.RegisterDevice:output_type -> pb.RegisterDeviceResp
-	51, // 40: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
-	8,  // 41: pb.LogicExt.SendMessageToFriend:output_type -> pb.SendMessageResp
-	51, // 42: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
-	51, // 43: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
-	13, // 44: pb.LogicExt.SetFriend:output_type -> pb.SetFriendResp
-	15, // 45: pb.LogicExt.GetFriends:output_type -> pb.GetFriendsResp
-	8,  // 46: pb.LogicExt.SendMessageToGroup:output_type -> pb.SendMessageResp
-	17, // 47: pb.LogicExt.CreateGroup:output_type -> pb.CreateGroupResp
-	51, // 48: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
-	20, // 49: pb.LogicExt.GetGroup:output_type -> pb.GetGroupResp
-	22, // 50: pb.LogicExt.GetGroups:output_type -> pb.GetGroupsResp
-	24, // 51: pb.LogicExt.AddGroupMembers:output_type -> pb.AddGroupMembersResp
-	51, // 52: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
-	51, // 53: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
-	28, // 54: pb.LogicExt.GetGroupMembers:output_type -> pb.GetGroupMembersResp
-	31, // 55: pb.LogicExt.CreateChatRoom:output_type -> pb.CreateChatRoomResp
-	33, // 56: pb.LogicExt.GetChatRoom:output_type -> pb.GetChatRoomResp
-	35, // 57: pb.LogicExt.GetChatRooms:output_type -> pb.GetChatRoomsResp
-	51, // 58: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
-	51, // 59: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
-	41, // 60: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
-	44, // 61: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
-	48, // 62: pb.LogicExt.GetChatRoomMessages:output_type -> pb.GetChatRoomMessagesResp
-	2,  // 63: pb.LogicExt.GetUserChatRooms:output_type -> pb.GetUserChatRoomsResp
-	4,  // 64: pb.LogicExt.GetUserCreatedChatRooms:output_type -> pb.GetUserCreatedChatRoomsResp
-	50, // 65: pb.LogicExt.CheckPermissionsByUserId:output_type -> pb.CheckPermissionsByUserIdResp
-	39, // [39:66] is the sub-list for method output_type
-	12, // [12:39] is the sub-list for method input_type
+	51, // 39: pb.LogicExt.ThumbMessage:input_type -> pb.ThumbMessageReq
+	6,  // 40: pb.LogicExt.RegisterDevice:output_type -> pb.RegisterDeviceResp
+	52, // 41: pb.LogicExt.PushRoom:output_type -> google.protobuf.Empty
+	8,  // 42: pb.LogicExt.SendMessageToFriend:output_type -> pb.SendMessageResp
+	52, // 43: pb.LogicExt.AddFriend:output_type -> google.protobuf.Empty
+	52, // 44: pb.LogicExt.AgreeAddFriend:output_type -> google.protobuf.Empty
+	13, // 45: pb.LogicExt.SetFriend:output_type -> pb.SetFriendResp
+	15, // 46: pb.LogicExt.GetFriends:output_type -> pb.GetFriendsResp
+	8,  // 47: pb.LogicExt.SendMessageToGroup:output_type -> pb.SendMessageResp
+	17, // 48: pb.LogicExt.CreateGroup:output_type -> pb.CreateGroupResp
+	52, // 49: pb.LogicExt.UpdateGroup:output_type -> google.protobuf.Empty
+	20, // 50: pb.LogicExt.GetGroup:output_type -> pb.GetGroupResp
+	22, // 51: pb.LogicExt.GetGroups:output_type -> pb.GetGroupsResp
+	24, // 52: pb.LogicExt.AddGroupMembers:output_type -> pb.AddGroupMembersResp
+	52, // 53: pb.LogicExt.UpdateGroupMember:output_type -> google.protobuf.Empty
+	52, // 54: pb.LogicExt.DeleteGroupMember:output_type -> google.protobuf.Empty
+	28, // 55: pb.LogicExt.GetGroupMembers:output_type -> pb.GetGroupMembersResp
+	31, // 56: pb.LogicExt.CreateChatRoom:output_type -> pb.CreateChatRoomResp
+	33, // 57: pb.LogicExt.GetChatRoom:output_type -> pb.GetChatRoomResp
+	35, // 58: pb.LogicExt.GetChatRooms:output_type -> pb.GetChatRoomsResp
+	52, // 59: pb.LogicExt.JoinChatRoom:output_type -> google.protobuf.Empty
+	52, // 60: pb.LogicExt.LeaveChatRoom:output_type -> google.protobuf.Empty
+	41, // 61: pb.LogicExt.GetChatRoomMembers:output_type -> pb.GetChatRoomMembersResp
+	44, // 62: pb.LogicExt.SendChatRoomMessage:output_type -> pb.SendChatRoomMessageResp
+	48, // 63: pb.LogicExt.GetChatRoomMessages:output_type -> pb.GetChatRoomMessagesResp
+	2,  // 64: pb.LogicExt.GetUserChatRooms:output_type -> pb.GetUserChatRoomsResp
+	4,  // 65: pb.LogicExt.GetUserCreatedChatRooms:output_type -> pb.GetUserCreatedChatRoomsResp
+	50, // 66: pb.LogicExt.CheckPermissionsByUserId:output_type -> pb.CheckPermissionsByUserIdResp
+	52, // 67: pb.LogicExt.ThumbMessage:output_type -> google.protobuf.Empty
+	40, // [40:68] is the sub-list for method output_type
+	12, // [12:40] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
 	12, // [12:12] is the sub-list for extension extendee
 	0,  // [0:12] is the sub-list for field type_name
@@ -3601,7 +3717,7 @@ func file_logic_ext_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_logic_ext_proto_rawDesc), len(file_logic_ext_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   50,
+			NumMessages:   51,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

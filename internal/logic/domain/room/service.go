@@ -2,6 +2,7 @@ package room
 
 import (
 	"context"
+	"errors"
 	"gim/pkg/gerrors"
 	"gim/pkg/grpclib"
 	"gim/pkg/grpclib/picker"
@@ -20,7 +21,7 @@ type service struct{}
 
 var Service = new(service)
 
-func (s *service) Push(ctx context.Context, req *pb.PushRoomReq) error {
+func (s *service) Push(req *pb.PushRoomReq) error {
 	seq, err := SeqRepo.GetNextSeq(req.RoomId)
 	if err != nil {
 		return err
@@ -403,7 +404,7 @@ func (s *service) SendChatRoomMessage(ctx context.Context, req *pb.SendChatRoomM
 	}
 
 	// 推送消息到聊天室成员
-	err = s.Push(ctx, &pb.PushRoomReq{
+	err = s.Push(&pb.PushRoomReq{
 		RoomId: req.RoomId,
 		//Code:      pb.PushCode_PC_CHAT_ROOM_MESSAGE,
 		Content:   req.Content,
@@ -465,6 +466,33 @@ func (s *service) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]
 // CheckPermissionsByUserId 根据用户ID检查权限
 func (s *service) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
 	return ChatRoomRepo.CheckPermissionsByUserId(ctx, req)
+}
+
+func (s *service) ThumbMessage(ctx context.Context, req *pb.ThumbMessageReq) error {
+	// 校验是否有有效币
+	holding, err := ChatRoomRepo.CheckUserIsHolding(req.UserId, req.RoomId)
+	if err != nil {
+		return err
+	}
+	if !holding {
+		return errors.New("当前用户无房间权限，请购币后重试！")
+	}
+
+	//校验是否已点赞
+	Thumbed, err := ChatRoomRepo.CheckThumbed(req.UserId, req.MessageId)
+	if err != nil {
+		return err
+	}
+	if Thumbed {
+		return errors.New("当前用户已参与评价！")
+	}
+
+	//thumb
+	err = ChatRoomRepo.ThumbAndXpoint(req.UserId, req.MessageId, req.IsLike, req.RoomId, req.GetMessageUserId())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 //const (

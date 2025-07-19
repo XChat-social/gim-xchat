@@ -63,6 +63,8 @@ service LogicExt {
   rpc GetUserCreatedChatRooms (GetUserCreatedChatRoomsReq) returns (GetUserCreatedChatRoomsResp);
   // CheckPermissionsByUserId 根据用户ID检查权限
   rpc CheckPermissionsByUserId (CheckPermissionsByUserIdReq) returns (CheckPermissionsByUserIdResp);
+  // LikeMessage 点赞消息
+  rpc ThumbMessage (ThumbMessageReq) returns (google.protobuf.Empty);
 }
 message GetUserChatRoomsReq {
   int32 page_size = 1;  // 每页数量
@@ -275,6 +277,7 @@ message ChatRoom {
    int64 update_time = 10; // 更新时间 
    int64 creator_id = 11; // 创建者ID
    int32 level = 12;  // 等级
+   float random_count = 13; // 随机数
  }
 
 message ChatRoomAndUnreadCount {
@@ -344,11 +347,13 @@ message ChatRoomMessage {
     int64 room_id = 2;     // 聊天室ID
     int64 user_id = 3;     // 发送者ID
     int64 request_id = 4;  // 请求ID
-    int32 code = 5;        // 消息类型
-    bytes content = 6;     // 消息内容
-    int64 seq = 7;         // 消息序列号
-    int64 send_time = 8;   // 发送时间
-    int32 status = 9;      // 消息状态
+    int64 like_count = 5;  // 请求ID
+    int64 dislike_count = 6;  // 请求ID
+    int32 code = 7;        // 消息类型
+    bytes content = 8;     // 消息内容
+    int64 seq = 9;         // 消息序列号
+    int64 send_time = 10;   // 发送时间
+    int32 status = 11;      // 消息状态
 }
 
 message GetChatRoomMessagesReq {
@@ -371,4 +376,12 @@ message CheckPermissionsByUserIdReq{
 
 message CheckPermissionsByUserIdResp {
   bool has_permission = 1;
+}
+
+message ThumbMessageReq{
+  int64 user_id = 1;
+  int64 message_id = 2;
+  int64 room_id = 3;
+  bool is_like = 4;
+  int64  message_user_id = 5;
 }

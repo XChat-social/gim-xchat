@@ -47,6 +47,7 @@ const (
 	LogicExt_GetUserChatRooms_FullMethodName         = "/pb.LogicExt/GetUserChatRooms"
 	LogicExt_GetUserCreatedChatRooms_FullMethodName  = "/pb.LogicExt/GetUserCreatedChatRooms"
 	LogicExt_CheckPermissionsByUserId_FullMethodName = "/pb.LogicExt/CheckPermissionsByUserId"
+	LogicExt_ThumbMessage_FullMethodName             = "/pb.LogicExt/ThumbMessage"
 )
 
 // LogicExtClient is the client API for LogicExt service.
@@ -107,6 +108,8 @@ type LogicExtClient interface {
 	GetUserCreatedChatRooms(ctx context.Context, in *GetUserCreatedChatRoomsReq, opts ...grpc.CallOption) (*GetUserCreatedChatRoomsResp, error)
 	// CheckPermissionsByUserId 根据用户ID检查权限
 	CheckPermissionsByUserId(ctx context.Context, in *CheckPermissionsByUserIdReq, opts ...grpc.CallOption) (*CheckPermissionsByUserIdResp, error)
+	// LikeMessage 点赞消息
+	ThumbMessage(ctx context.Context, in *ThumbMessageReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type logicExtClient struct {
@@ -387,6 +390,16 @@ func (c *logicExtClient) CheckPermissionsByUserId(ctx context.Context, in *Check
 	return out, nil
 }
 
+func (c *logicExtClient) ThumbMessage(ctx context.Context, in *ThumbMessageReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, LogicExt_ThumbMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LogicExtServer is the server API for LogicExt service.
 // All implementations must embed UnimplementedLogicExtServer
 // for forward compatibility.
@@ -445,6 +458,8 @@ type LogicExtServer interface {
 	GetUserCreatedChatRooms(context.Context, *GetUserCreatedChatRoomsReq) (*GetUserCreatedChatRoomsResp, error)
 	// CheckPermissionsByUserId 根据用户ID检查权限
 	CheckPermissionsByUserId(context.Context, *CheckPermissionsByUserIdReq) (*CheckPermissionsByUserIdResp, error)
+	// LikeMessage 点赞消息
+	ThumbMessage(context.Context, *ThumbMessageReq) (*emptypb.Empty, error)
 	mustEmbedUnimplementedLogicExtServer()
 }
 
@@ -535,6 +550,9 @@ func (UnimplementedLogicExtServer) GetUserCreatedChatRooms(context.Context, *Get
 }
 func (UnimplementedLogicExtServer) CheckPermissionsByUserId(context.Context, *CheckPermissionsByUserIdReq) (*CheckPermissionsByUserIdResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPermissionsByUserId not implemented")
+}
+func (UnimplementedLogicExtServer) ThumbMessage(context.Context, *ThumbMessageReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ThumbMessage not implemented")
 }
 func (UnimplementedLogicExtServer) mustEmbedUnimplementedLogicExtServer() {}
 func (UnimplementedLogicExtServer) testEmbeddedByValue()                  {}
@@ -1043,6 +1061,24 @@ func _LogicExt_CheckPermissionsByUserId_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LogicExt_ThumbMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ThumbMessageReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LogicExtServer).ThumbMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LogicExt_ThumbMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LogicExtServer).ThumbMessage(ctx, req.(*ThumbMessageReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LogicExt_ServiceDesc is the grpc.ServiceDesc for LogicExt service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1157,6 +1193,10 @@ var LogicExt_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckPermissionsByUserId",
 			Handler:    _LogicExt_CheckPermissionsByUserId_Handler,
+		},
+		{
+			MethodName: "ThumbMessage",
+			Handler:    _LogicExt_ThumbMessage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

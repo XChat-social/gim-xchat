@@ -16,7 +16,7 @@ type User struct {
 	TwitterUsername string    `json:"twitter_username" gorm:"column:twitter_username"` // Twitter 用户名
 	CreateTime      time.Time `json:"create_time" gorm:"column:create_time"`           // 创建时间
 	UpdateTime      time.Time `json:"update_time" gorm:"column:update_time"`           // 更新时间
-	XPoint          uint      `json:"xpoint" gorm:"column:xpoint"`                     // 当前积分
+	XPoint          float64   `json:"xpoint" gorm:"column:xpoint"`                     // 当前积分
 	FollowReward    int       `json:"follow_reward" gorm:"column:follow_reward"`       // 推特关注奖励领取状态：false=未领取，true=已领取
 	InviterCode     string    `json:"inviter_code" gorm:"column:inviter_code"`         // 填写的邀请码
 	InviteCode      string    `json:"invite_code" gorm:"column:invite_code"`           // 用户的邀请码

@@ -73,3 +73,7 @@ func (s *app) GetUserCreatedChatRooms(ctx context.Context, userId int64) ([]*pb.
 func (s *app) CheckPermissionsByUserId(ctx context.Context, req *pb.CheckPermissionsByUserIdReq) (*pb.CheckPermissionsByUserIdResp, error) {
 	return Service.CheckPermissionsByUserId(ctx, req)
 }
+
+func (s *app) ThumbMessage(ctx context.Context, req *pb.ThumbMessageReq) error {
+	return Service.ThumbMessage(ctx, req)
+}

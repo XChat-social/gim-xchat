@@ -87,6 +87,7 @@ func (r *chatRoomRepo) List(ctx context.Context, offset, limit int32) ([]*pb.Cha
 			CreateTime:     room.CreateTime.Unix(),
 			UpdateTime:     room.UpdateTime.Unix(),
 			Level:          calculateRoomLevel(room.MemberCount),
+			RandomCount:    float32(room.RandomCount),
 		})
 	}
 	return chatRooms, nil
@@ -147,15 +148,17 @@ func (r *chatRoomMessageRepo) List(ctx context.Context, roomId int64, offset, li
 	for i := len(dbMessages) - 1; i >= 0; i-- {
 		msg := dbMessages[i]
 		messages = append(messages, &pb.ChatRoomMessage{
-			Id:        int64(msg.ID),
-			RoomId:    int64(msg.RoomID),
-			UserId:    int64(msg.UserID),
-			RequestId: msg.RequestID,
-			Code:      int32(msg.Code),
-			Content:   msg.Content,
-			Seq:       int64(msg.Seq),
-			SendTime:  msg.SendTime.Unix(),
-			Status:    int32(msg.Status),
+			Id:           int64(msg.ID),
+			RoomId:       int64(msg.RoomID),
+			UserId:       int64(msg.UserID),
+			RequestId:    msg.RequestID,
+			LikeCount:    int64(msg.LikeCount),
+			DislikeCount: int64(msg.DislikeCount),
+			Code:         int32(msg.Code),
+			Content:      msg.Content,
+			Seq:          int64(msg.Seq),
+			SendTime:     msg.SendTime.Unix(),
+			Status:       int32(msg.Status),
 		})
 	}
 	return messages, nil
@@ -380,26 +383,7 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 	//	}, nil
 	//}
 
-	var count int64
-	query := db.DB.Table("chat_room").
-		Joins("INNER JOIN token ON chat_room.creator_id = token.user_id").
-		Joins("INNER JOIN token_holdings ON token.token_address = token_holdings.token_address").
-		Where("token_holdings.user_id = ? AND chat_room.room_id = ? AND amount > 0", req.UserId, req.RoomId)
-
-	result := query.Count(&count)
-
-	if result.Error != nil {
-		// 明确处理记录不存在的情况
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return &pb.CheckPermissionsByUserIdResp{HasPermission: false}, nil
-		}
-		// 其他数据库错误
-		logger.Sugar.Info("数据库查询错误: %v", result.Error)
-		return nil, gerrors.WrapError(result.Error)
-	}
-
-	exists := count > 0
-	logger.Sugar.Info("权限检查结果 - 用户ID: %d, 房间ID: %d, 权限: %v", req.UserId, req.RoomId, exists)
+	exists, _ := ChatRoomRepo.CheckUserIsHolding(req.UserId, req.RoomId)
 
 	if exists {
 		// 校验当前用户是否在聊天室
@@ -438,6 +422,137 @@ func (r *chatRoomRepo) CheckPermissionsByUserId(ctx context.Context, req *pb.Che
 	return &pb.CheckPermissionsByUserIdResp{
 		HasPermission: exists,
 	}, nil
+}
+
+func (r *chatRoomRepo) CheckUserIsHolding(userId int64, roomId int64) (bool, error) {
+	var count int64
+	query := db.DB.Table("chat_room").
+		Joins("INNER JOIN token ON chat_room.creator_id = token.user_id").
+		Joins("INNER JOIN token_holdings ON token.token_address = token_holdings.token_address").
+		Where("token_holdings.user_id = ? AND chat_room.room_id = ? AND amount > 0", userId, roomId)
+
+	result := query.Count(&count)
+
+	if result.Error != nil {
+		// 明确处理记录不存在的情况
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		// 其他数据库错误
+		logger.Sugar.Info("数据库查询错误: %v", result.Error)
+		return false, nil
+	}
+
+	exists := count > 0
+	logger.Sugar.Info("权限检查结果 - 用户ID: %d, 房间ID: %d, 权限: %v", userId, roomId, exists)
+	return exists, nil
+}
+
+func (r *chatRoomRepo) CheckThumbed(userId int64, messageId int64) (bool, error) {
+	var count int64
+	query := db.DB.Table("chat_room_message").
+		Joins("INNER JOIN chat_room_message_thumbs ON chat_room_message.id = chat_room_message_thumbs.message_id").
+		Where("chat_room_message_thumbs.user_id = ? AND chat_room_message_thumbs.message_id = ? ", userId, messageId)
+	result := query.Count(&count)
+
+	if result.Error != nil {
+		// 明确处理记录不存在的情况
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		// 其他数据库错误
+		logger.Sugar.Info("数据库查询错误: %v", result.Error)
+		return false, nil
+	}
+
+	exists := count > 0
+	logger.Sugar.Info("权限检查结果 - 用户ID: %d, 消息ID: %d, 权限: %v", userId, messageId, exists)
+	return exists, nil
+}
+
+func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool, roomId int64, messageUserId int64) error {
+	// 开启事务
+	tx := db.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	flag := 1
+	if isLike {
+		flag = 0
+	}
+	//thumb
+	thumb := &models.ChatRoomMessageThumbs{
+		UserID:     uint64(userId),
+		MessageID:  messageId,
+		Thumb:      int8(flag),
+		CreateTime: time.Now(),
+		UpdateTime: time.Now(),
+	}
+	if err := tx.Create(&thumb).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if isLike {
+		if err := tx.Model(&models.ChatRoomMessage{}).Where("id = ?", messageId).Update("like_count", gorm.Expr("like_count + 1")).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else {
+		if err := tx.Model(&models.ChatRoomMessage{}).Where("id = ?", messageId).Update("dislike_count", gorm.Expr("dislike_count + 1")).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// 获取积分权重
+	roomInfo := &models.ChatRoom{}
+	if err := tx.Model(&models.ChatRoom{}).Where("room_id = ?", roomId).First(&roomInfo).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	xPoint := roomInfo.RandomCount * (float64(calculateRoomLevel(roomInfo.MemberCount))*0.1 + 1)
+	logger.Sugar.Infof("xPoint: %f", xPoint)
+
+	// 查询当前人的积分
+	xPointInfo := &models.User{}
+	if err := tx.Where("id = ?", messageUserId).Select("x_point").First(&xPointInfo).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	point := xPointInfo.XPoint
+
+	// 更新当前人的积分
+	if isLike {
+		if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", gorm.Expr("xpoint + ?", xPoint)).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else {
+		if point-xPoint > 0 {
+			if point >= xPoint {
+				if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", gorm.Expr("xpoint - ?", xPoint)).Error; err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+
+		} else {
+			if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", 0).Error; err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getUser(userId int64) (models.User, error) {

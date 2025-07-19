@@ -94,6 +94,12 @@ func (h *TokenHandler) CreateToken(c *gin.Context) {
 		return
 	}
 
+	// 提交事务
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Transaction commit failed"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"message": "Failed to create token",
