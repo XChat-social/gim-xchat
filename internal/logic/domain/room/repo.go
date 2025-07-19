@@ -496,12 +496,18 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 		return err
 	}
 	if isLike {
-		if err := tx.Model(&models.ChatRoomMessage{}).Where("id = ?", messageId).Update("like_count", gorm.Expr("like_count + 1")).Error; err != nil {
+		if err := tx.Exec(
+			"UPDATE chat_room_message SET like_count = like_count + 1 WHERE id = ?",
+			messageId,
+		).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	} else {
-		if err := tx.Model(&models.ChatRoomMessage{}).Where("id = ?", messageId).Update("dislike_count", gorm.Expr("dislike_count + 1")).Error; err != nil {
+		if err := tx.Exec(
+			"UPDATE chat_room_message SET dislike_count = dislike_count + 1 WHERE id = ?",
+			messageId,
+		).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -514,7 +520,7 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 		return err
 	}
 	xPoint := roomInfo.RandomCount * (float64(calculateRoomLevel(roomInfo.MemberCount))*0.1 + 1)
-	logger.Sugar.Infof("xPoint: %f", xPoint)
+	logger.Sugar.Info("xPoint: %f", xPoint)
 
 	// 查询当前人的积分
 	xPointInfo := &models.User{}
@@ -526,14 +532,14 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 
 	// 更新当前人的积分
 	if isLike {
-		if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", gorm.Expr("xpoint + ?", xPoint)).Error; err != nil {
+		if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", xPoint+point).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	} else {
 		if point-xPoint > 0 {
 			if point >= xPoint {
-				if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", gorm.Expr("xpoint - ?", xPoint)).Error; err != nil {
+				if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", point-xPoint).Error; err != nil {
 					tx.Rollback()
 					return err
 				}
