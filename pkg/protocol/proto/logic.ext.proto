@@ -294,6 +294,7 @@ message ChatRoomAndUnreadCount {
   int64 creator_id = 11; // 创建者ID
   int32 level = 12;  // 等级
   int64 unread_count = 13;
+  string LastMessage = 14;     // 消息内容
 }
 
 

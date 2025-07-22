@@ -342,17 +342,42 @@ func (r *chatRoomRepo) ListByCreatorId(ctx context.Context, creatorId int64) ([]
 // ListByUserId 获取用户加入的聊天室列表
 func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, limit int32) ([]*pb.ChatRoomAndUnreadCount, error) {
 	var modelChatRooms []models.ChatRoomAndUnreadCount
+
 	err := db.DB.Table("chat_room").
-		Select("chat_room.*, chat_room_member.unread_count as unread_count").
+		Select("chat_room.*", "chat_room_member.unread_count as unread_count").
 		Joins("JOIN chat_room_member ON chat_room.room_id = chat_room_member.room_id").
-		Where("chat_room_member.user_id = ?", userId).
+		Where("chat_room_member.user_id = ? and chat_room_member.status = 1", userId).
 		Offset(int(offset)).Limit(int(limit)).
 		Find(&modelChatRooms).Error
+
 	if err != nil {
 		return nil, gerrors.WrapError(err)
 	}
 
-	// 转换为 proto 消息列表
+	// 提取roomIDs
+	roomIDs := make([]int64, 0, len(modelChatRooms))
+	for _, room := range modelChatRooms {
+		roomIDs = append(roomIDs, room.RoomID)
+	}
+
+	// 查询每个聊天室的最新消息
+	messageMap := make(map[int64]string)
+	if len(roomIDs) > 0 {
+		var messages []models.ChatRoomMessage
+		err := db.DB.Where("room_id IN (?)", roomIDs).
+			Order("room_id, seq DESC").
+			Find(&messages).Error
+
+		if err == nil {
+			for _, msg := range messages {
+				if _, exists := messageMap[int64(msg.RoomID)]; !exists {
+					messageMap[int64(msg.RoomID)] = string(msg.Content)
+				}
+			}
+		}
+	}
+
+	// 构造返回结果
 	chatRooms := make([]*pb.ChatRoomAndUnreadCount, 0, len(modelChatRooms))
 	for _, room := range modelChatRooms {
 		chatRooms = append(chatRooms, &pb.ChatRoomAndUnreadCount{
@@ -369,8 +394,10 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 			UpdateTime:     room.UpdateTime.Unix(),
 			Level:          calculateRoomLevel(room.MemberCount),
 			UnreadCount:    room.UnreadCount,
+			LastMessage:    messageMap[room.RoomID], // 从map中获取
 		})
 	}
+
 	return chatRooms, nil
 }
 

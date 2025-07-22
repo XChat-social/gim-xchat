@@ -266,6 +266,33 @@ func (h *TokenHandler) BuyToken(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to create holding record"})
 			return
 		}
+		// 查询聊天室
+		var chatRoom models.ChatRoom
+		if err := tx.Where("creator_id = ?", token.UserID).First(&chatRoom).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to check chat room info"})
+			return
+		}
+		// 获取当前用户信息
+		var user models.User
+		if err := tx.First(&user, userID).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get User info"})
+			return
+		}
+		// 加入聊天室
+		dbMember := &models.ChatRoomMember{
+			RoomID:    uint64(chatRoom.RoomID),
+			UserID:    uint64(userID),
+			Nickname:  user.Nickname,
+			AvatarURL: user.AvatarURL,
+			JoinTime:  time.Now(),
+		}
+		if err := tx.Create(&dbMember).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to add chatroom"})
+			return
+		}
 	} else if result.Error != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to query holding record"})
@@ -373,6 +400,21 @@ func (h *TokenHandler) SellToken(c *gin.Context) {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to update holding record"})
 		return
+	}
+	if holding.Amount <= 0 {
+		// 查询聊天室
+		var chatRoom models.ChatRoom
+		if err := tx.Where("creator_id = ?", token.UserID).First(&chatRoom).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to check chat room info"})
+			return
+		}
+		// 移出聊天室
+		if err := tx.Model(&models.ChatRoomMember{}).Where("user_id = ? AND room_id = ?", userID, chatRoom.RoomID).UpdateColumn("status", 2).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to delete holding record"})
+			return
+		}
 	}
 
 	// 提交事务

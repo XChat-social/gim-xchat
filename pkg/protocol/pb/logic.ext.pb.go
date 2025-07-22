@@ -2254,6 +2254,7 @@ type ChatRoomAndUnreadCount struct {
 	CreatorId      int64                  `protobuf:"varint,11,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`                 // 创建者ID
 	Level          int32                  `protobuf:"varint,12,opt,name=level,proto3" json:"level,omitempty"`                                          // 等级
 	UnreadCount    int64                  `protobuf:"varint,13,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
+	LastMessage    string                 `protobuf:"bytes,14,opt,name=LastMessage,proto3" json:"LastMessage,omitempty"` // 消息内容
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2377,6 +2378,13 @@ func (x *ChatRoomAndUnreadCount) GetUnreadCount() int64 {
 		return x.UnreadCount
 	}
 	return 0
+}
+
+func (x *ChatRoomAndUnreadCount) GetLastMessage() string {
+	if x != nil {
+		return x.LastMessage
+	}
+	return ""
 }
 
 type JoinChatRoomReq struct {
@@ -3435,7 +3443,7 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\n" +
 	"creator_id\x18\v \x01(\x03R\tcreatorId\x12\x14\n" +
 	"\x05level\x18\f \x01(\x05R\x05level\x12!\n" +
-	"\frandom_count\x18\r \x01(\x02R\vrandomCount\"\xa8\x03\n" +
+	"\frandom_count\x18\r \x01(\x02R\vrandomCount\"\xca\x03\n" +
 	"\x16ChatRoomAndUnreadCount\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -3454,7 +3462,8 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\n" +
 	"creator_id\x18\v \x01(\x03R\tcreatorId\x12\x14\n" +
 	"\x05level\x18\f \x01(\x05R\x05level\x12!\n" +
-	"\funread_count\x18\r \x01(\x03R\vunreadCount\"*\n" +
+	"\funread_count\x18\r \x01(\x03R\vunreadCount\x12 \n" +
+	"\vLastMessage\x18\x0e \x01(\tR\vLastMessage\"*\n" +
 	"\x0fJoinChatRoomReq\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\"+\n" +
 	"\x10LeaveChatRoomReq\x12\x17\n" +
