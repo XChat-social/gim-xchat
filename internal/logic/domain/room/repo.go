@@ -344,7 +344,7 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 	var modelChatRooms []models.ChatRoomAndUnreadCount
 
 	err := db.DB.Table("chat_room").
-		Select("chat_room.*", "chat_room_member.unread_count as unread_count").
+		Select("chat_room.*, chat_room_member.unread_count as unread_count").
 		Joins("JOIN chat_room_member ON chat_room.room_id = chat_room_member.room_id").
 		Where("chat_room_member.user_id = ? and chat_room_member.status = 1", userId).
 		Offset(int(offset)).Limit(int(limit)).
