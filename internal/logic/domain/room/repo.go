@@ -366,7 +366,7 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 	if len(roomIDs) > 0 {
 		var messages []models.ChatRoomMessage
 		err := db.DB.Raw(
-			" SELECT * FROM (SELECT id, content, room_id, seq, ROW_NUMBER()OVER(PARTITION BY room_id ORDER BY seq DESC) AS rowNumber FROM chat_room_message where room_id IN (?)) WHERE rowNumber = 1",
+			" SELECT * FROM (SELECT id, content, room_id, seq, ROW_NUMBER()OVER(PARTITION BY room_id ORDER BY seq DESC) AS rowNumber FROM chat_room_message where room_id IN (?)) t WHERE rowNumber = 1",
 			roomIDs).
 			Scan(&messages).Error
 
