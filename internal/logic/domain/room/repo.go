@@ -365,10 +365,10 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 	messageMap := make(map[int64]string)
 	if len(roomIDs) > 0 {
 		var messages []models.ChatRoomMessage
-		err := db.DB.Where("room_id IN (?)", roomIDs).
-			Order("room_id, seq DESC").
-			Group("room_id").
-			Find(&messages).Error
+		err := db.DB.Raw(
+			"SELECT room_id, content, max(seq) FROM `chat_room_message`  WHERE room_id IN (?) GROUP BY room_id",
+			roomIDs).
+			Scan(&messages).Error
 
 		if err == nil {
 			for _, msg := range messages {
