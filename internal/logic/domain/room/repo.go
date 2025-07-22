@@ -86,6 +86,7 @@ func (r *chatRoomRepo) List(ctx context.Context, offset, limit int32) ([]*pb.Cha
 			Extra:          room.Extra,
 			CreateTime:     room.CreateTime.Unix(),
 			UpdateTime:     room.UpdateTime.Unix(),
+			CreatorId:      room.CreatorId, // 添加
 			Level:          calculateRoomLevel(room.MemberCount),
 			RandomCount:    float32(room.RandomCount),
 		})
@@ -366,6 +367,7 @@ func (r *chatRoomRepo) ListByUserId(ctx context.Context, userId int64, offset, l
 		var messages []models.ChatRoomMessage
 		err := db.DB.Where("room_id IN (?)", roomIDs).
 			Order("room_id, seq DESC").
+			Group("room_id").
 			Find(&messages).Error
 
 		if err == nil {
