@@ -268,7 +268,7 @@ func (h *TokenHandler) BuyToken(c *gin.Context) {
 		}
 		// 查询聊天室
 		var chatRoom models.ChatRoom
-		if err := tx.Where("creator_id = ?", token.UserID).First(&chatRoom).Error; err != nil {
+		if err := tx.Model(&models.ChatRoom{}).Where("creator_id = ?", token.UserID).First(&chatRoom).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to check chat room info"})
 			return
@@ -404,7 +404,7 @@ func (h *TokenHandler) SellToken(c *gin.Context) {
 	if holding.Amount <= 0 {
 		// 查询聊天室
 		var chatRoom models.ChatRoom
-		if err := tx.Where("creator_id = ?", token.UserID).First(&chatRoom).Error; err != nil {
+		if err := tx.Model(&models.ChatRoom{}).Where("creator_id = ?", token.UserID).First(&chatRoom).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to check chat room info"})
 			return

@@ -393,7 +393,7 @@ func (h *ChatRoomHandler) ThumbMessage(c *gin.Context) {
 		MessageId     int64 `json:"message_id" binding:"required"`
 		UserId        int64 `json:"user_id" binding:"required"`
 		RoomId        int64 `json:"room_id" binding:"required"`
-		IsLike        int8  `json:"is_like" binding:"required"`
+		IsLike        int8  `json:"is_like"`
 		MessageUserId int64 `json:"message_user_id" binding:"required"`
 	}
 
