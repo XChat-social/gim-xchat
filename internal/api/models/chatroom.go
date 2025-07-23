@@ -4,6 +4,10 @@ import (
 	"time"
 )
 
+func (ChatRoom) TableName() string {
+	return "chat_room"
+}
+
 // ChatRoom 聊天室模型
 type ChatRoom struct {
 	ID             uint      `gorm:"primarykey" json:"id"`                                  // 自增主键
