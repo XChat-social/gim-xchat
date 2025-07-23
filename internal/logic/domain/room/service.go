@@ -143,6 +143,12 @@ func (s *service) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq)
 		return nil, gerrors.ErrAlreadyInChatRoom
 	}
 
+	// 获取创建者信息
+	userInfo, err := rpc.GetBusinessIntClient().GetUser(ctx, &pb.GetUserReq{UserId: creatorId})
+	if err != nil {
+		return nil, err
+	}
+
 	// 生成聊天室ID
 	roomId, err := sequence.GetNextSeq("chat_room")
 
@@ -156,18 +162,13 @@ func (s *service) CreateChatRoom(ctx context.Context, req *pb.CreateChatRoomReq)
 		MaxMemberCount: req.MaxMemberCount,
 		Extra:          req.Extra,
 		CreatorId:      creatorId,
+		CreatorName:    userInfo.User.Nickname,
 		CreateTime:     util.UnixMilliTime(time.Now()),
 		UpdateTime:     util.UnixMilliTime(time.Now()),
 	}
 
 	// 保存聊天室信息
 	if err := ChatRoomRepo.Add(ctx, chatRoom); err != nil {
-		return nil, err
-	}
-
-	// 获取创建者信息
-	userInfo, err := rpc.GetBusinessIntClient().GetUser(ctx, &pb.GetUserReq{UserId: creatorId})
-	if err != nil {
 		return nil, err
 	}
 

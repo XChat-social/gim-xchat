@@ -2112,8 +2112,9 @@ type ChatRoom struct {
 	CreateTime     int64                  `protobuf:"varint,9,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`               // 创建时间
 	UpdateTime     int64                  `protobuf:"varint,10,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`              // 更新时间
 	CreatorId      int64                  `protobuf:"varint,11,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`                 // 创建者ID
-	Level          int32                  `protobuf:"varint,12,opt,name=level,proto3" json:"level,omitempty"`                                          // 等级
-	RandomCount    float32                `protobuf:"fixed32,13,opt,name=random_count,json=randomCount,proto3" json:"random_count,omitempty"`          // 随机数
+	CreatorName    string                 `protobuf:"bytes,12,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"`            // 昵称
+	Level          int32                  `protobuf:"varint,13,opt,name=level,proto3" json:"level,omitempty"`                                          // 等级
+	RandomCount    float32                `protobuf:"fixed32,14,opt,name=random_count,json=randomCount,proto3" json:"random_count,omitempty"`          // 随机数
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2223,6 +2224,13 @@ func (x *ChatRoom) GetCreatorId() int64 {
 		return x.CreatorId
 	}
 	return 0
+}
+
+func (x *ChatRoom) GetCreatorName() string {
+	if x != nil {
+		return x.CreatorName
+	}
+	return ""
 }
 
 func (x *ChatRoom) GetLevel() int32 {
@@ -3424,7 +3432,7 @@ const file_logic_ext_proto_rawDesc = "" +
 	"pageNumber\"L\n" +
 	"\x10GetChatRoomsResp\x12\"\n" +
 	"\x05rooms\x18\x01 \x03(\v2\f.pb.ChatRoomR\x05rooms\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x9a\x03\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\xbd\x03\n" +
 	"\bChatRoom\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -3441,9 +3449,10 @@ const file_logic_ext_proto_rawDesc = "" +
 	" \x01(\x03R\n" +
 	"updateTime\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\v \x01(\x03R\tcreatorId\x12\x14\n" +
-	"\x05level\x18\f \x01(\x05R\x05level\x12!\n" +
-	"\frandom_count\x18\r \x01(\x02R\vrandomCount\"\xca\x03\n" +
+	"creator_id\x18\v \x01(\x03R\tcreatorId\x12!\n" +
+	"\fcreator_name\x18\f \x01(\tR\vcreatorName\x12\x14\n" +
+	"\x05level\x18\r \x01(\x05R\x05level\x12!\n" +
+	"\frandom_count\x18\x0e \x01(\x02R\vrandomCount\"\xca\x03\n" +
 	"\x16ChatRoomAndUnreadCount\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +

@@ -86,7 +86,8 @@ func (r *chatRoomRepo) List(ctx context.Context, offset, limit int32) ([]*pb.Cha
 			Extra:          room.Extra,
 			CreateTime:     room.CreateTime.Unix(),
 			UpdateTime:     room.UpdateTime.Unix(),
-			CreatorId:      room.CreatorId, // 添加
+			CreatorId:      room.CreatorId,   // 添加
+			CreatorName:    room.CreatorName, // 添加
 			Level:          calculateRoomLevel(room.MemberCount),
 			RandomCount:    float32(room.RandomCount),
 		})
