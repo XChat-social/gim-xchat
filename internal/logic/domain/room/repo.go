@@ -31,6 +31,7 @@ func (r *chatRoomRepo) Add(ctx context.Context, chatRoom *pb.ChatRoom) error {
 		AvatarURL:      chatRoom.AvatarUrl,
 		Introduction:   chatRoom.Introduction,
 		CreatorId:      chatRoom.CreatorId,
+		CreatorName:    chatRoom.CreatorName,
 		OnlineCount:    chatRoom.OnlineCount,
 		MemberCount:    chatRoom.MemberCount,
 		MaxMemberCount: chatRoom.MaxMemberCount,
