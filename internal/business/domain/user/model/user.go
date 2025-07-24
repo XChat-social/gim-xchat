@@ -13,7 +13,7 @@ type User struct {
 	Sex             int32     // 性别，1:男；2:女
 	AvatarUrl       string    // 用户头像
 	Extra           string    // 附加属性
-	Xpoint          int32     // 用户当前积分
+	Xpoint          float64   // 用户当前积分
 	CreateTime      time.Time // 创建时间
 	UpdateTime      time.Time // 更新时间
 	TwitterID       string    // 推特ID

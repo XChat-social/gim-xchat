@@ -461,7 +461,7 @@ type User struct {
 	UpdateTime      int64                  `protobuf:"varint,7,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`               // 更新时间
 	TwitterId       string                 `protobuf:"bytes,8,opt,name=twitter_id,json=twitterId,proto3" json:"twitter_id,omitempty"`                   // 推特id
 	TwitterUsername string                 `protobuf:"bytes,9,opt,name=twitter_username,json=twitterUsername,proto3" json:"twitter_username,omitempty"` // 推特用户名
-	Xpoint          int32                  `protobuf:"varint,10,opt,name=xpoint,proto3" json:"xpoint,omitempty"`                                        // 用户当前积分
+	Xpoint          float64                `protobuf:"fixed64,10,opt,name=xpoint,proto3" json:"xpoint,omitempty"`                                       // 用户当前积分
 	FollowReward    int32                  `protobuf:"varint,11,opt,name=follow_reward,json=followReward,proto3" json:"follow_reward,omitempty"`        // Twitter关注奖励状态: 0未领取, 1已领取
 	InviteCode      string                 `protobuf:"bytes,12,opt,name=invite_code,json=inviteCode,proto3" json:"invite_code,omitempty"`               // 邀请码
 	InviterCode     string                 `protobuf:"bytes,13,opt,name=inviter_code,json=inviterCode,proto3" json:"inviter_code,omitempty"`            // 邀请人邀请码
@@ -563,7 +563,7 @@ func (x *User) GetTwitterUsername() string {
 	return ""
 }
 
-func (x *User) GetXpoint() int32 {
+func (x *User) GetXpoint() float64 {
 	if x != nil {
 		return x.Xpoint
 	}
@@ -2064,7 +2064,7 @@ const file_business_ext_proto_rawDesc = "" +
 	"twitter_id\x18\b \x01(\tR\ttwitterId\x12)\n" +
 	"\x10twitter_username\x18\t \x01(\tR\x0ftwitterUsername\x12\x16\n" +
 	"\x06xpoint\x18\n" +
-	" \x01(\x05R\x06xpoint\x12#\n" +
+	" \x01(\x01R\x06xpoint\x12#\n" +
 	"\rfollow_reward\x18\v \x01(\x05R\ffollowReward\x12\x1f\n" +
 	"\vinvite_code\x18\f \x01(\tR\n" +
 	"inviteCode\x12!\n" +
