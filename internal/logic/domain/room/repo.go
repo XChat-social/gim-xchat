@@ -8,6 +8,7 @@ import (
 	"gim/pkg/gerrors"
 	"gim/pkg/logger"
 	"gim/pkg/protocol/pb"
+	"gim/pkg/rpc"
 	"gim/pkg/util"
 	"time"
 
@@ -146,6 +147,25 @@ func (r *chatRoomMessageRepo) List(ctx context.Context, roomId int64, offset, li
 		return nil, gerrors.WrapError(err)
 	}
 
+	// 提取所有消息的用户ID
+	userIds := make(map[int64]int32)
+	for _, msg := range dbMessages {
+		userIds[int64(msg.UserID)] = 0 // 假设消息结构中SenderId字段表示发送者ID
+	}
+
+	// 获取所有用户信息并转换为map
+	usersResp, err := rpc.GetBusinessIntClient().GetUsers(ctx, &pb.GetUsersReq{
+		UserIds: userIds,
+	})
+	if err != nil {
+		return nil, err
+	}
+	userMap := make(map[int64]*pb.User)
+	for userId, user := range usersResp.Users {
+		userMap[userId] = user
+	}
+
+	logger.Sugar.Info("users: %v", userMap)
 	// 转换为 proto 消息列表
 	messages := make([]*pb.ChatRoomMessage, 0, len(dbMessages))
 	for i := len(dbMessages) - 1; i >= 0; i-- {
@@ -162,6 +182,7 @@ func (r *chatRoomMessageRepo) List(ctx context.Context, roomId int64, offset, li
 			Seq:          int64(msg.Seq),
 			SendTime:     msg.SendTime.Unix(),
 			Status:       int32(msg.Status),
+			AvatarUrl:    userMap[int64(msg.UserID)].AvatarUrl, // 头像地址
 		})
 	}
 	return messages, nil

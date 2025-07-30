@@ -2864,6 +2864,7 @@ type ChatRoomMessage struct {
 	Seq           int64                  `protobuf:"varint,9,opt,name=seq,proto3" json:"seq,omitempty"`                                       // 消息序列号
 	SendTime      int64                  `protobuf:"varint,10,opt,name=send_time,json=sendTime,proto3" json:"send_time,omitempty"`            // 发送时间
 	Status        int32                  `protobuf:"varint,11,opt,name=status,proto3" json:"status,omitempty"`                                // 消息状态
+	AvatarUrl     string                 `protobuf:"bytes,12,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`          // 头像地址
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2973,6 +2974,13 @@ func (x *ChatRoomMessage) GetStatus() int32 {
 		return x.Status
 	}
 	return 0
+}
+
+func (x *ChatRoomMessage) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
+	}
+	return ""
 }
 
 type GetChatRoomMessagesReq struct {
@@ -3504,7 +3512,7 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\tsender_id\x18\x01 \x01(\x03R\bsenderId\x12\x1f\n" +
 	"\vsender_name\x18\x02 \x01(\tR\n" +
 	"senderName\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\fR\acontent\"\xab\x02\n" +
+	"\acontent\x18\x03 \x01(\fR\acontent\"\xca\x02\n" +
 	"\x0fChatRoomMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\x03R\x06roomId\x12\x17\n" +
@@ -3519,7 +3527,9 @@ const file_logic_ext_proto_rawDesc = "" +
 	"\x03seq\x18\t \x01(\x03R\x03seq\x12\x1b\n" +
 	"\tsend_time\x18\n" +
 	" \x01(\x03R\bsendTime\x12\x16\n" +
-	"\x06status\x18\v \x01(\x05R\x06status\"o\n" +
+	"\x06status\x18\v \x01(\x05R\x06status\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\f \x01(\tR\tavatarUrl\"o\n" +
 	"\x16GetChatRoomMessagesReq\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\x03R\x06roomId\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1f\n" +
