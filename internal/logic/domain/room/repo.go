@@ -662,6 +662,7 @@ func updateRedisSum(messageUserId int64, xPoint float32) error {
 	if err != nil {
 		return err
 	}
+	logger.Sugar.Info("transSum: %f", transSum)
 	// 累加
 	err = setWithMidnightExpire(sumKey, float32(transSum)+xPoint)
 	if err != nil {
@@ -745,6 +746,6 @@ func setWithMidnightExpire(key string, value float32) error {
 	if expireIn < 0 {
 		expireIn = 0 // 立即过期
 	}
-
+	logger.Sugar.Info("value: %f", value)
 	return db.RedisCli.Set(key, value, expireIn).Err()
 }
