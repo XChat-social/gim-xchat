@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"gim/internal/api/middleware"
 	"gim/internal/api/models"
@@ -11,6 +12,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -39,6 +41,7 @@ const (
 	TaskSevenDaySignIn  = 1002 // 签到七天
 	TaskFollowTwitter   = 1003 // 关注推特
 	taskStatusKeyPrefix = "task_status"
+	TaskDailySum        = 1005
 )
 
 // 任务状态常量
@@ -350,6 +353,32 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 		"xpoint": gorm.Expr("xpoint + ?", rewardAmount),
 	}
 
+	// 构造任务统计 Redis Key
+	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySum)
+	// 查询当前用户是否已存在每日统计
+	dailySum, err := db.RedisCli.Get(sumKey).Result()
+	if errors.Is(err, redis.Nil) {
+		logger.Sugar.Info("daily not found")
+		err = setWithMidnightExpire(sumKey, uint64(rewardAmount))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum"})
+			return
+		}
+	} else if !errors.Is(err, redis.Nil) {
+		transSum, err := strconv.ParseUint(dailySum, 10, 64)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum trans"})
+			return
+		}
+		// 累加
+		err = setWithMidnightExpire(sumKey, transSum+uint64(rewardAmount))
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get task dailySum"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get task dailySum"})
+		return
+	}
+
 	// 如果是关注推特任务，更新关注奖励状态
 	if taskID == TaskFollowTwitter {
 		updateFields["follow_reward"] = 1
@@ -624,6 +653,42 @@ func (h *TaskHandler) checkSevenDaySignIn(userId int64) (bool, error) {
 		}
 	}
 	return true, nil
+}
+
+func (h *TaskHandler) GetDailySum(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Unauthorized"})
+		return
+	}
+
+	// 构造任务统计 Redis Key
+	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySum)
+	// 查询当前用户是否已存在每日统计
+	dailySum, err := db.RedisCli.Get(sumKey).Result()
+	if errors.Is(err, redis.Nil) {
+		logger.Sugar.Info("daily not found")
+		c.JSON(http.StatusOK, gin.H{
+			"code":    200,
+			"message": "Success",
+			"data": gin.H{
+				"daily_sum": 0,
+			},
+		})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get task dailySum"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "成功获取键值",
+		"data": gin.H{
+			"daily_sum": dailySum,
+		},
+	})
 }
 
 // setWithMidnightExpire 设置24点过期的键值对

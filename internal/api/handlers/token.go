@@ -293,6 +293,13 @@ func (h *TokenHandler) BuyToken(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to add chatroom"})
 			return
 		}
+		// 房间成员数量自增1
+		if err := tx.Exec("UPDATE chat_room SET member_count = ? WHERE room_id = ?", chatRoom.MemberCount+1, chatRoom.RoomID).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to update chatroom info"})
+			return
+		}
+
 	} else if result.Error != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to query holding record"})
@@ -413,6 +420,12 @@ func (h *TokenHandler) SellToken(c *gin.Context) {
 		if err := tx.Model(&models.ChatRoomMember{}).Where("user_id = ? AND room_id = ?", userID, chatRoom.RoomID).UpdateColumn("status", 2).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to delete holding record"})
+			return
+		}
+		// 房间成员数量自增1
+		if err := tx.Exec("UPDATE chat_room SET member_count = ? WHERE room_id = ?", chatRoom.MemberCount-1, chatRoom.RoomID).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to update chatroom info"})
 			return
 		}
 	}
