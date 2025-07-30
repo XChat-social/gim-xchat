@@ -606,7 +606,7 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 		}
 
 		// 增加redis值
-		err := updateRedisSum(messageUserId, float32(xPoint))
+		err := updateRedisSum(messageUserId, xPoint)
 		if err != nil {
 			return err
 		}
@@ -628,7 +628,7 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 		}
 
 		// 减少redis值
-		err := updateRedisSum(messageUserId, float32(-xPoint))
+		err := updateRedisSum(messageUserId, -xPoint)
 		if err != nil {
 			return err
 		}
@@ -642,7 +642,7 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 	return nil
 }
 
-func updateRedisSum(messageUserId int64, xPoint float32) error {
+func updateRedisSum(messageUserId int64, xPoint float64) error {
 	// 构造任务统计 Redis Key
 	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, messageUserId, TaskDailySum)
 	// 查询当前用户是否已存在每日统计
@@ -658,13 +658,13 @@ func updateRedisSum(messageUserId int64, xPoint float32) error {
 		return err
 	}
 
-	transSum, err := strconv.ParseFloat(dailySum, 32)
+	transSum, err := strconv.ParseFloat(dailySum, 64)
 	if err != nil {
 		return err
 	}
 	logger.Sugar.Info("transSum: %f", transSum)
 	// 累加
-	err = setWithMidnightExpire(sumKey, float32(transSum)+xPoint)
+	err = setWithMidnightExpire(sumKey, transSum+xPoint)
 	if err != nil {
 		return err
 	}
@@ -726,7 +726,7 @@ func updateChatMemberStatus(memberId uint) error {
 	return db.DB.Model(&models.ChatRoomMember{}).Where("id = ?", memberId).UpdateColumn("status", 1).Error
 }
 
-func setWithMidnightExpire(key string, value float32) error {
+func setWithMidnightExpire(key string, value float64) error {
 	now := time.Now()
 	loc := now.Location()
 
