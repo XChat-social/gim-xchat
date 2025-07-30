@@ -3,6 +3,7 @@ package room
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gim/internal/api/models"
 	"gim/pkg/db"
 	"gim/pkg/gerrors"
@@ -10,6 +11,8 @@ import (
 	"gim/pkg/protocol/pb"
 	"gim/pkg/rpc"
 	"gim/pkg/util"
+	"github.com/go-redis/redis"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
@@ -22,6 +25,14 @@ var ChatRoomRepo = new(chatRoomRepo)
 type chatRoomMemberRepo struct{}
 
 var ChatRoomMemberRepo = new(chatRoomMemberRepo)
+
+const (
+	TaskDailySignIn     = 1001 // 每日签到
+	TaskSevenDaySignIn  = 1002 // 签到七天
+	TaskFollowTwitter   = 1003 // 关注推特
+	taskStatusKeyPrefix = "task_status"
+	TaskDailySum        = 1005
+)
 
 // Add 添加聊天室
 func (r *chatRoomRepo) Add(ctx context.Context, chatRoom *pb.ChatRoom) error {
@@ -587,12 +598,19 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 	}
 	point := xPointInfo.XPoint
 
-	// 更新当前人的积分
+	// 更新当前人的积分【like时新增，dislike时减少】
 	if isLike {
 		if err := tx.Model(&models.User{}).Where("id = ?", messageUserId).Update("xpoint", xPoint+point).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
+
+		// 增加redis值
+		err := updateRedisSum(messageUserId, int64(point))
+		if err != nil {
+			return err
+		}
+
 	} else {
 		if point-xPoint > 0 {
 			if point >= xPoint {
@@ -608,6 +626,12 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 				return err
 			}
 		}
+
+		// 减少redis值
+		err := updateRedisSum(messageUserId, int64(-point))
+		if err != nil {
+			return err
+		}
 	}
 
 	// 提交事务
@@ -615,6 +639,34 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 		return err
 	}
 
+	return nil
+}
+
+func updateRedisSum(messageUserId int64, xPoint int64) error {
+	// 构造任务统计 Redis Key
+	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, messageUserId, TaskDailySum)
+	// 查询当前用户是否已存在每日统计
+	dailySum, err := db.RedisCli.Get(sumKey).Result()
+	if errors.Is(err, redis.Nil) {
+		logger.Sugar.Info("daily not found")
+		err = setWithMidnightExpire(sumKey, xPoint)
+		if err != nil {
+			return err
+		}
+		return nil
+	} else if err != nil {
+		return err
+	}
+
+	transSum, err := strconv.ParseInt(dailySum, 10, 64)
+	if err != nil {
+		return err
+	}
+	// 累加
+	err = setWithMidnightExpire(sumKey, transSum+xPoint)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -671,4 +723,28 @@ func checkCreator(roomId int64, userId int64) (models.ChatRoom, error) {
 // 更新聊天室状态
 func updateChatMemberStatus(memberId uint) error {
 	return db.DB.Model(&models.ChatRoomMember{}).Where("id = ?", memberId).UpdateColumn("status", 1).Error
+}
+
+func setWithMidnightExpire(key string, value int64) error {
+	now := time.Now()
+	loc := now.Location()
+
+	// 计算次日00:00
+	tomorrow := now.AddDate(0, 0, 1)
+	endOfDay := time.Date(
+		tomorrow.Year(),
+		tomorrow.Month(),
+		tomorrow.Day(),
+		0, 0, 0, 0, loc,
+	)
+
+	// 计算时间差
+	expireIn := endOfDay.Sub(now)
+
+	// 处理时间穿越情况
+	if expireIn < 0 {
+		expireIn = 0 // 立即过期
+	}
+
+	return db.RedisCli.Set(key, value, expireIn).Err()
 }

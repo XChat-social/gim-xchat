@@ -364,18 +364,20 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum"})
 			return
 		}
-	} else if !errors.Is(err, redis.Nil) {
-		transSum, err := strconv.ParseUint(dailySum, 10, 64)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum trans"})
-			return
-		}
-		// 累加
-		err = setWithMidnightExpire(sumKey, transSum+uint64(rewardAmount))
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get task dailySum"})
-		return
 	} else if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get task dailySum"})
+		return
+	}
+
+	transSum, err := strconv.ParseUint(dailySum, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum trans"})
+		return
+	}
+	// 累加
+	err = setWithMidnightExpire(sumKey, transSum+uint64(rewardAmount))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum"})
 		return
 	}
 
