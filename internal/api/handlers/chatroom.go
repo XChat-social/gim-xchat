@@ -126,12 +126,14 @@ func (h *ChatRoomHandler) GetChatRoomMessages(c *gin.Context) {
 			"id":            msg.Id,
 			"room_id":       msg.RoomId,
 			"user_id":       msg.UserId,
+			"user_name":     msg.UserName,
 			"content":       string(msg.Content),
 			"seq":           msg.Seq,
 			"send_time":     msg.SendTime,
 			"status":        msg.Status,
 			"like_count":    msg.LikeCount,
 			"dislike_count": msg.DislikeCount,
+			"avatar_url":    msg.AvatarUrl,
 		})
 	}
 

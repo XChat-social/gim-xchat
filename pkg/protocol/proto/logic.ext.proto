@@ -357,6 +357,7 @@ message ChatRoomMessage {
     int64 send_time = 10;   // 发送时间
     int32 status = 11;      // 消息状态
     string avatar_url = 12; // 头像地址
+    string user_name = 13;
 }
 
 message GetChatRoomMessagesReq {

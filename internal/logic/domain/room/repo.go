@@ -183,6 +183,7 @@ func (r *chatRoomMessageRepo) List(ctx context.Context, roomId int64, offset, li
 			SendTime:     msg.SendTime.Unix(),
 			Status:       int32(msg.Status),
 			AvatarUrl:    userMap[int64(msg.UserID)].AvatarUrl, // 头像地址
+			UserName:     userMap[int64(msg.UserID)].Nickname,
 		})
 	}
 	return messages, nil
