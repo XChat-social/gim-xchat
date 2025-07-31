@@ -719,5 +719,5 @@ func setWithMidnightExpire(key string, value decimal.Decimal) error {
 		expireIn = 0 // 立即过期
 	}
 
-	return db.RedisCli.Set(key, value, expireIn).Err()
+	return db.RedisCli.Set(key, value.String(), expireIn).Err()
 }
