@@ -12,7 +12,7 @@ import (
 	"gim/pkg/rpc"
 	"gim/pkg/util"
 	"github.com/go-redis/redis"
-	"strconv"
+	"github.com/shopspring/decimal"
 	"time"
 
 	"gorm.io/gorm"
@@ -646,10 +646,14 @@ func updateRedisSum(messageUserId int64, xPoint float64) error {
 	// 构造任务统计 Redis Key
 	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, messageUserId, TaskDailySum)
 	// 查询当前用户是否已存在每日统计
-	dailySum, err := db.RedisCli.Get(sumKey).Result()
+	redisRes, err := db.RedisCli.Get(sumKey).Result()
+
+	// string 转 decimal
+	changePoint := decimal.NewFromFloat(xPoint)
+
 	if errors.Is(err, redis.Nil) {
 		logger.Sugar.Info("daily not found")
-		err = setWithMidnightExpire(sumKey, xPoint)
+		err = setWithMidnightExpire(sumKey, changePoint.Round(2))
 		if err != nil {
 			return err
 		}
@@ -658,13 +662,13 @@ func updateRedisSum(messageUserId int64, xPoint float64) error {
 		return err
 	}
 
-	transSum, err := strconv.ParseFloat(dailySum, 64)
+	dailySum, err := decimal.NewFromString(redisRes)
 	if err != nil {
 		return err
 	}
-	logger.Sugar.Info("transSum: %f", transSum)
+	logger.Sugar.Info("dailySum: %f", dailySum)
 	// 累加
-	err = setWithMidnightExpire(sumKey, transSum+xPoint)
+	err = setWithMidnightExpire(sumKey, dailySum.Add(changePoint).Round(2))
 	if err != nil {
 		return err
 	}
@@ -726,7 +730,7 @@ func updateChatMemberStatus(memberId uint) error {
 	return db.DB.Model(&models.ChatRoomMember{}).Where("id = ?", memberId).UpdateColumn("status", 1).Error
 }
 
-func setWithMidnightExpire(key string, value float64) error {
+func setWithMidnightExpire(key string, value decimal.Decimal) error {
 	now := time.Now()
 	loc := now.Location()
 
