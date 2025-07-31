@@ -307,7 +307,7 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 	switch req.TaskType {
 	case "daily_signin":
 		taskID = TaskDailySignIn
-		rewardAmount = 10
+		rewardAmount = 1
 	case "seven_day_signin":
 		taskID = TaskSevenDaySignIn
 		rewardAmount = int64(h.calculateRandomReward())
