@@ -697,6 +697,23 @@ func (h *TaskHandler) GetDailySum(c *gin.Context) {
 	})
 }
 
+func (h *TaskHandler) DeleteKey(c *gin.Context) {
+	key := c.Query("key")
+	if key == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "key code is required"})
+		return
+	}
+	err := db.RedisCli.Del(key).Err()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to delete key"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Success",
+	})
+}
+
 // setWithMidnightExpire 设置24点过期的键值对
 func setWithMidnightExpire(key string, value decimal.Decimal) error {
 	now := time.Now()
