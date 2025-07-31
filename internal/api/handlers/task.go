@@ -687,6 +687,7 @@ func (h *TaskHandler) GetDailySum(c *gin.Context) {
 		return
 	}
 
+	logger.Sugar.Info("dailySum: ", dailySum)
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"message": "成功获取键值",
