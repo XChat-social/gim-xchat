@@ -9,7 +9,6 @@ import (
 	"gim/internal/api/models"
 	"gim/pkg/db"
 	"gim/pkg/logger"
-	"github.com/shopspring/decimal"
 	"log"
 	"math/rand"
 	"net/http"
@@ -95,8 +94,8 @@ func (h *TaskHandler) DailySignIn(c *gin.Context) {
 	taskKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySignIn)
 
 	// 将每日签到任务状态设置为待领取 (3)
-	fromInt := decimal.NewFromInt(TaskStatusClaimed)
-	err = setWithMidnightExpire(taskKey, fromInt)
+	//fromInt := decimal.NewFromInt(TaskStatusClaimed)
+	err = setWithMidnightExpire(taskKey, TaskStatusClaimed)
 	//err = db.RedisCli.Set(taskKey, TaskStatusClaimed, 24*time.Hour).Err() // 设置过期时间为 1 天
 	if err != nil {
 		// 如果任务状态更新失败，手动回滚 Redis
@@ -353,35 +352,35 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 	var updateFields map[string]interface{} = map[string]interface{}{
 		"xpoint": gorm.Expr("xpoint + ?", rewardAmount),
 	}
-
-	// 构造任务统计 Redis Key
-	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySum)
-	// 查询当前用户是否已存在每日统计
-	changePoint := decimal.NewFromInt(rewardAmount)
-	dailySum, err := db.RedisCli.Get(sumKey).Result()
-	if errors.Is(err, redis.Nil) {
-		logger.Sugar.Info("daily not found")
-		err = setWithMidnightExpire(sumKey, changePoint.Round(2))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum"})
-			return
-		}
-	} else if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get task dailySum"})
-		return
-	}
-
-	transSum, err := decimal.NewFromString(dailySum)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum trans"})
-		return
-	}
-	// 累加
-	err = setWithMidnightExpire(sumKey, transSum.Add(changePoint).Round(2))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum"})
-		return
-	}
+	//
+	//// 构造任务统计 Redis Key
+	//sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySum)
+	//// 查询当前用户是否已存在每日统计
+	//changePoint := decimal.NewFromInt(rewardAmount)
+	//dailySum, err := db.RedisCli.Get(sumKey).Result()
+	//if errors.Is(err, redis.Nil) {
+	//	logger.Sugar.Info("daily not found")
+	//	err = setWithMidnightExpire(sumKey, changePoint.Round(2))
+	//	if err != nil {
+	//		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum"})
+	//		return
+	//	}
+	//} else if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to get task dailySum"})
+	//	return
+	//}
+	//
+	//transSum, err := decimal.NewFromString(dailySum)
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum trans"})
+	//	return
+	//}
+	//// 累加
+	//err = setWithMidnightExpire(sumKey, transSum.Add(changePoint).Round(2))
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Failed to set task dailySum"})
+	//	return
+	//}
 
 	// 如果是关注推特任务，更新关注奖励状态
 	if taskID == TaskFollowTwitter {
@@ -428,8 +427,8 @@ func (h *TaskHandler) ClaimTaskReward(c *gin.Context) {
 
 	// 更新任务状态为已领取
 	if taskID == TaskDailySignIn || taskID == TaskSevenDaySignIn {
-		fromInt := decimal.NewFromInt(TaskStatusExpired)
-		err = setWithMidnightExpire(key, fromInt)
+		//fromInt := decimal.NewFromInt(TaskStatusExpired)
+		err = setWithMidnightExpire(key, TaskStatusExpired)
 	} else {
 		err = db.RedisCli.Set(key, TaskStatusExpired, 0).Err()
 	}
@@ -668,8 +667,15 @@ func (h *TaskHandler) GetDailySum(c *gin.Context) {
 		return
 	}
 
+	// 获取房间 ID
+	roomId := c.Query("roomId")
+	if roomId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Task roomId is required"})
+		return
+	}
+
 	// 构造任务统计 Redis Key
-	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TaskDailySum)
+	sumKey := fmt.Sprintf("%s:%d:%d:%d", taskStatusKeyPrefix, userID, roomId, TaskDailySum)
 	// 查询当前用户是否已存在每日统计
 	dailySum, err := db.RedisCli.Get(sumKey).Result()
 	if errors.Is(err, redis.Nil) {
@@ -715,7 +721,7 @@ func (h *TaskHandler) DeleteKey(c *gin.Context) {
 }
 
 // setWithMidnightExpire 设置24点过期的键值对
-func setWithMidnightExpire(key string, value decimal.Decimal) error {
+func setWithMidnightExpire(key string, value uint64) error {
 	now := time.Now()
 	loc := now.Location()
 
@@ -736,5 +742,5 @@ func setWithMidnightExpire(key string, value decimal.Decimal) error {
 		expireIn = 0 // 立即过期
 	}
 
-	return db.RedisCli.Set(key, value.String(), expireIn).Err()
+	return db.RedisCli.Set(key, value, expireIn).Err()
 }

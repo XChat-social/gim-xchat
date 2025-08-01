@@ -606,7 +606,7 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 		}
 
 		// 增加redis值
-		err := updateRedisSum(messageUserId, xPoint)
+		err := updateRedisSum(messageUserId, roomId, xPoint)
 		if err != nil {
 			return err
 		}
@@ -628,7 +628,7 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 		}
 
 		// 减少redis值
-		err := updateRedisSum(messageUserId, -xPoint)
+		err := updateRedisSum(messageUserId, roomId, -xPoint)
 		if err != nil {
 			return err
 		}
@@ -642,9 +642,9 @@ func (r *chatRoomRepo) ThumbAndXpoint(userId int64, messageId int64, isLike bool
 	return nil
 }
 
-func updateRedisSum(messageUserId int64, xPoint float64) error {
+func updateRedisSum(messageUserId int64, roomId int64, xPoint float64) error {
 	// 构造任务统计 Redis Key
-	sumKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, messageUserId, TaskDailySum)
+	sumKey := fmt.Sprintf("%s:%d:%d:%d", taskStatusKeyPrefix, messageUserId, roomId, TaskDailySum)
 	// 查询当前用户是否已存在每日统计
 	redisRes, err := db.RedisCli.Get(sumKey).Result()
 
