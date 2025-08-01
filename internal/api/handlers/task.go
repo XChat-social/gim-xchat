@@ -675,7 +675,7 @@ func (h *TaskHandler) GetDailySum(c *gin.Context) {
 	}
 
 	// 构造任务统计 Redis Key
-	sumKey := fmt.Sprintf("%s:%d:%d:%d", taskStatusKeyPrefix, userID, roomId, TaskDailySum)
+	sumKey := fmt.Sprintf("%s:%d:%s:%d", taskStatusKeyPrefix, userID, roomId, TaskDailySum)
 	// 查询当前用户是否已存在每日统计
 	dailySum, err := db.RedisCli.Get(sumKey).Result()
 	if errors.Is(err, redis.Nil) {
