@@ -29,6 +29,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		// 用户相关接口
 		api.POST("/sign-in", userHandler.SignIn)
 		api.GET("/users/:userId", userHandler.GetUser)
+		api.GET("/users/xpoint/:userId", userHandler.GetUserXpoint)
 		api.PUT("/users", middleware.Auth(rdb), userHandler.UpdateUser)
 		api.GET("/users/search", userHandler.SearchUser)
 		api.POST("/users/upload-avatar", middleware.Auth(rdb), tokenHandler.UploadTokenIcon)

@@ -70,6 +70,29 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 	})
 }
 
+// GetUserXpoint 获取用户信息
+func (h *UserHandler) GetUserXpoint(c *gin.Context) {
+	userIDStr := c.Param("userId")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Invalid user ID format"})
+		return
+	}
+
+	var user models.User
+	result := h.DB.First(&user, userID)
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "User not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Success",
+		"xpoint":  user.XPoint,
+	})
+}
+
 // UpdateUser 更新用户信息
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	var req struct {
