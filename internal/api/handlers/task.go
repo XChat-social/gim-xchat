@@ -42,6 +42,7 @@ const (
 	TaskFollowTwitter   = 1003 // 关注推特
 	taskStatusKeyPrefix = "task_status"
 	TaskDailySum        = 1005
+	TestCode            = 1006
 )
 
 // 任务状态常量
@@ -825,7 +826,7 @@ func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
 	}
 
 	// 更新值并刷新过期时间
-	codeKey := fmt.Sprintf("%s:%d", req.Code, userID)
+	codeKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, TestCode)
 	if err := db.RedisCli.Set(codeKey, "1", 2592000*time.Second).Err(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
