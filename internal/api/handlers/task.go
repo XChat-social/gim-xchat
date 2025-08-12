@@ -12,7 +12,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -826,7 +825,8 @@ func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
 	}
 
 	// 更新值并刷新过期时间
-	if err := db.RedisCli.Set(req.Code, strconv.FormatInt(userID, 10), 2592000*time.Second).Err(); err != nil {
+	codeKey := fmt.Sprintf("%s:%d", req.Code, userID)
+	if err := db.RedisCli.Set(codeKey, "1", 2592000*time.Second).Err(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
 			"message": "Failed to update beta code",
