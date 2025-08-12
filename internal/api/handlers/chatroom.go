@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"time"
 
@@ -201,7 +202,6 @@ func (h *ChatRoomHandler) GetChatRooms(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	//
 
 	c.JSON(http.StatusOK, resp)
 }
@@ -424,5 +424,37 @@ func (h *ChatRoomHandler) ThumbMessage(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"message": "Success",
+	})
+}
+
+func (h *ChatRoomHandler) GetChatRoomsByParticipants(c *gin.Context) {
+	var req pb.GetChatRoomsReq
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 设置默认值
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+	if req.PageNumber <= 0 {
+		req.PageNumber = 1
+	}
+
+	resp, err := rpc.GetLogicExtClient().GetChatRooms(c, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	// 按成员数量降序排序
+	sort.Slice(resp.Rooms, func(i, j int) bool {
+		return resp.Rooms[i].MemberCount > resp.Rooms[j].MemberCount
+	})
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "Success",
+		"data":    resp,
 	})
 }

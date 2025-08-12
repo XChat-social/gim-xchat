@@ -12,6 +12,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -717,6 +718,119 @@ func (h *TaskHandler) DeleteKey(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"message": "Success",
+	})
+}
+
+// GenBetaCode 生成内测码
+func (h *TaskHandler) GenBetaCode(c *gin.Context) {
+	// 从JWT中获取用户ID（管理员认证）
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Unauthorized"})
+		return
+	}
+
+	// 解析请求参数
+	var req struct {
+		Count int `json:"count" binding:"required,min=1,max=1000"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "Invalid parameters"})
+		return
+	}
+
+	// 生成内测码
+	betaCodes := make([]string, 0, req.Count)
+	for i := 0; i < req.Count; i++ {
+		code := "xchat-" + randomString(6)
+		// 存储到Redis（带过期时间）
+		err := db.RedisCli.Set(code, userID, 30*24*time.Hour).Err()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    500,
+				"message": "Failed to store beta code",
+			})
+			return
+		}
+		betaCodes = append(betaCodes, code)
+	}
+
+	// 返回生成的内测码列表
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Beta codes generated successfully",
+		"codes":   betaCodes,
+	})
+}
+
+// RedeemBetaCode 核销内测码
+func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
+
+	// 解析请求参数
+	var req struct {
+		Code string `json:"code" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Invalid parameters",
+		})
+		return
+	}
+
+	// 验证内测码格式
+	if !strings.HasPrefix(req.Code, "xchat-") || len(req.Code) != 12 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Invalid beta code format",
+		})
+		return
+	}
+
+	// 检查内测码是否存在
+	if exists, err := db.RedisCli.Exists(req.Code).Result(); err != nil || exists == 0 {
+		if errors.Is(err, redis.Nil) || exists == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"code":    400,
+				"message": "Beta code does not exist",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Failed to check beta code",
+		})
+		return
+	}
+
+	// 验证操作权限（可选：检查是否属于该用户）
+	// if val != strconv.FormatInt(userID, 10) { ... }
+
+	// 删除内测码（原子操作）
+	delCnt, err := db.RedisCli.Del(req.Code).Result()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Failed to redeem beta code",
+		})
+		return
+	}
+
+	// 检查删除结果
+	if delCnt == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Beta code already redeemed",
+		})
+		return
+	}
+
+	// 返回成功响应
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Beta code redeemed successfully",
 	})
 }
 
