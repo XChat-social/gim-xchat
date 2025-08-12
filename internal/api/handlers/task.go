@@ -12,6 +12,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -766,6 +767,15 @@ func (h *TaskHandler) GenBetaCode(c *gin.Context) {
 
 // RedeemBetaCode 核销内测码
 func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
+	// 从JWT中获取用户ID（需要认证）
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    401,
+			"message": "Unauthorized",
+		})
+		return
+	}
 
 	// 解析请求参数
 	var req struct {
@@ -789,9 +799,10 @@ func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
 		return
 	}
 
-	// 检查内测码是否存在
-	if exists, err := db.RedisCli.Exists(req.Code).Result(); err != nil || exists == 0 {
-		if errors.Is(err, redis.Nil) || exists == 0 {
+	// 获取内测码值
+	value, err := db.RedisCli.Get(req.Code).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"code":    400,
 				"message": "Beta code does not exist",
@@ -805,27 +816,26 @@ func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
 		return
 	}
 
-	// 验证操作权限（可选：检查是否属于该用户）
-	// if val != strconv.FormatInt(userID, 10) { ... }
-
-	// 删除内测码（原子操作）
-	delCnt, err := db.RedisCli.Del(req.Code).Result()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "Failed to redeem beta code",
-		})
-		return
-	}
-
-	// 检查删除结果
-	if delCnt == 0 {
+	// 验证value值
+	if value != "67" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
-			"message": "Beta code already redeemed",
+			"message": "Invalid beta code value",
 		})
 		return
 	}
+
+	// 更新值并刷新过期时间
+	if err := db.RedisCli.Set(req.Code, strconv.FormatInt(userID, 10), 2592000*time.Second).Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Failed to update beta code",
+		})
+		return
+	}
+
+	// 验证操作权限（可选：检查是否属于该用户）
+	// if val != strconv.FormatInt(userID, 10) { ... }
 
 	// 返回成功响应
 	c.JSON(http.StatusOK, gin.H{
