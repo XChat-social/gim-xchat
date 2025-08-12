@@ -845,6 +845,39 @@ func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
 	})
 }
 
+// CheckUserAuth 检查用户授权状态
+func (h *TaskHandler) CheckUserAuth(c *gin.Context) {
+	// 从JWT中获取用户ID
+	userID, exists := middleware.GetUserID(c)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "Unauthorized"})
+		return
+	}
+
+	// 获取TestCode值
+	testCode := TestCode
+
+	// 构造Redis Key
+	codeKey := fmt.Sprintf("%s:%d:%d", taskStatusKeyPrefix, userID, testCode)
+
+	// 检查Redis中是否存在该Key
+	count, err := db.RedisCli.Exists(codeKey).Result()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Failed to check beta code existence",
+		})
+		return
+	}
+
+	// 返回检查结果
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Success",
+		"exists":  count > 0,
+	})
+}
+
 // setWithMidnightExpire 设置24点过期的键值对
 func setWithMidnightExpire(key string, value uint64) error {
 	now := time.Now()

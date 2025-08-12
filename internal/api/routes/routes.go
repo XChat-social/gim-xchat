@@ -56,6 +56,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		// 内测码相关接口
 		api.POST("/gen-beta-code", middleware.Auth(rdb), taskHandler.GenBetaCode)
 		api.POST("/redeem-beta-code", middleware.Auth(rdb), taskHandler.RedeemBetaCode)
+		api.POST("/checkUserAuth", middleware.Auth(rdb), handlers.CheckUserAuth)
 
 		// 钱包相关接口
 		api.POST("/wallet/sign-in", userHandler.WalletSignIn)
