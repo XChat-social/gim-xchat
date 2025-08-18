@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"gim/pkg/db"
+	"gim/pkg/logger"
 	"net/http"
 	"strconv"
 	"strings"
@@ -164,6 +165,7 @@ func CheckRedisAuth(c *gin.Context) {
 		return
 	}
 
+	logger.Sugar.Info("values:{}", values)
 	// 检查用户ID是否在列表中
 	found := false
 	for _, id := range values {
@@ -173,6 +175,7 @@ func CheckRedisAuth(c *gin.Context) {
 		}
 	}
 
+	logger.Sugar.Info("found:{}", found)
 	if !found {
 		c.JSON(30001, gin.H{"error": "user not in auth list"})
 		return
