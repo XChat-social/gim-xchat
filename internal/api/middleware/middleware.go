@@ -177,7 +177,7 @@ func CheckRedisAuth(c *gin.Context) {
 
 	logger.Sugar.Info("found:{}", found)
 	if !found {
-		c.JSON(30001, gin.H{"error": "user not in auth list"})
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": "user not in auth list"})
 		return
 	}
 }
