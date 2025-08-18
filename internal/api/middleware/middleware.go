@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gim/pkg/db"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -150,11 +151,7 @@ func CheckRedisAuth(c *gin.Context) {
 	}
 
 	// 转换为字符串类型（根据实际存储类型调整）
-	userIDStr, ok := userID.(string)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user id type"})
-		return
-	}
+	userIDStr := strconv.FormatInt(userID.(int64), 10)
 
 	// 获取列表数据
 	values, err := db.RedisCli.LRange(AuthListKey, 0, -1).Result()
