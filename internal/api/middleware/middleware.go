@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"gim/pkg/db"
 	"net/http"
 	"strings"
 	"time"
@@ -13,6 +14,10 @@ import (
 
 // JWTSecret JWT密钥
 const JWTSecret = "XChatSecret_2024_a7b9c3d5e8f2g4h6j8k0m1n3p5q7r9t2v4w6y8z0"
+
+const (
+	AuthListKey = "auth_list"
+)
 
 // UserClaims 用户JWT声明
 type UserClaims struct {
@@ -40,6 +45,9 @@ func CORS() gin.HandlerFunc {
 // Auth 认证中间件（完成版）
 func Auth(rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 校验权限
+		CheckRedisAuth(c)
+
 		// 从请求头获取 token
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
@@ -130,4 +138,45 @@ func InvalidateToken(rdb *redis.Client, tokenString string) error {
 		"1",
 		ttl,
 	).Err()
+}
+
+func CheckRedisAuth(c *gin.Context) {
+	// 从上下文中获取用户ID（假设已通过JWT中间件验证）
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	// 转换为字符串类型（根据实际存储类型调整）
+	userIDStr, ok := userID.(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid user id type"})
+		return
+	}
+
+	// 获取列表数据
+	values, err := db.RedisCli.LRange(AuthListKey, 0, -1).Result()
+	if err != nil {
+		return
+	}
+
+	// 新增：如果权限列表为空，跳过校验直接通过
+	if len(values) == 0 {
+		return
+	}
+
+	// 检查用户ID是否在列表中
+	found := false
+	for _, id := range values {
+		if id == userIDStr {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		c.JSON(30001, gin.H{"error": "user not in auth list"})
+		return
+	}
 }

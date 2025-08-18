@@ -45,6 +45,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB, rdb *redis.Client) {
 		api.GET("/task/status", middleware.Auth(rdb), taskHandler.GetTaskStatus)
 		api.GET("/task/dailySum", middleware.Auth(rdb), taskHandler.GetDailySum)
 		api.GET("/task/deleteKey", middleware.Auth(rdb), taskHandler.DeleteKey)
+		api.GET("/task/addAuthKey", middleware.Auth(rdb), taskHandler.AddAuthKey)
 		api.POST("/task/claim", middleware.Auth(rdb), taskHandler.ClaimTaskReward)
 		//api.GET("/task/seven-day-signin", middleware.Auth(rdb), taskHandler.CheckSevenDaySignIn)
 		api.POST("/task/follow-twitter", middleware.Auth(rdb), taskHandler.FollowTwitter)

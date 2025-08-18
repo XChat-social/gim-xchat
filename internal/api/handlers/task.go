@@ -53,6 +53,10 @@ const (
 	TaskStatusExpired    = 4 // 已领取
 )
 
+const (
+	AuthListKey = "auth_list"
+)
+
 // DailySignIn 每日签到
 func (h *TaskHandler) DailySignIn(c *gin.Context) {
 	// 从JWT中获取用户ID
@@ -876,6 +880,35 @@ func (h *TaskHandler) CheckUserAuth(c *gin.Context) {
 		"message": "Success",
 		"exists":  count > 0,
 	})
+}
+
+func (h *TaskHandler) AddAuthKey(c *gin.Context) {
+	// 定义请求结构体
+	type Request struct {
+		Values []string `json:"values" binding:"required"`
+	}
+
+	var req Request
+	// 参数绑定和验证
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 删除旧数据（可选）
+	if err := db.RedisCli.Del(AuthListKey).Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete old data"})
+		return
+	}
+
+	// 存储新数据
+	if err := db.RedisCli.RPush(AuthListKey, req.Values).Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to set redis list"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "success"})
+
 }
 
 // setWithMidnightExpire 设置24点过期的键值对
