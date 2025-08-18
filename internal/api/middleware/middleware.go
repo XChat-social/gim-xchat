@@ -45,8 +45,6 @@ func CORS() gin.HandlerFunc {
 // Auth 认证中间件（完成版）
 func Auth(rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 校验权限
-		CheckRedisAuth(c)
 
 		// 从请求头获取 token
 		authHeader := c.GetHeader("Authorization")
@@ -81,6 +79,9 @@ func Auth(rdb *redis.Client) gin.HandlerFunc {
 		c.Set("user_id", claims.UserID) // 改为 user_id
 		c.Set("device_id", 1)           // 设置一个默认的 device_id
 		c.Set("token", tokenString)     // 保存原始 token
+
+		// 校验权限
+		CheckRedisAuth(c)
 
 		c.Next()
 	}
