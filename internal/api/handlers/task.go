@@ -821,7 +821,7 @@ func (h *TaskHandler) RedeemBetaCode(c *gin.Context) {
 	}
 
 	// 验证value值
-	if value != "67" {
+	if value != "84" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
 			"message": "Invalid beta code value",
